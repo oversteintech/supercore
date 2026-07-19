@@ -64,26 +64,42 @@ consumer view; full enterprise stays in enterprise apps).
 ### Wireframe — Home (phone)
 
 ```
-┌─────────────────────────────┐
-│ After Hub          [AI] [🔔]│
-│ Good morning, …             │
-├─────────────────────────────┤
-│ Daily Briefing (AI)         │
-├───────────┬─────────────────┤
-│ Today     │ Upcoming        │
-├───────────┴─────────────────┤
-│ Unified Calendar (strip)    │
-├─────────────────────────────┤
-│ AI Insights                 │
-│ Cross-App Recommendations   │
-├─────────────────────────────┤
-│ Favorites / Quick Actions   │
-├─────────────────────────────┤
-│ Module widgets (Garage…)    │
-│ [editable grid]             │
-├─────────────────────────────┤
-│ Home │ Cal │ Apps │ AI │ ···│
-└─────────────────────────────┘
++-----------------------------+
+| After Hub          [AI] [N] |
+| Good morning, …             |
++-----------------------------+
+| Daily Briefing (AI)         |
++-------------+---------------+
+| Today       | Upcoming      |
++-------------+---------------+
+| Unified Calendar (strip)    |
++-----------------------------+
+| AI Insights                 |
+| Cross-App Recommendations   |
++-----------------------------+
+| Favorites / Quick Actions   |
++-----------------------------+
+| Module widgets (Garage…)    |
+| [editable grid]             |
++-----------------------------+
+| Home | Cal | Apps | AI | …  |
++-----------------------------+
+```
+
+### Wireframe — Tablet / web
+
+```
++----------------------------------------------------------+
+| After Hub                    [Search] [AI] [N] [Avatar]  |
++--------------------+-------------------------------------+
+| Daily Briefing     |  Widget mosaic (editable)           |
+| Today / Upcoming   |  [Garage] [Health] [Find] …         |
+| Calendar strip     |  federated Hub widgets              |
+| AI Insights        |                                     |
+| Quick Actions      |                                     |
++--------------------+-------------------------------------+
+| Home | Calendar | Apps | AI | More      | AI dock [>]   |
++----------------------------------------------------------+
 ```
 
 Tablet/web: two-column — briefing + calendar left; widget mosaic right; AI dock persistent.
@@ -232,3 +248,18 @@ not only SuperGarage. Platform page: `/platform/after-hub/`.
 - Full Flutter Hub implementation  
 - Real billing processors  
 - Replacing individual Super App store listings (Hub complements; apps remain installable modules)
+
+---
+
+## See also
+
+| Doc | Role |
+|-----|------|
+| [`adr/ADR-019-after-hub.md`](adr/ADR-019-after-hub.md) | Binding decision |
+| [`domains/AFTER_HUB_SHELL.md`](domains/AFTER_HUB_SHELL.md) | Ownership brief |
+| [`domains/SUPER_AI_DOMAIN.md`](domains/SUPER_AI_DOMAIN.md) | Hub AI / SuperAI branding |
+| [`DASHBOARD_ENGINE.md`](DASHBOARD_ENGINE.md) | Federated tiles |
+| [`PLUGIN_SYSTEM.md`](PLUGIN_SYSTEM.md) | `hub.*` plugin slots |
+| [`MODULE_REGISTRY.md`](MODULE_REGISTRY.md) | Inherited modules + Hub |
+| [`PRODUCT_FACTORY.md`](PRODUCT_FACTORY.md) | `spec.hub` + compliance |
+| [`catalog/products.yaml`](../catalog/products.yaml) | `AfterHub` / `SuperAI` entries |

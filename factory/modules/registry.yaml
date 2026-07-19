@@ -1,0 +1,364 @@
+# AfterArtificial shared-module registry — machine-readable.
+#
+# Every capability listed here is *inherited* by every Super App
+# generated from the factory. `product.spec.yaml` only carries the
+# vertical bits that these modules do not already provide.
+#
+# Field reference:
+#   id          — stable module identifier (referenced from product.spec)
+#   name        — human-readable module name
+#   package     — dart package that ships the port(s)
+#   line        — consumer | enterprise | shared
+#   status      — shipping | create | expand
+#   ports       — the primary Dart symbols verticals depend on
+#   description — one-line pitch
+
+version: 1
+
+modules:
+  # ---- Shared core (both lines) -------------------------------------
+  - id: core
+    name: Shared Core
+    package: after_core
+    line: shared
+    status: shipping
+    ports:
+      - AfterAuthRepository
+      - AfterAiCredentialVault
+      - AfterAnalytics
+      - AfterApiClient
+      - AfterDeepLinkService
+      - AfterFeatureFlags
+      - AfterLogger
+      - AfterLocalNotifications
+      - AfterRemotePush
+      - AfterPreferences
+      - AfterSecureStorage
+      - AfterSubscriptionVerifier
+      - AppPlatformManifest
+    description: Kernel — logging, DI, storage, network, auth, notifications, AI credentials, entitlements.
+
+  - id: design_system
+    name: Shared Design System
+    package: after_design_system
+    line: shared
+    status: shipping
+    ports:
+      - AfterTheme
+      - AfterScaffold
+      - AfterNavigation
+      - AfterCard
+      - AfterAppBar
+    description: Ice-on-graphite tokens + shared UI. Identical family feel across every product.
+
+  - id: auth
+    name: Shared Authentication
+    package: after_core
+    line: shared
+    status: shipping
+    ports:
+      - AfterAuthRepository
+      - PrefsGoogleAuthRepository
+      - AfterSuperAdmin
+    description: One auth stack — Google Sign-In, session watcher, superadmin gate.
+
+  - id: dashboard
+    name: Shared Dashboard Engine
+    package: after_core
+    line: shared
+    status: shipping
+    ports:
+      - DashboardEngine
+      - DashboardWidgetSpec
+      - DashboardContext
+      - InMemoryDashboardEngine
+    description: Declarative dashboard — verticals register DashboardWidgetSpec; the shell renders.
+
+  - id: plugins
+    name: Shared Plugin System
+    package: after_core
+    line: shared
+    status: shipping
+    ports:
+      - AfterPluginRegistry
+      - AfterPluginCatalog
+      - AfterPluginManifest
+      - AfterPluginHost
+      - AfterPlugin
+      - hydrateAfterPlugins
+      - applyPluginDashboardWidgets
+    description: >
+      Dynamic extensions — pages, dashboard widgets, AI skills, reports, forms,
+      APIs, navigation, business modules via JSON/RC. See docs/PLUGIN_SYSTEM.md.
+
+  - id: enterprise_product_runtime
+    name: Enterprise Product Runtime
+    package: after_enterprise
+    line: enterprise
+    status: shipping
+    ports:
+      - EnterpriseProductRuntime
+      - AfterEnterpriseAuthGate
+      - AfterEnterpriseMainShell
+      - enterpriseProductRuntimeProvider
+    description: >
+      Thin-product host — products configure ≤10% (domain/features/AI/catalogs)
+      and mount the platform shell. See docs/PLATFORM_DOCTRINE.md.
+
+  - id: ecosystem
+    name: After Ecosystem Platform
+    package: after_ecosystem
+    line: shared
+    status: shipping
+    ports:
+      - AfterEcosystemFabric
+      - AfterIdRepository
+      - AfterPlusRepository
+      - AfterEventBus
+      - AfterProductApiRegistry
+      - AfterSecureInteropBridge
+      - AfterEcosystemAiContext
+    description: >
+      Unified digital OS fabric — one identity, subscription, assistant context,
+      shared calendar/notifications/search/documents, event-driven interop.
+      See docs/AFTER_ECOSYSTEM_PLATFORM.md.
+
+  - id: search
+    name: Shared Search Engine
+    package: after_core
+    line: shared
+    status: shipping
+    ports:
+      - AfterSearchPort
+      - SearchQuery
+      - SearchHit
+      - SearchIndex
+      - InMemoryAfterSearch
+    description: Cross-index unified search. Verticals + OS modules register indexes.
+
+  - id: settings
+    name: Shared Settings Engine
+    package: after_core
+    line: shared
+    status: shipping
+    ports:
+      - AfterSettingsStore
+      - AfterSettingsKeys
+      - PrefsAfterSettingsStore
+    description: Standard settings catalog (theme, locale, notifications, haptics, analytics, onboarding).
+
+  # ---- Consumer line ------------------------------------------------
+  - id: after_hub
+    name: After Hub (consumer OS shell)
+    package: after_hub
+    line: consumer
+    status: expand
+    ports:
+      - HubHomeSurface
+      - HubWidgetContract
+      - HubAiSurface
+    description: >
+      Consumer Digital OS entry shell (not a Life Domain). Federates Super App
+      hub widgets via Dashboard Engine + Plugin System. SuperAI = Hub AI tab.
+      See docs/AFTER_HUB.md and ADR-019.
+    docs:
+      - docs/AFTER_HUB.md
+      - docs/adr/ADR-019-after-hub.md
+
+  - id: consumer_shell
+    name: Consumer Shell + Feature Catalog
+    package: after_consumer
+    line: consumer
+    status: shipping
+    ports:
+      - ConsumerCoreFeatureId
+      - ConsumerVerticalFeature
+    description: Home / Explore / Assistant / Search / Profile tabs + consumer feature catalog.
+
+  - id: membership
+    name: Shared Membership
+    package: after_consumer
+    line: consumer
+    status: shipping
+    ports:
+      - ConsumerMembership
+      - AfterEntitlement
+    description: Consumer entitlement bridge over `after_core` premium ports.
+
+  - id: personal_vault
+    name: Personal Vault
+    package: after_consumer
+    line: consumer
+    status: shipping
+    ports:
+      - PersonalVaultItem
+      - PersonalVaultRepository
+    description: Family/household sharing primitive for personal data verticals.
+
+  # ---- Enterprise line ---------------------------------------------
+  - id: organization
+    name: Shared Organization / Tenant
+    package: after_enterprise
+    line: enterprise
+    status: shipping
+    ports:
+      - OrganizationRepository
+    description: Multi-tenant org bindings. Every enterprise entity carries `organizationId`.
+
+  - id: rbac
+    name: Shared Role Management (RBAC)
+    package: after_enterprise
+    line: enterprise
+    status: shipping
+    ports:
+      - RbacRepository
+      - Role
+      - PermissionSet
+    description: Verticals declare permission strings; RBAC enforces them at mutations.
+
+  - id: workflow
+    name: Shared Workflow Engine
+    package: after_enterprise
+    line: enterprise
+    status: shipping
+    ports:
+      - WorkflowEngine
+      - WorkflowDefinition
+      - WorkflowCatalog
+      - WorkflowDefinitionRegistry
+      - WorkflowInstance
+      - WorkflowRepository
+      - hydrateWorkflowCatalog
+    description: >
+      Configurable state-machine spine. Unlimited definitions via JSON /
+      Remote Config (after.workflow.catalog). See docs/WORKFLOW_ENGINE.md.
+
+  - id: tasks
+    name: Shared Task Engine
+    package: after_enterprise
+    line: enterprise
+    status: shipping
+    ports:
+      - EnterpriseTask
+      - TaskRepository
+      - InMemoryTaskRepository
+    description: Cross-vertical task board with optional workflow linkage.
+
+  - id: calendar
+    name: Shared Calendar
+    package: after_enterprise
+    line: enterprise
+    status: shipping
+    ports:
+      - CalendarEvent
+      - CalendarRepository
+    description: Shared scheduling with attendees + resources.
+
+  - id: documents
+    name: Shared Document Management
+    package: after_enterprise
+    line: enterprise
+    status: shipping
+    ports:
+      - EnterpriseDocument
+      - DocumentRepository
+    description: Metadata + vault-key references. Binary storage delegated to adapters.
+
+  - id: messaging
+    name: Shared Messaging
+    package: after_enterprise
+    line: enterprise
+    status: shipping
+    ports:
+      - MessagingChannel
+      - MessagingMessage
+      - MessagingRepository
+    description: Channels + messages with broadcast stream for reactive UI.
+
+  - id: notifications
+    name: Shared Notification Engine
+    package: after_core + after_enterprise
+    line: shared
+    status: shipping
+    ports:
+      - AfterLocalNotifications
+      - AfterRemotePush
+      - EnterpriseNotificationDispatcher
+    description: Consumer local/push + enterprise tenant-scoped dispatcher.
+
+  - id: analytics
+    name: Shared Analytics
+    package: after_core + after_enterprise
+    line: shared
+    status: shipping
+    ports:
+      - AfterAnalytics
+      - EnterpriseAnalytics
+    description: Consumer analytics with PII scrubbing + enterprise tenant/role attribution.
+
+  - id: reporting
+    name: Shared Reporting
+    package: after_enterprise
+    line: enterprise
+    status: shipping
+    ports:
+      - ReportDefinition
+      - ReportResult
+      - ReportingRepository
+    description: Structured reports — columns, rows, metadata.
+
+  - id: audit
+    name: Shared Audit Log
+    package: after_enterprise
+    line: enterprise
+    status: shipping
+    ports:
+      - AuditLogRepository
+      - AuditLogEntry
+    description: Append-only log. Every mutating action MUST leave an entry.
+
+  - id: sync
+    name: Shared Offline Sync
+    package: after_enterprise
+    line: enterprise
+    status: shipping
+    ports:
+      - OfflineSyncQueue
+    description: Queue used by field-first enterprise apps (wards, ships, factories, mines).
+
+  - id: api
+    name: Shared API Layer
+    package: after_core + after_enterprise
+    line: shared
+    status: shipping
+    ports:
+      - AfterApiClient
+      - EnterpriseApiClient
+      - EnterpriseApiHeaders
+    description: One Dio, one header convention, one signing surface.
+
+  - id: enterprise_ai
+    name: Shared Enterprise AI
+    package: after_core + after_enterprise
+    line: shared
+    status: shipping
+    ports:
+      - AfterAiCredentialVault
+      - SimpleAfterAiOrchestrator
+      - EnterpriseAiAssistant
+    description: BYOK AI ports + enterprise wrapper that adds tenant/role context.
+
+  # ---- Templates ----------------------------------------------------
+  - id: template_consumer
+    name: Consumer App Template
+    package: templates/super_app_consumer
+    line: consumer
+    status: expand
+    description: SuperGarage-shaped scaffold blueprint the generator instantiates for consumer apps.
+
+  - id: template_enterprise
+    name: Enterprise App Template
+    package: templates/super_app_enterprise
+    line: enterprise
+    status: expand
+    description: SuperHospital-shaped scaffold blueprint the generator instantiates for enterprise apps.

@@ -1,0 +1,96 @@
+apiVersion: after.ai/v1
+kind: SuperApp
+
+metadata:
+  name: SuperGarage
+  package: super_garage
+  bundle: com.overstein.supergarage
+  productLine: consumer
+
+spec:
+  domain: Personal garage / vehicle life
+  reference: SuperGarage
+
+  features:
+    - id: vehicles
+      titleKey: features.vehicles
+      subtitleKey: features.vehicles_sub
+      icon: directions_car_outlined
+    - id: drivers
+      titleKey: features.drivers
+      subtitleKey: features.drivers_sub
+      icon: person_outlined
+    - id: maintenance
+      titleKey: features.maintenance
+      subtitleKey: features.maintenance_sub
+      icon: build_circle_outlined
+
+  navigation:
+    tabs:
+      - id: home
+        labelKey: nav.home
+        icon: home_outlined
+      - id: vehicles
+        labelKey: nav.vehicles
+        icon: directions_car_outlined
+        feature: vehicles
+      - id: assistant
+        labelKey: nav.assistant
+        icon: auto_awesome_outlined
+        module: assistant
+      - id: search
+        labelKey: nav.search
+        icon: search_outlined
+        module: search
+      - id: profile
+        labelKey: nav.profile
+        icon: account_circle_outlined
+        module: more
+
+  # Consumer apps rarely need RBAC — leave permissions empty by
+  # convention (member vs. non-member is handled by ConsumerMembership).
+  permissions: []
+
+  dashboard:
+    widgets:
+      - type: metric
+        id: next_service_due
+        titleKey: dash.next_service_due
+        source: vertical.maintenance.nextDueDays
+        order: 10
+      - type: quickActions
+        id: garage_quick_actions
+        titleKey: dash.quick_actions
+        order: 20
+
+  ai:
+    skills:
+      - id: service_reminders
+        description: Draft friendly reminders for upcoming maintenance.
+        tools:
+          - garage.maintenance.upcoming
+
+  hub:
+    widgets:
+      - id: garage.next_service
+        kind: metric
+        titleKey: hub.garage.next_service
+        source: vertical.maintenance.nextDueDays
+        deepLink: after://super_garage/maintenance
+        size: s
+    aiSkills:
+      - service_reminders
+    calendarFeeds:
+      - maintenance
+      - trips
+    notificationCategories:
+      - garage.service
+      - garage.obd
+
+  branding:
+    accent: "#22D3EE"
+    monogram: SG
+
+  locales:
+    - en
+    - tr

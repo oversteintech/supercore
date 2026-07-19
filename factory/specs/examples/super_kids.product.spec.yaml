@@ -1,0 +1,186 @@
+apiVersion: after.ai/v1
+kind: SuperApp
+
+metadata:
+  name: SuperKids
+  package: super_kids
+  bundle: com.overstein.superkids
+  productLine: consumer
+
+spec:
+  domain: Family and parenting Life Domain
+  reference: SuperGarage
+
+  features:
+    - id: pregnancy
+      titleKey: features.pregnancy
+      subtitleKey: features.pregnancy_sub
+      icon: pregnant_woman_outlined
+    - id: baby_development
+      titleKey: features.baby_development
+      subtitleKey: features.baby_development_sub
+      icon: child_care_outlined
+    - id: child_growth
+      titleKey: features.child_growth
+      subtitleKey: features.child_growth_sub
+      icon: trending_up_outlined
+    - id: vaccinations
+      titleKey: features.vaccinations
+      subtitleKey: features.vaccinations_sub
+      icon: vaccination_outlined
+    - id: medical_appointments
+      titleKey: features.medical_appointments
+      subtitleKey: features.medical_appointments_sub
+      icon: medical_services_outlined
+    - id: school_activities
+      titleKey: features.school_activities
+      subtitleKey: features.school_activities_sub
+      icon: school_outlined
+    - id: family_calendar
+      titleKey: features.family_calendar
+      subtitleKey: features.family_calendar_sub
+      icon: calendar_month_outlined
+    - id: parenting_ai
+      titleKey: features.parenting_ai
+      subtitleKey: features.parenting_ai_sub
+      icon: auto_awesome_outlined
+    - id: nutrition
+      titleKey: features.nutrition
+      subtitleKey: features.nutrition_sub
+      icon: restaurant_outlined
+    - id: sleep
+      titleKey: features.sleep
+      subtitleKey: features.sleep_sub
+      icon: bedtime_outlined
+    - id: education_milestones
+      titleKey: features.education_milestones
+      subtitleKey: features.education_milestones_sub
+      icon: emoji_events_outlined
+    - id: family_tasks
+      titleKey: features.family_tasks
+      subtitleKey: features.family_tasks_sub
+      icon: checklist_outlined
+    - id: allowances
+      titleKey: features.allowances
+      subtitleKey: features.allowances_sub
+      icon: savings_outlined
+    - id: shared_memories
+      titleKey: features.shared_memories
+      subtitleKey: features.shared_memories_sub
+      icon: photo_library_outlined
+    - id: emergency_info
+      titleKey: features.emergency_info
+      subtitleKey: features.emergency_info_sub
+      icon: emergency_outlined
+    - id: location_sharing
+      titleKey: features.location_sharing
+      subtitleKey: features.location_sharing_sub
+      icon: location_on_outlined
+    - id: shopping_lists
+      titleKey: features.shopping_lists
+      subtitleKey: features.shopping_lists_sub
+      icon: shopping_cart_outlined
+
+  navigation:
+    tabs:
+      - id: home
+        labelKey: nav.home
+        icon: home_outlined
+      - id: family
+        labelKey: nav.family
+        icon: family_restroom_outlined
+        feature: child_growth
+      - id: assistant
+        labelKey: nav.assistant
+        icon: auto_awesome_outlined
+        module: assistant
+      - id: search
+        labelKey: nav.search
+        icon: search_outlined
+        module: search
+      - id: profile
+        labelKey: nav.profile
+        icon: account_circle_outlined
+        module: more
+
+  permissions: []
+
+  dashboard:
+    widgets:
+      - type: metric
+        id: next_vaccine_due
+        titleKey: dash.next_vaccine_due
+        source: vertical.vaccinations.nextDueDays
+        order: 10
+      - type: metric
+        id: upcoming_school
+        titleKey: dash.upcoming_school
+        source: vertical.school_activities.nextCount
+        order: 20
+      - type: quickActions
+        id: kids_quick_actions
+        titleKey: dash.quick_actions
+        order: 30
+
+  ai:
+    skills:
+      - id: parenting_coach
+        description: Parenting AI — milestones, routines, gentle guidance.
+        tools:
+          - kids.milestones.upcoming
+          - kids.sleep.summary
+      - id: vaccine_reminders
+        description: Draft vaccination and appointment reminders for caregivers.
+        tools:
+          - kids.vaccinations.upcoming
+          - kids.appointments.upcoming
+      - id: family_planner
+        description: Coordinate school, tasks, allowances, and shopping lists.
+        tools:
+          - kids.school.upcoming
+          - kids.tasks.open
+          - kids.shopping.list
+
+  hub:
+    widgets:
+      - id: kids.next_milestone
+        kind: status
+        titleKey: hub.kids.next_milestone
+        source: vertical.milestones.next
+        deepLink: after://super_kids/milestones
+        size: m
+    aiSkills:
+      - parenting_coach
+      - vaccine_reminders
+    calendarFeeds:
+      - school
+      - appointments
+    notificationCategories:
+      - kids.vaccine
+      - kids.school
+
+  branding:
+    accent: "#F472B6"
+    monogram: SK
+
+  locales:
+    - en
+    - zh
+    - hi
+    - es
+    - fr
+    - ar
+    - bn
+    - pt
+    - ru
+    - ur
+    - id
+    - de
+    - ja
+    - sw
+    - mr
+    - te
+    - tr
+    - ta
+    - vi
+    - ko

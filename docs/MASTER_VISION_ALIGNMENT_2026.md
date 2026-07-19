@@ -50,7 +50,7 @@ Current code remains a **strong scaffold** — not yet a 10-year production OS.
 | P1 | SMS / email / emergency channels | ADR-013 on `AfterNotificationCenter` |
 | P1 | Cross-app automation | ADR-015 — separate from enterprise WorkflowEngine |
 | P1 | Teams | ADR-014 under Organizations |
-| P1 | After Hub + Hub AI (SuperAI branding) | OS shell; Mate surface over `after_ai` + context (ADR-019) |
+| P1 | After Hub + Hub AI (SuperAI branding) | OS shell; Mate surface over `after_ai` + context — **H0 done** (ADR-019 / AFTER_HUB.md) |
 | P2 | SuperSchool → SuperEducation | Catalog rename + alias |
 | P2 | SuperAgriculture → SuperFarm | Catalog rename + alias |
 | P2 | Documents triplication | ADR-016 — one vault; SuperDocuments = UX |

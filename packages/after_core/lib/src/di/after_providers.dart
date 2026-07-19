@@ -58,6 +58,11 @@ final afterAuthRepositoryProvider = Provider<AfterAuthRepository>((ref) {
   return NoOpAfterAuthRepository();
 });
 
+/// Live auth session stream — Super Apps watch this for AuthGate / superadmin.
+final afterAuthSessionProvider = StreamProvider<AfterAuthSession>((ref) {
+  return ref.watch(afterAuthRepositoryProvider).watchAuthSession();
+});
+
 final afterAnalyticsProvider = Provider<AfterAnalytics>((ref) {
   return const NoOpAfterAnalytics();
 });

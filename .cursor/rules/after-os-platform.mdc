@@ -1,0 +1,29 @@
+---
+description: AfterArtificial is an AI OS — dual Consumer + Enterprise frameworks; generate products from standards
+alwaysApply: true
+---
+
+# After OS platform rule
+
+AfterArtificial is an **AI Operating System company**, not a collection of one-off apps.
+
+## Dual product lines (one kernel)
+
+| Line | OS package | Reference app |
+|------|------------|---------------|
+| Consumer | `after_consumer` (+ `after_core`) | **SuperGarage** |
+| Enterprise | `after_enterprise` (+ `after_core`) | **SuperHospital** |
+
+Shared: `after_core`, `after_design_system`, OVERSTEIN splash/cold-start, Riverpod, AAPS layering.
+
+## Non-negotiables
+
+1. **Never invent a new architecture** for a vertical. Assemble from templates + catalog (`catalog/products.yaml`).
+2. **Industry modules only** live in the product repo (`lib/features/`). Shared OS capabilities (org, RBAC, workflow, tasks, calendar, documents, AI, messaging, notifications, reporting, analytics, audit, offline sync, API) live in `after_enterprise` / `after_consumer` / `after_core`.
+3. **SuperGarage** wins for consumer patterns; **SuperHospital** wins for enterprise patterns.
+4. New products: `templates/super_app_consumer` or `templates/super_app_enterprise` + unique `AppPlatformManifest` (`productLine`, `com.overstein.<app>`).
+5. Docs: `docs/AFTER_OS_ARCHITECTURE.md`, `CONSUMER_FRAMEWORK.md`, `ENTERPRISE_FRAMEWORK.md`, `PRODUCT_CATALOG.md`.
+
+## After generating a product
+
+Run the SuperGarage / SuperHospital compliance gate for that line, then `docs/COMPLIANCE_REPORT.md`.

@@ -10,6 +10,8 @@ export 'src/ai/after_ai_sdk.dart';
 export 'src/analytics/after_analytics.dart';
 export 'src/api/after_api_client.dart';
 export 'src/auth/after_auth.dart';
+export 'src/auth/after_super_admin.dart';
+export 'src/auth/prefs_google_auth_repository.dart';
 export 'src/bootstrap/after_standard_overrides.dart';
 export 'src/deep_links/after_deep_links.dart';
 export 'src/di/after_providers.dart';

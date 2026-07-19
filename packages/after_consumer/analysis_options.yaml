@@ -57,6 +57,3 @@ linter:
     prefer_int_literals: false
     use_raw_strings: false
     prefer_const_declarations: false
-    curly_braces_in_flow_control_structures: false
-    depend_on_referenced_packages: false
-    avoid_print: false

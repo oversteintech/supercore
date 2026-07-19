@@ -1,7 +1,9 @@
-name: after_core
+name: after_enterprise
 description: >
-  After Core — shared Super App foundation for AfterArtificial.
-  Auth, networking, storage, DI, analytics, AI, premium, and platform utilities.
+  After Enterprise — OS layer for AfterArtificial B2B / vertical Super Apps
+  (SuperHospital, SuperAirport, SuperMaritime, SuperLogistics, SuperFactory, …).
+  Ships shared enterprise ports + mock implementations so vertical products
+  can be assembled from standards instead of new architectures.
 version: 1.0.0
 publish_to: 'none'
 repository: https://github.com/oversteintech/supercore
@@ -11,21 +13,15 @@ environment:
   flutter: '>=3.27.0'
 
 dependencies:
-  app_links: ^6.4.0
+  after_core:
+    path: ../after_core
   clock: ^1.1.2
   collection: ^1.19.0
-  crypto: ^3.0.7
-  dio: ^5.10.0
   flutter:
     sdk: flutter
-  flutter_local_notifications: ^18.0.1
   flutter_riverpod: ^3.3.2
-  flutter_secure_storage: ^9.2.4
-  google_sign_in: ^7.2.0
   meta: ^1.16.0
   riverpod: any
-  shared_preferences: ^2.5.5
-  timezone: ^0.10.0
   uuid: ^4.5.1
 
 dev_dependencies:

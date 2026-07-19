@@ -44,9 +44,17 @@ dependencies:
       ref: main
 ```
 
+## Standard APIs (all Super Apps)
+
+See [`STANDARD_APIS.md`](STANDARD_APIS.md) — ports, providers, and `AfterStandardOverrides`.
+
+Public reference: [afterframework.com/packages](https://www.afterframework.com/packages)
+
 ## New Super App checklist
 
 See [`SUPER_APP_CHECKLIST.md`](SUPER_APP_CHECKLIST.md) and the template under [`templates/super_app/`](templates/super_app/).
+
+Active scaffolds: SuperGarage · SuperHealth · SuperNews · SuperSports.
 
 ## Develop packages
 

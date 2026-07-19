@@ -5,268 +5,411 @@
 #   package       — Flutter pubspec `name` (snake_case)
 #   bundle        — Android application id / iOS bundle id
 #   productLine   — consumer | enterprise
+#   lifeDomain    — short Life / Industry domain label
 #   reference     — true for the line's reference implementation
 #   status        — shipping | scaffold | planned
-#   description   — one-line pitch
+#   description   — domain ownership pitch
 #   siblingPath   — filesystem path used by supercore sibling checkouts
 
-version: 1
+version: 3
 generatedFor: after_os
+organizingPrinciple: life_domains
+masterVision: "2.0"
 productLines:
   - consumer
   - enterprise
 
 products:
-  # ---- Consumer line ----
+  # ---- Consumer OS shell (not a Life Domain) ----
+  - name: AfterHub
+    package: after_hub
+    bundle: com.overstein.afterhub
+    productLine: consumer
+    role: os_shell
+    lifeDomain: null
+    reference: false
+    status: planned
+    description: >
+      Consumer Digital OS shell — entry product for identity, dashboard, AI,
+      calendar, documents, notifications, family, search, settings, and After+.
+      Super Apps contribute Hub widgets; SuperAI is the Hub AI surface (ADR-019).
+    siblingPath: ../afterhub
+
+  # ---- Consumer Life Domains ----
   - name: SuperGarage
     package: super_garage
     bundle: com.overstein.supergarage
     productLine: consumer
+    lifeDomain: Mobility
     reference: true
     status: shipping
-    description: Reference consumer Super App — garage / vehicles / drivers.
+    description: >
+      Mobility Life Domain — vehicles, maintenance, insurance, fuel, OBD,
+      fleet and transportation.
     siblingPath: ../supergarage
 
   - name: SuperHealth
     package: super_health
     bundle: com.overstein.superhealth
     productLine: consumer
+    lifeDomain: Personal health
     reference: false
     status: scaffold
-    description: Personal health tracking + BYOK AI wellness coach.
+    description: >
+      Personal health — medications, medical records, sleep, nutrition,
+      doctors, laboratories and AI health assistant.
     siblingPath: ../superhealth
+
+  - name: SuperKids
+    package: super_kids
+    bundle: com.overstein.superkids
+    productLine: consumer
+    lifeDomain: Family and parenting
+    reference: false
+    status: planned
+    description: >
+      Family and parenting — pregnancy through teens; vaccines, school,
+      family calendar, parenting AI, allowances, memories, emergency info.
+    siblingPath: ../superkids
 
   - name: SuperFinance
     package: super_finance
     bundle: com.overstein.superfinance
     productLine: consumer
+    lifeDomain: Personal finance
     reference: false
     status: scaffold
-    description: Personal finance dashboard, cash flow, subscriptions.
+    description: >
+      Personal finance — subscriptions, investments, budgets, banking and
+      AI financial assistant.
     siblingPath: ../superfinance
 
   - name: SuperHome
     package: super_home
     bundle: com.overstein.superhome
     productLine: consumer
+    lifeDomain: Property and household
     reference: false
     status: scaffold
-    description: Home operations, chores, household inventory.
+    description: >
+      Property management — maintenance, utilities, warranties, smart home
+      and household documents.
     siblingPath: ../superhome
 
   - name: SuperTravel
     package: super_travel
     bundle: com.overstein.supertravel
     productLine: consumer
+    lifeDomain: Travel
     reference: false
     status: scaffold
-    description: Trips, itineraries, offline travel documents.
+    description: >
+      Travel — trips, flights, hotels, visas, passports, itineraries and
+      AI travel planning.
     siblingPath: ../supertravel
 
   - name: SuperPet
     package: super_pet
     bundle: com.overstein.superpet
     productLine: consumer
+    lifeDomain: Pets
     reference: false
     status: scaffold
-    description: Pet health records, vet visits, feeding schedules.
+    description: >
+      Pet management — veterinary care, food, health records and AI pet
+      assistant.
     siblingPath: ../superpet
-
-  - name: SuperSports
-    package: super_sports
-    bundle: com.overstein.supersports
-    productLine: consumer
-    reference: false
-    status: scaffold
-    description: Fitness, training, sports activity tracking.
-    siblingPath: ../supersports
 
   - name: SuperNews
     package: super_news
     bundle: com.overstein.supernews
     productLine: consumer
+    lifeDomain: Information
     reference: false
     status: scaffold
-    description: Personalized news reader with AI briefings.
+    description: >
+      AI-personalized news platform with summaries and recommendations.
     siblingPath: ../supernews
+
+  - name: SuperSports
+    package: super_sports
+    bundle: com.overstein.supersports
+    productLine: consumer
+    lifeDomain: Sport and performance
+    reference: false
+    status: scaffold
+    description: >
+      Sport and performance — fitness, workouts, running, cycling, nutrition,
+      communities PLUS live scores, fixtures, tables, fantasy, AI match
+      analysis (Fitness + Strava + SofaScore class).
+    siblingPath: ../supersports
 
   - name: SuperGames
     package: super_games
     bundle: com.overstein.supergames
     productLine: consumer
+    lifeDomain: Gaming
     reference: false
-    status: scaffold
-    description: Casual game hub with cross-device progress.
+    status: planned
+    description: >
+      Gaming — library, achievements, Steam/Epic/console tracking, wishlist,
+      gaming news, communities and AI recommendations.
     siblingPath: ../supergames
 
+  - name: SuperFind
+    package: super_find
+    bundle: com.overstein.superfind
+    productLine: consumer
+    lifeDomain: Presence, safety and asset awareness
+    reference: false
+    status: planned
+    description: >
+      Presence and safety hub — people, family, children, friends, pets,
+      vehicles, devices, places and shared assets; real-time and temporary
+      sharing, Safe Zones, SOS, ETA, AI timeline; privacy-first E2EE when
+      possible. Not location-sharing only.
+    siblingPath: ../superfind
+
+  # Transitional / adjacent (not primary Life Domain owners)
   - name: SuperFamily
     package: super_family
     bundle: com.overstein.superfamily
     productLine: consumer
+    lifeDomain: Family graph (superseded by SuperKids)
     reference: false
-    status: scaffold
-    description: Family / household shared calendar, vault, and tasks.
+    status: planned
+    description: >
+      DEPRECATED as a product shell — use SuperKids. Family graph remains
+      AfterFamilyGraph in after_ecosystem.
     siblingPath: ../superfamily
 
   - name: SuperDocuments
     package: super_documents
     bundle: com.overstein.superdocuments
     productLine: consumer
+    lifeDomain: Documents
     reference: false
-    status: scaffold
-    description: Personal document vault with OCR and sharing.
+    status: planned
+    description: >
+      Documents Life Domain — identity, passport, vehicle docs, insurance,
+      warranty, invoices, contracts, certificates, OCR, AI summaries,
+      expiration alerts. UX over One Documents Library (not a private vault).
     siblingPath: ../superdocuments
+
+  - name: SuperAI
+    package: super_ai
+    bundle: com.overstein.superai
+    productLine: consumer
+    lifeDomain: Central AI (capability branding)
+    role: capability_brand
+    redirectsTo: AfterHub
+    reference: false
+    status: planned
+    description: >
+      Capability branding for the Hub AI surface (ADR-019). Not a competing
+      entry app. Single After AI via after_ai + ecosystem context; never a
+      second AI runtime. UX lives in After Hub AI tab.
+    siblingPath: ../superai
 
   - name: SuperLearning
     package: super_learning
     bundle: com.overstein.superlearning
     productLine: consumer
+    lifeDomain: Learning
     reference: false
-    status: scaffold
-    description: Adaptive learning paths with AI tutors.
+    status: planned
+    description: Adaptive learning Life Domain (adjacent to SuperKids).
     siblingPath: ../superlearning
 
-  # ---- Enterprise line ----
+  # ---- Enterprise Industry Domains ----
   - name: SuperHospital
     package: super_hospital
     bundle: com.overstein.superhospital
     productLine: enterprise
+    lifeDomain: Hospital operations
     reference: true
     status: scaffold
-    description: Reference enterprise Super App — hospital operations OS.
+    description: Reference enterprise Industry Domain — hospital operations OS.
     siblingPath: ../superhospital
 
   - name: SuperAirport
     package: super_airport
     bundle: com.overstein.superairport
     productLine: enterprise
+    lifeDomain: Airport operations
     reference: false
     status: scaffold
-    description: Airport operations, gates, runways, ground ops.
+    description: Airport operations — flights, gates, runways, ground ops.
     siblingPath: ../superairport
 
   - name: SuperMaritime
     package: super_maritime
     bundle: com.overstein.supermaritime
     productLine: enterprise
+    lifeDomain: Maritime operations
     reference: false
     status: scaffold
-    description: Port / vessel operations, berths, manifests.
+    description: Port and vessel operations.
     siblingPath: ../supermaritime
-
-  - name: SuperLogistics
-    package: super_logistics
-    bundle: com.overstein.superlogistics
-    productLine: enterprise
-    reference: false
-    status: scaffold
-    description: Warehousing, fleet dispatch, route optimization.
-    siblingPath: ../superlogistics
 
   - name: SuperFactory
     package: super_factory
     bundle: com.overstein.superfactory
     productLine: enterprise
+    lifeDomain: Factory operations
     reference: false
     status: scaffold
-    description: Factory floor MES + maintenance operations.
+    description: Factory floor MES and maintenance.
     siblingPath: ../superfactory
+
+  - name: SuperLogistics
+    package: super_logistics
+    bundle: com.overstein.superlogistics
+    productLine: enterprise
+    lifeDomain: Logistics
+    reference: false
+    status: planned
+    description: Warehousing, fleet dispatch, route optimization.
+    siblingPath: ../superlogistics
 
   - name: SuperConstruction
     package: super_construction
     bundle: com.overstein.superconstruction
     productLine: enterprise
+    lifeDomain: Construction
     reference: false
-    status: scaffold
+    status: planned
     description: Job sites, crews, permits, drawings.
     siblingPath: ../superconstruction
+
+  - name: SuperEducation
+    package: super_education
+    bundle: com.overstein.supereducation
+    productLine: enterprise
+    lifeDomain: Education operations
+    reference: false
+    status: planned
+    description: >
+      Education Industry Domain — students, teachers, parents, admins,
+      attendance, homework, grades, lesson plans, exams, School AI.
+      Canonical name per Master Vision v2.0 (alias: SuperSchool).
+    siblingPath: ../supereducation
+    aliases: [SuperSchool, super_school, com.overstein.superschool]
 
   - name: SuperSchool
     package: super_school
     bundle: com.overstein.superschool
     productLine: enterprise
+    lifeDomain: Education operations (alias of SuperEducation)
     reference: false
-    status: scaffold
-    description: School / university operations, grades, attendance.
+    status: planned
+    description: >
+      DEPRECATED name — use SuperEducation. Kept for sibling-path
+      compatibility until repo rename.
     siblingPath: ../superschool
 
   - name: SuperHotel
     package: super_hotel
     bundle: com.overstein.superhotel
     productLine: enterprise
+    lifeDomain: Hospitality
     reference: false
-    status: scaffold
-    description: Hotel operations, front-desk, housekeeping, F&B.
+    status: planned
+    description: Hotel operations — front desk, housekeeping, F&B.
     siblingPath: ../superhotel
 
   - name: SuperRestaurant
     package: super_restaurant
     bundle: com.overstein.superrestaurant
     productLine: enterprise
+    lifeDomain: Restaurant operations
     reference: false
-    status: scaffold
-    description: Restaurant operations, POS, kitchen display, staffing.
+    status: planned
+    description: Restaurant operations — POS, kitchen, staffing.
     siblingPath: ../superrestaurant
 
   - name: SuperRetail
     package: super_retail
     bundle: com.overstein.superretail
     productLine: enterprise
+    lifeDomain: Retail
     reference: false
-    status: scaffold
-    description: Retail store operations, inventory, staff, POS.
+    status: planned
+    description: Retail store operations — inventory, staff, POS.
     siblingPath: ../superretail
 
   - name: SuperEnergy
     package: super_energy
     bundle: com.overstein.superenergy
     productLine: enterprise
+    lifeDomain: Energy / utilities
     reference: false
-    status: scaffold
+    status: planned
     description: Utility grid operations and dispatch.
     siblingPath: ../superenergy
-
-  - name: SuperAgriculture
-    package: super_agriculture
-    bundle: com.overstein.superagriculture
-    productLine: enterprise
-    reference: false
-    status: scaffold
-    description: Farm operations, fields, herds, harvests.
-    siblingPath: ../superagriculture
 
   - name: SuperMunicipality
     package: super_municipality
     bundle: com.overstein.supermunicipality
     productLine: enterprise
+    lifeDomain: Municipal services
     reference: false
-    status: scaffold
-    description: City / municipal operations, permits, citizen services.
+    status: planned
+    description: City / municipal operations and citizen services.
     siblingPath: ../supermunicipality
+
+  - name: SuperFarm
+    package: super_farm
+    bundle: com.overstein.superfarm
+    productLine: enterprise
+    lifeDomain: Agriculture / farm operations
+    reference: false
+    status: planned
+    description: >
+      Farm Industry Domain — crops, livestock, equipment, satellite/drone,
+      farm finance, Farm AI. Canonical name per Master Vision v2.0
+      (alias: SuperAgriculture).
+    siblingPath: ../superfarm
+    aliases: [SuperAgriculture, super_agriculture, com.overstein.superagriculture]
+
+  - name: SuperAgriculture
+    package: super_agriculture
+    bundle: com.overstein.superagriculture
+    productLine: enterprise
+    lifeDomain: Agriculture (alias of SuperFarm)
+    reference: false
+    status: planned
+    description: >
+      DEPRECATED name — use SuperFarm. Kept for sibling-path compatibility
+      until repo rename.
+    siblingPath: ../superagriculture
 
   - name: SuperPolice
     package: super_police
     bundle: com.overstein.superpolice
     productLine: enterprise
+    lifeDomain: Public safety — police
     reference: false
-    status: scaffold
-    description: Law-enforcement operations, incidents, evidence chain.
+    status: planned
+    description: Law-enforcement operations.
     siblingPath: ../superpolice
 
   - name: SuperFire
     package: super_fire
     bundle: com.overstein.superfire
     productLine: enterprise
+    lifeDomain: Public safety — fire
     reference: false
-    status: scaffold
-    description: Fire / rescue operations, dispatch, incident management.
+    status: planned
+    description: Fire / rescue operations.
     siblingPath: ../superfire
 
   - name: SuperMining
     package: super_mining
     bundle: com.overstein.supermining
     productLine: enterprise
+    lifeDomain: Mining
     reference: false
-    status: scaffold
-    description: Mining site operations, shifts, equipment, safety.
+    status: planned
+    description: Mining site operations.
     siblingPath: ../supermining

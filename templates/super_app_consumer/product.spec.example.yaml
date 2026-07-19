@@ -1,0 +1,86 @@
+apiVersion: after.ai/v1
+kind: SuperApp
+
+metadata:
+  name: SuperExample
+  package: super_example
+  bundle: com.overstein.superexample
+  productLine: consumer
+
+spec:
+  domain: Example consumer vertical
+  reference: SuperGarage
+
+  features:
+    - id: things
+      titleKey: features.things
+      subtitleKey: features.things_sub
+      icon: apps_outlined
+
+  navigation:
+    tabs:
+      - id: home
+        labelKey: nav.home
+        icon: home_outlined
+      - id: things
+        labelKey: nav.things
+        icon: apps_outlined
+        feature: things
+      - id: assistant
+        labelKey: nav.assistant
+        icon: auto_awesome_outlined
+        module: assistant
+      - id: search
+        labelKey: nav.search
+        icon: search_outlined
+        module: search
+      - id: profile
+        labelKey: nav.profile
+        icon: account_circle_outlined
+        module: more
+
+  # Consumer apps normally leave permissions empty — member vs
+  # non-member is handled by ConsumerMembership.
+  permissions: []
+
+  dashboard:
+    widgets:
+      - type: metric
+        id: things_count
+        titleKey: dash.things_count
+        source: vertical.things.count
+        order: 10
+      - type: quickActions
+        id: things_quick_actions
+        titleKey: dash.quick_actions
+        order: 20
+
+  ai:
+    skills:
+      - id: things_brief
+        description: Draft a short brief about the user's things.
+        tools:
+          - things.list
+
+  # After Hub contributions (ADR-019 / AFTER_HUB.md). Shipping apps need ≥1 widget.
+  hub:
+    widgets:
+      - id: example.things_count
+        kind: metric
+        titleKey: hub.example.things_count
+        source: vertical.things.count
+        deepLink: after://super_example/things
+        size: s
+    aiSkills:
+      - things_brief
+    calendarFeeds: []
+    notificationCategories:
+      - example.things
+
+  branding:
+    accent: "#22D3EE"
+    monogram: SE
+
+  locales:
+    - en
+    - tr

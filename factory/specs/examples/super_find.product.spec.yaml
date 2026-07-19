@@ -1,0 +1,167 @@
+apiVersion: after.ai/v1
+kind: SuperApp
+
+metadata:
+  name: SuperFind
+  package: super_find
+  bundle: com.overstein.superfind
+  productLine: consumer
+
+spec:
+  domain: Presence, safety and asset awareness Life Domain
+  reference: SuperGarage
+
+  features:
+    - id: map_hub
+      titleKey: features.map_hub
+      subtitleKey: features.map_hub_sub
+      icon: map_outlined
+    - id: circles
+      titleKey: features.circles
+      subtitleKey: features.circles_sub
+      icon: groups_outlined
+    - id: safe_zones
+      titleKey: features.safe_zones
+      subtitleKey: features.safe_zones_sub
+      icon: fence_outlined
+    - id: sos
+      titleKey: features.sos
+      subtitleKey: features.sos_sub
+      icon: sos_outlined
+    - id: devices
+      titleKey: features.devices
+      subtitleKey: features.devices_sub
+      icon: devices_outlined
+    - id: places
+      titleKey: features.places
+      subtitleKey: features.places_sub
+      icon: place_outlined
+    - id: history
+      titleKey: features.history
+      subtitleKey: features.history_sub
+      icon: history_outlined
+    - id: privacy
+      titleKey: features.privacy
+      subtitleKey: features.privacy_sub
+      icon: privacy_tip_outlined
+    - id: timeline
+      titleKey: features.timeline
+      subtitleKey: features.timeline_sub
+      icon: auto_awesome_outlined
+
+  navigation:
+    tabs:
+      - id: home
+        labelKey: nav.map
+        icon: map_outlined
+        feature: map_hub
+      - id: circles
+        labelKey: nav.circles
+        icon: groups_outlined
+        feature: circles
+      - id: assistant
+        labelKey: nav.assistant
+        icon: auto_awesome_outlined
+        module: assistant
+      - id: search
+        labelKey: nav.search
+        icon: search_outlined
+        module: search
+      - id: profile
+        labelKey: nav.profile
+        icon: account_circle_outlined
+        module: more
+
+  permissions: []
+
+  dashboard:
+    widgets:
+      - type: metric
+        id: circle_online
+        titleKey: dash.circle_online
+        source: vertical.circles.onlineCount
+        order: 10
+      - type: metric
+        id: safe_zone_alerts
+        titleKey: dash.safe_zone_alerts
+        source: vertical.safe_zones.alertCount
+        order: 20
+      - type: quickActions
+        id: find_quick_actions
+        titleKey: dash.quick_actions
+        order: 30
+
+  ai:
+    skills:
+      - id: eta_predict
+        description: Predict arrival time from live presence and habits.
+        tools:
+          - find.presence.live
+          - find.places.habitual
+      - id: anomaly_detect
+        description: Detect unusual routes or prolonged immobility.
+        tools:
+          - find.presence.recent
+          - find.history.summary
+      - id: place_recognize
+        description: Suggest names for frequently visited places.
+        tools:
+          - find.places.clusters
+      - id: mobility_weekly
+        description: Summarize weekly mobility for permissioned viewers.
+        tools:
+          - find.history.week
+      - id: forgotten_vehicle
+        description: Detect vehicles left outside habitual park windows.
+        tools:
+          - find.vehicles.last_park
+          - garage.vehicles.list
+
+  hub:
+    widgets:
+      - id: find.circle_online
+        kind: metric
+        titleKey: hub.find.circle_online
+        source: vertical.circles.onlineCount
+        deepLink: after://super_find/circles
+        size: s
+      - id: find.safe_zone_alerts
+        kind: status
+        titleKey: hub.find.safe_zone_alerts
+        source: vertical.safe_zones.alertCount
+        deepLink: after://super_find/safe_zones
+        size: m
+    aiSkills:
+      - eta_predict
+      - anomaly_detect
+    calendarFeeds: []
+    notificationCategories:
+      - find.sos
+      - find.safe_zone
+      - find.circle
+
+  branding:
+    accent: "#34D399"
+    monogram: SF
+
+  locales:
+    - en
+    - zh
+    - hi
+    - es
+    - fr
+    - ar
+    - bn
+    - pt
+    - ru
+    - ur
+    - id
+    - de
+    - ja
+    - sw
+    - mr
+    - te
+    - tr
+    - ta
+    - vi
+    - ko

@@ -1,0 +1,255 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://afterframework.com/schema/product.spec.v1.json",
+  "title": "AfterArtificial Super App product.spec",
+  "description": "The ≤10% product-owned inputs for the AI Product Factory. Everything else is inherited from After OS (≥90% reuse). See docs/PLATFORM_DOCTRINE.md. Products change domain, vertical features, and AI — never architecture.",
+  "type": "object",
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "additionalProperties": false,
+  "properties": {
+    "apiVersion": {
+      "type": "string",
+      "enum": ["after.ai/v1"]
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["SuperApp"]
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["name", "package", "bundle", "productLine"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable application name.",
+          "pattern": "^[A-Z][A-Za-z0-9]*$"
+        },
+        "package": {
+          "type": "string",
+          "description": "Flutter pubspec `name` (snake_case).",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "bundle": {
+          "type": "string",
+          "description": "Android application id / iOS bundle id.",
+          "pattern": "^com\\.overstein\\.[a-z0-9]+$"
+        },
+        "productLine": {
+          "type": "string",
+          "enum": ["consumer", "enterprise"]
+        }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "required": ["domain", "reference", "features", "navigation"],
+      "additionalProperties": false,
+      "properties": {
+        "domain": {
+          "type": "string",
+          "description": "Business domain sentence (e.g. `Aviation operations`)."
+        },
+        "reference": {
+          "type": "string",
+          "description": "Reference application this product mirrors.",
+          "enum": ["SuperGarage", "SuperHospital"]
+        },
+        "features": {
+          "type": "array",
+          "description": "Industry / vertical features that live under lib/features/<vertical>/. Do NOT list inherited OS modules here.",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "titleKey"],
+            "additionalProperties": false,
+            "properties": {
+              "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+              "titleKey": {"type": "string"},
+              "subtitleKey": {"type": "string"},
+              "icon": {"type": "string"},
+              "requiredPermission": {"type": "string"}
+            }
+          }
+        },
+        "navigation": {
+          "type": "object",
+          "required": ["tabs"],
+          "additionalProperties": false,
+          "properties": {
+            "tabs": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 6,
+              "items": {
+                "type": "object",
+                "required": ["id"],
+                "additionalProperties": false,
+                "properties": {
+                  "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+                  "labelKey": {"type": "string"},
+                  "icon": {"type": "string"},
+                  "module": {
+                    "type": "string",
+                    "description": "When set, this tab is an inherited OS module (tasks, calendar, documents, messages, assistant, dashboard, search, more). The generator does NOT scaffold custom code for it."
+                  },
+                  "feature": {
+                    "type": "string",
+                    "description": "When set, this tab is a vertical feature (must match one of spec.features[].id)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "permissions": {
+          "type": "array",
+          "description": "Vertical-specific RBAC keys the app uses.",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+          },
+          "uniqueItems": true
+        },
+        "dashboard": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["widgets"],
+          "properties": {
+            "widgets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["type", "id", "titleKey"],
+                "additionalProperties": false,
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "description": "DashboardWidgetKind wire name (statistics, kpi, vehicleCard, …)."
+                  },
+                  "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+                  "titleKey": {"type": "string"},
+                  "subtitleKey": {"type": "string"},
+                  "source": {"type": "string"},
+                  "module": {"type": "string"},
+                  "limit": {"type": "integer", "minimum": 1},
+                  "order": {"type": "integer"},
+                  "requiredPermission": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "ai": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "profile": {
+              "type": "string",
+              "description": "Named AfterAI profile id (e.g. superHospital, conversationOnly). Capabilities are enabled/disabled in after_ai — never forked."
+            },
+            "skills": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "description"],
+                "additionalProperties": false,
+                "properties": {
+                  "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+                  "description": {"type": "string"},
+                  "tools": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        },
+        "workflows": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Pointer to workflow catalog asset (enterprise). Definitions are data, not code.",
+          "properties": {
+            "catalogAsset": {
+              "type": "string",
+              "default": "assets/workflows/catalog.json"
+            }
+          }
+        },
+        "plugins": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Pointer to plugin catalog asset. Extensions are data + optional AfterPlugin handlers.",
+          "properties": {
+            "catalogAsset": {
+              "type": "string",
+              "default": "assets/plugins/catalog.json"
+            }
+          }
+        },
+        "branding": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "accent": {
+              "type": "string",
+              "description": "Hex color for the product accent.",
+              "pattern": "^#[0-9A-Fa-f]{6}$"
+            },
+            "monogram": {
+              "type": "string",
+              "description": "2 or 3 char monogram used on the OVERSTEIN splash.",
+              "pattern": "^[A-Z]{2,3}$"
+            }
+          }
+        },
+        "locales": {
+          "type": "array",
+          "description": "BCP-47 language codes. Platform minimum is 20 (AfterSupportedLocales).",
+          "items": {"type": "string", "pattern": "^[a-z]{2}(-[A-Z]{2})?$"},
+          "minItems": 20,
+          "uniqueItems": true
+        },
+        "hub": {
+          "type": "object",
+          "description": "After Hub contributions (ADR-019). Required for shipping consumer apps (H4+ compliance).",
+          "additionalProperties": false,
+          "properties": {
+            "widgets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "kind", "titleKey"],
+                "additionalProperties": false,
+                "properties": {
+                  "id": {"type": "string", "pattern": "^[a-z][a-z0-9_\\.]*$"},
+                  "kind": {
+                    "type": "string",
+                    "enum": ["metric", "list", "status", "quickActions", "calendar", "custom"]
+                  },
+                  "titleKey": {"type": "string"},
+                  "source": {"type": "string"},
+                  "deepLink": {"type": "string"},
+                  "size": {"type": "string", "enum": ["s", "m", "l"]}
+                }
+              }
+            },
+            "aiSkills": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "calendarFeeds": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "notificationCategories": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

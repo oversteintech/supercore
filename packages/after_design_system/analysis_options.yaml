@@ -1,0 +1,24 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  errors:
+    comment_references: ignore
+
+linter:
+  rules:
+    public_member_api_docs: false
+    lines_longer_than_80_chars: false
+    prefer_const_constructors: false
+    sort_constructors_first: false
+    always_put_required_named_parameters_first: false
+    document_ignores: false
+    always_use_package_imports: false
+    directives_ordering: false
+    avoid_redundant_argument_values: false
+    prefer_int_literals: false
+    specify_nonobvious_property_types: false
+    prefer_constructors_over_static_methods: false
+    use_null_aware_elements: false
+    cascade_invocations: false
+    discarded_futures: false
+    unnecessary_null_checks: false

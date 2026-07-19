@@ -1,0 +1,23 @@
+name: after_design_system
+description: >
+  After Design System — shared visual language for AfterArtificial Super Apps.
+  Premium AI-first tokens and components (OVERSTEIN / AfterArtificial).
+version: 1.0.0
+publish_to: 'none'
+repository: https://github.com/oversteintech/supercore
+
+environment:
+  sdk: ^3.12.2
+  flutter: '>=3.27.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  very_good_analysis: ^10.3.0
+
+flutter:
+  uses-material-design: true

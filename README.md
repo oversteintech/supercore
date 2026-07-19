@@ -1,36 +1,65 @@
-# SuperCore
+# SuperCore — After Framework packages
 
-**Status:** Scaffold · reserved for the shared Super App core extracted from SuperGarage.
-
-## Intent
-
-`supercore` is the long-term home for **After Framework** Flutter packages (today living inside [`oversteintech/supergarage`](https://github.com/oversteintech/supergarage) as path packages):
+Canonical home of **After Framework** Flutter packages for AfterArtificial Super Apps.
 
 | Package | Role |
 |---------|------|
-| `after_core` | Auth, Dio, storage, DI, AI BYOK, premium, flags, notifications, deep links |
-| `after_design_system` | Ice-on-graphite tokens + shared UI components |
+| [`packages/after_core`](packages/after_core) | Auth, Dio, storage, DI, AI BYOK, premium, flags, notifications, deep links, `AppPlatformManifest` |
+| [`packages/after_design_system`](packages/after_design_system) | Ice-on-graphite tokens + shared UI |
 
-Public docs: [afterframework.com](https://www.afterframework.com)
+Docs: [afterframework.com](https://www.afterframework.com) · Standard: [afterframework.com/standard](https://www.afterframework.com/standard)
 
-## Until extract
+## Consume from a Super App
 
-1. Develop packages in SuperGarage `packages/after_core` and `packages/after_design_system`.
-2. New Super Apps (e.g. SuperHealth) depend via `path:` or git submodule until this repo is populated.
-3. Follow [Platform Standard](https://www.afterframework.com/standard) and SuperGarage composition root as reference.
+**Sibling checkout (local, recommended):**
+
+```text
+HANTURAI/
+  supercore/
+  supergarage/
+  superhealth/
+```
+
+```yaml
+dependencies:
+  after_core:
+    path: ../supercore/packages/after_core
+  after_design_system:
+    path: ../supercore/packages/after_design_system
+```
+
+**Git dependency:**
+
+```yaml
+dependencies:
+  after_core:
+    git:
+      url: https://github.com/oversteintech/supercore.git
+      path: packages/after_core
+      ref: main
+  after_design_system:
+    git:
+      url: https://github.com/oversteintech/supercore.git
+      path: packages/after_design_system
+      ref: main
+```
+
+## New Super App checklist
+
+See [`SUPER_APP_CHECKLIST.md`](SUPER_APP_CHECKLIST.md) and the template under [`templates/super_app/`](templates/super_app/).
+
+## Develop packages
+
+```bash
+cd packages/after_core && flutter pub get && flutter test
+cd packages/after_design_system && flutter pub get && flutter test
+```
 
 ## Ecosystem
 
 ```
-AfterArtificial (products) → Super* Apps
-  └── Powered by After Framework (afterframework.com)
-        └── Packages → this repo (target)
-              └── Built by Overstein Labs (overstein.com)
+AfterArtificial → Super* Apps
+  └── After Framework (afterframework.com)
+        └── packages → this repo
+              └── Built by Overstein Labs
 ```
-
-## Next steps
-
-- [ ] Copy `after_core` + `after_design_system` from SuperGarage
-- [ ] Add CI (format / analyze / test)
-- [ ] Publish versioning policy (path → git tags → pub.dev optional)
-- [ ] Wire SuperGarage + SuperHealth to consume this repo

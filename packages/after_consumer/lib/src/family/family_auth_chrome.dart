@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'family_chrome.dart';
+import 'family_product_icon_controller.dart';
 import 'family_profile_identity.dart';
 
 String _authErrorMessage(Object error) {
@@ -59,10 +60,12 @@ class FamilyAuthChromeConfig extends FamilyChromeConfig {
     required super.appName,
     required super.supportEmail,
     required super.accent,
+    super.headerTitle,
     super.tagline,
     super.aiTitle,
     super.defaultLoginEmail,
     super.defaultLoginPassword,
+    super.productId,
     this.logo,
     this.registrationPlugin,
     this.enableGoogle = true,
@@ -216,18 +219,7 @@ class FamilyAuthExperienceShell extends StatelessWidget {
                                 vertical: 18,
                               ),
                               child: config.logo?.call(context) ??
-                                  Text(
-                                    config.appName.toUpperCase(),
-                                    textAlign: TextAlign.center,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 18,
-                                      letterSpacing: 1.2,
-                                    ),
-                                  ),
+                                  _FamilyAuthProductLogo(config: config),
                             ),
                           ),
                         ),
@@ -285,18 +277,57 @@ class FamilyAuthExperienceShell extends StatelessWidget {
   }
 }
 
+/// Shared premium product mark for Family auth chrome (not used by Garage).
+class _FamilyAuthProductLogo extends ConsumerWidget {
+  const _FamilyAuthProductLogo({required this.config});
+
+  final FamilyChromeConfig config;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final spec = config.productIconSpec;
+    if (spec == null) {
+      return Text(
+        config.appName.toUpperCase(),
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w900,
+          fontSize: 18,
+          letterSpacing: 1.2,
+        ),
+      );
+    }
+    final style = ref.watch(afterProductIconStyleProvider);
+    return Center(
+      child: AfterProductIconMark(
+        spec: spec,
+        style: style,
+        size: 96,
+      ),
+    );
+  }
+}
+
 /// Garage-parity login + entry to registration wizard.
 class FamilyLoginScreen extends ConsumerStatefulWidget {
   const FamilyLoginScreen({
     required this.config,
     this.onAuthenticated,
     this.authConfig,
+    this.onRegistrationActive,
     super.key,
   });
 
   final FamilyChromeConfig config;
   final FamilyAuthChromeConfig? authConfig;
   final VoidCallback? onAuthenticated;
+
+  /// Fired when the registration wizard is pushed (`true`) / popped (`false`).
+  /// Flagship apps use this to hold AuthGate on the login shell mid-signup.
+  final ValueChanged<bool>? onRegistrationActive;
 
   @override
   ConsumerState<FamilyLoginScreen> createState() => _FamilyLoginScreenState();
@@ -336,17 +367,22 @@ class _FamilyLoginScreenState extends ConsumerState<FamilyLoginScreen> {
 
   Future<void> _submit() async {
     if (_registerMode) {
-      await Navigator.of(context).push<void>(
-        MaterialPageRoute<void>(
-          builder: (_) => FamilyRegistrationWizardScreen(
-            config: _auth,
-            onComplete: () {
-              Navigator.of(context).pop();
-              widget.onAuthenticated?.call();
-            },
+      widget.onRegistrationActive?.call(true);
+      try {
+        await Navigator.of(context).push<void>(
+          MaterialPageRoute<void>(
+            builder: (_) => FamilyRegistrationWizardScreen(
+              config: _auth,
+              onComplete: () {
+                Navigator.of(context).pop();
+                widget.onAuthenticated?.call();
+              },
+            ),
           ),
-        ),
-      );
+        );
+      } finally {
+        widget.onRegistrationActive?.call(false);
+      }
       return;
     }
     if (!(_formKey.currentState?.validate() ?? false)) return;

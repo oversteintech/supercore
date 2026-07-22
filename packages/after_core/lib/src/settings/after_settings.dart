@@ -12,7 +12,7 @@ import '../storage/secure_storage.dart';
 class AfterSettingsKeys {
   AfterSettingsKeys._();
 
-  /// Theme mode — `system` | `light` | `dark`.
+  /// Theme mode — `light` | `dark` (legacy `system` is treated as light).
   static const themeMode = 'after.settings.themeMode';
 
   /// Named premium theme style ([AfterThemeStyle] name).
@@ -40,6 +40,10 @@ class AfterSettingsKeys {
   static const appIconWhiteBackground =
       'after.settings.appIcon.whiteBackground';
 
+  /// Shared premium product-icon look for all Super Apps (except Garage).
+  /// Values: [AfterProductIconStyle] names — classic | premiumGold | …
+  static const productIconStyle = 'after.settings.productIcon.style';
+
   /// Every key defined in this catalog (handy for tests / debug).
   static const List<String> all = <String>[
     themeMode,
@@ -51,6 +55,7 @@ class AfterSettingsKeys {
     analyticsEnabled,
     onboardingCompleted,
     appIconWhiteBackground,
+    productIconStyle,
   ];
 }
 
@@ -190,11 +195,15 @@ class PrefsAfterSettingsStore implements AfterSettingsStore {
 /// Default defaults every Super App inherits — matches SuperGarage /
 /// SuperHospital behaviour.
 Map<String, Object?> afterSettingsDefaults() => <String, Object?>{
-      AfterSettingsKeys.themeMode: AfterThemeModeValue.system,
+      AfterSettingsKeys.themeMode: AfterThemeModeValue.light,
+      AfterSettingsKeys.themeStyle: 'light',
       AfterSettingsKeys.notificationsEnabled: true,
       AfterSettingsKeys.hapticsEnabled: true,
       AfterSettingsKeys.analyticsEnabled: true,
       AfterSettingsKeys.onboardingCompleted: false,
+      AfterSettingsKeys.productIconStyle: 'classic',
+      // Fresh install: white launcher plate; user may switch to black.
+      AfterSettingsKeys.appIconWhiteBackground: true,
     };
 
 /// App-wide settings store. Override at bootstrap if the product needs

@@ -22,8 +22,12 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.3.2
+  dio: ^5.10.0
+  geocoding: ^3.0.0
+  geolocator: ^13.0.4
   image_picker: ^1.1.2
   meta: ^1.16.0
+  permission_handler: ^11.4.0
   riverpod: any
   shared_preferences: any
 

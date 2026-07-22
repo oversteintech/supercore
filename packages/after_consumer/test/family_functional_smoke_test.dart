@@ -63,13 +63,17 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Sync now'), findsOneWidget);
-    expect(find.text('Language'), findsWidgets);
+    // ListView lazily builds sections; Cloud sync is below the fold after
+    // accordion settings chrome - scroll before asserting.
     await tester.scrollUntilVisible(
-      find.text('Sync now'),
+      find.text('Cloud sync'),
       120,
       scrollable: find.byType(Scrollable).first,
     );
+    expect(find.text('Cloud sync'), findsOneWidget);
+    await tester.tap(find.text('Cloud sync'));
+    await tester.pumpAndSettle();
+    expect(find.text('Sync now'), findsOneWidget);
     await tester.tap(find.text('Sync now'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));

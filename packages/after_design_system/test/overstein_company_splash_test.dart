@@ -6,19 +6,23 @@ import 'package:after_design_system/after_design_system.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('OversteinCompanySplash Apple-style hold', () {
-    test('timing hold is at least 5 seconds', () {
+  group('OversteinCompanySplash premium illuminate', () {
+    test('timing total is 5 seconds', () {
       expect(
         OversteinCompanySplashTiming.hold.inMilliseconds,
-        greaterThanOrEqualTo(5000),
+        5000,
       );
       expect(
         OversteinCompanySplashTiming.total,
         OversteinCompanySplashTiming.hold,
       );
+      expect(
+        OversteinCompanySplashTiming.illuminate.inMilliseconds,
+        lessThan(OversteinCompanySplashTiming.total.inMilliseconds),
+      );
     });
 
-    testWidgets('holds static mark for full hold — never skips on seen prefs', (
+    testWidgets('skips cinematic when already seen (returning launch)', (
       tester,
     ) async {
       SharedPreferences.setMockInitialValues({
@@ -38,25 +42,50 @@ void main() {
 
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 50));
-      expect(completed, isFalse);
-      expect(find.text('OVERSTEIN'), findsNothing); // painted via TextPainter
-      expect(find.byType(Image), findsOneWidget);
+      expect(completed, isTrue);
+      expect(find.byType(Image), findsNothing);
+    });
 
-      await tester.pump(const Duration(seconds: 4));
+    testWidgets('first install holds full cinematic then marks seen', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      var completed = false;
+
+      await tester.pumpWidget(
+        AfterLaunchShell(
+          child: OversteinCompanySplash(
+            preferences: prefs,
+            onComplete: () => completed = true,
+          ),
+        ),
+      );
+
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
       expect(completed, isFalse);
+      expect(find.byType(Image), findsOneWidget);
 
       await tester.pump(
         OversteinCompanySplashTiming.hold + const Duration(milliseconds: 100),
       );
       expect(completed, isTrue);
+      expect(OversteinCompanySplashStore.hasSeen(prefs), isTrue);
     });
 
-    testWidgets('completes once after hold', (tester) async {
-      SharedPreferences.setMockInitialValues({});
+    testWidgets('forceShow runs cinematic even when already seen', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({
+        OversteinCompanySplashStore.seenKey: true,
+      });
+      final prefs = await SharedPreferences.getInstance();
       var completions = 0;
       await tester.pumpWidget(
         AfterLaunchShell(
           child: OversteinCompanySplash(
+            preferences: prefs,
             forceShow: true,
             onComplete: () => completions++,
           ),
@@ -65,6 +94,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 20));
       expect(completions, 0);
+      expect(find.byType(Image), findsOneWidget);
       await tester.pump(
         OversteinCompanySplashTiming.hold + const Duration(milliseconds: 50),
       );

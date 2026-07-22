@@ -36,7 +36,8 @@ void main() {
     expect(find.text('Register'), findsOneWidget);
   });
 
-  testWidgets('FamilySettingsScreen shows theme pack', (tester) async {
+  testWidgets('FamilySettingsScreen localizes chrome for Turkish',
+      (tester) async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
     await tester.pumpWidget(
@@ -53,14 +54,16 @@ void main() {
             membership: const FamilyMembershipState(),
             onSetPlan: (_) async {},
             canUsePremiumThemes: true,
+            localeCode: 'tr',
+            embedded: true,
           ),
         ),
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Settings'), findsOneWidget);
-    expect(find.text('Theme'), findsOneWidget);
-    expect(find.text('RacingRed'), findsOneWidget);
-    expect(find.text('Diamond'), findsOneWidget);
+    expect(find.text('Tema'), findsOneWidget);
+    expect(find.text('Dil'), findsWidgets);
+    expect(find.text('Profil'), findsOneWidget);
+    expect(find.text('Theme'), findsNothing);
   });
 }

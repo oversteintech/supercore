@@ -4,6 +4,7 @@ import 'theme.dart';
 
 /// Selectable theme styles shared by every Super App (Garage flagship pack).
 enum AfterThemeStyle {
+  /// Deprecated — treated as [light]. Kept for prefs migration only.
   system,
   light,
   dark,
@@ -35,8 +36,8 @@ extension AfterThemeStyleAccess on AfterThemeStyle {
   bool get isComingSoonRoyalTheme => this == AfterThemeStyle.royal;
 
   ThemeMode get materialThemeMode => switch (this) {
-        AfterThemeStyle.system => ThemeMode.system,
-        AfterThemeStyle.light => ThemeMode.light,
+        // Never follow device — product default is white/light.
+        AfterThemeStyle.system || AfterThemeStyle.light => ThemeMode.light,
         AfterThemeStyle.dark => ThemeMode.dark,
         AfterThemeStyle.racingRed => ThemeMode.dark,
         AfterThemeStyle.racingBlue => ThemeMode.light,
@@ -56,15 +57,20 @@ extension AfterThemeStyleAccess on AfterThemeStyle {
       this == AfterThemeStyle.forestGreen ||
       this == AfterThemeStyle.diamond ||
       this == AfterThemeStyle.royal;
-
 }
 
 abstract final class AfterThemeStyles {
+  /// Resolves stored prefs. Missing/`system` → [AfterThemeStyle.light].
   static AfterThemeStyle fromStorage(String? raw) {
-    for (final v in AfterThemeStyle.values) {
-      if (v.name == raw) return v;
+    if (raw == null || raw.isEmpty || raw == AfterThemeStyle.system.name) {
+      return AfterThemeStyle.light;
     }
-    return AfterThemeStyle.system;
+    for (final v in AfterThemeStyle.values) {
+      if (v.name == raw) {
+        return v == AfterThemeStyle.system ? AfterThemeStyle.light : v;
+      }
+    }
+    return AfterThemeStyle.light;
   }
 }
 

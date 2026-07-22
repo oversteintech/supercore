@@ -180,3 +180,22 @@ Future<void> editFamilyProfileUsername(
       .read(familyProfileIdentityProvider.notifier)
       .updateFields(username: normalized);
 }
+
+Future<void> editFamilyProfileBirthDate(
+  BuildContext context,
+  WidgetRef ref,
+  DateTime? current,
+) async {
+  final picked = await showDatePicker(
+    context: context,
+    initialDate: current ?? DateTime(1990),
+    firstDate: DateTime(1900),
+    lastDate: DateTime.now(),
+  );
+  if (picked == null || picked == current || !context.mounted) return;
+  await Future<void>.delayed(Duration.zero);
+  if (!context.mounted) return;
+  await ref
+      .read(familyProfileIdentityProvider.notifier)
+      .updateFields(birthDate: picked);
+}

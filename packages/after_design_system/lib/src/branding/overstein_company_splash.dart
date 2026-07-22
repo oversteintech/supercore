@@ -7,31 +7,38 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../premium_themes/overstein_brand_colors.dart';
 import 'overstein_logo.dart';
 
-/// Fixed OVERSTEIN company intro — Apple-style static hold (no motion).
+/// Fixed OVERSTEIN company intro — slow premium illuminate, then hold.
 ///
 /// Shared across every Super App — black screen, OS mark, no product branding.
 ///
-/// Holds the static mark for [OversteinCompanySplashTiming.hold] on **every**
-/// cold start (not skipped via prefs). Prefs backup on Android was restoring
-/// "seen" and dismissing instantly — that looked like a broken fast animation.
+/// **First install only:** after the intro completes once, [OversteinCompanySplashStore]
+/// marks it seen and subsequent launches (app kill, phone reboot, etc.) skip
+/// straight to [onComplete]. Pass [forceShow] only for tests / demos.
 ///
 /// ANR contract (do not break):
 /// - No Firebase / GMS / auth work from this widget
 /// - No product branding / second act
-/// - No entrance / shimmer / slide / fade animation
+/// - Motion stays on-UI-thread only (Ticker); no network / disk in paint
 /// - Always completes via [onComplete] or [hardTimeout]
 abstract final class OversteinCompanySplashTiming {
-  /// Minimum time the mark stays fully visible.
-  static const Duration hold = Duration(milliseconds: 5500);
+  /// End-to-end splash runtime (illuminate + hold).
+  static const Duration hold = Duration(milliseconds: 5000);
 
   /// Alias used by cold-start / ANR tests.
   static const Duration total = hold;
 
+  /// Slow dark → bright reveal occupies most of [total].
+  static const Duration illuminate = Duration(milliseconds: 3600);
+
   /// Absolute ceiling so splash can never stick.
-  static const Duration hardTimeout = Duration(milliseconds: 9000);
+  static const Duration hardTimeout = Duration(milliseconds: 8000);
 }
 
-/// Legacy prefs helpers (kept for tests / migration). Splash no longer skips.
+/// Persists first-install company splash completion across process death.
+///
+/// Prefer excluding this key from Android Auto Backup when backup is enabled,
+/// so a restored backup cannot skip a true first install. SuperGarage disables
+/// full backup (`fullBackupContent=false`).
 abstract final class OversteinCompanySplashStore {
   static const String seenKey = 'overstein_company_splash_seen_v4';
 
@@ -58,21 +65,23 @@ const _kWordmarkStyle = TextStyle(
 
 const _kMissionStyle = TextStyle(
   color: _kSplashSilver,
-  fontSize: 12,
+  fontSize: 10,
   fontWeight: FontWeight.w400,
   letterSpacing: 0.15,
   height: 1.35,
   decoration: TextDecoration.none,
 );
 
-/// Black-screen company card: static mark + wordmark + mission for ≥5.5s.
+/// Black-screen company card: slow illuminate + mark / wordmark / mission.
+///
+/// Shows only on first install (until [OversteinCompanySplashStore] marks seen).
 class OversteinCompanySplash extends StatefulWidget {
   const OversteinCompanySplash({
     super.key,
     required this.onComplete,
     this.preferences,
     this.preferencesFuture,
-    /// Ignored — hold always runs (kept for API compatibility).
+    /// When true, always run the cinematic (tests / demos). Default: first install only.
     this.forceShow = false,
   });
 
@@ -85,7 +94,8 @@ class OversteinCompanySplash extends StatefulWidget {
   State<OversteinCompanySplash> createState() => _OversteinCompanySplashState();
 }
 
-class _OversteinCompanySplashState extends State<OversteinCompanySplash> {
+class _OversteinCompanySplashState extends State<OversteinCompanySplash>
+    with SingleTickerProviderStateMixin {
   var _completed = false;
   var _visible = false;
   Timer? _holdTimer;
@@ -93,10 +103,25 @@ class _OversteinCompanySplashState extends State<OversteinCompanySplash> {
   SharedPreferences? _prefs;
   final _startedAt = Stopwatch();
 
+  late final AnimationController _controller;
+  late final Animation<double> _illuminate;
+
   @override
   void initState() {
     super.initState();
     _startedAt.start();
+    _controller = AnimationController(
+      vsync: this,
+      duration: OversteinCompanySplashTiming.total,
+    );
+    // Slow ease: dark → bright over most of the 5s, then rest at full.
+    final illuminateEnd =
+        OversteinCompanySplashTiming.illuminate.inMilliseconds /
+        OversteinCompanySplashTiming.total.inMilliseconds;
+    _illuminate = CurvedAnimation(
+      parent: _controller,
+      curve: Interval(0, illuminateEnd.clamp(0.5, 0.9), curve: Curves.easeInOutCubic),
+    );
     unawaited(_start());
   }
 
@@ -109,9 +134,17 @@ class _OversteinCompanySplashState extends State<OversteinCompanySplash> {
     }
     if (!mounted || _completed) return;
 
-    // Always show the static hold — never skip. (Prefs "seen" skip + Android
-    // Auto Backup made the intro vanish in ~0–200ms and looked "animated".)
+    final prefs = _prefs;
+    final alreadySeen =
+        !widget.forceShow && prefs != null && OversteinCompanySplashStore.hasSeen(prefs);
+    if (alreadySeen) {
+      // Returning launch — never re-show the company intro.
+      _finish();
+      return;
+    }
+
     setState(() => _visible = true);
+    unawaited(_controller.forward());
 
     final remaining = OversteinCompanySplashTiming.hold - _startedAt.elapsed;
     _holdTimer = Timer(
@@ -125,6 +158,7 @@ class _OversteinCompanySplashState extends State<OversteinCompanySplash> {
   void dispose() {
     _holdTimer?.cancel();
     _hardTimeout?.cancel();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -153,10 +187,32 @@ class _OversteinCompanySplashState extends State<OversteinCompanySplash> {
       );
     }
 
-    // Fully static — plain asset, no OversteinLogo entrance/shimmer/idle.
-    return const Scaffold(
+    return Scaffold(
       backgroundColor: Colors.black,
-      body: _StaticSplashBody(),
+      body: AnimatedBuilder(
+        animation: _illuminate,
+        builder: (context, child) {
+          final t = _illuminate.value;
+          // Cinematic dark → light: veil lifts slowly while mark gains presence.
+          final presence = 0.18 + (0.82 * t);
+          final veil = (1.0 - t) * 0.88;
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              Opacity(
+                opacity: presence.clamp(0.0, 1.0),
+                child: child,
+              ),
+              IgnorePointer(
+                child: ColoredBox(
+                  color: Colors.black.withValues(alpha: veil.clamp(0.0, 1.0)),
+                ),
+              ),
+            ],
+          );
+        },
+        child: const _StaticSplashBody(),
+      ),
     );
   }
 }

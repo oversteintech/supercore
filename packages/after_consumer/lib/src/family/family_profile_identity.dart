@@ -18,6 +18,7 @@ class FamilyProfileIdentity {
     this.username,
     this.firstName,
     this.lastName,
+    this.birthDate,
   });
 
   static const maxProfilePhotos = 5;
@@ -32,6 +33,7 @@ class FamilyProfileIdentity {
   final String? username;
   final String? firstName;
   final String? lastName;
+  final DateTime? birthDate;
 
   String? get activePhotoBase64 {
     final id = activePhotoId ?? (photoIds.isEmpty ? null : photoIds.first);
@@ -78,12 +80,14 @@ class FamilyProfileIdentity {
     String? username,
     String? firstName,
     String? lastName,
+    DateTime? birthDate,
     bool clearActivePhoto = false,
     bool clearPhotos = false,
     bool clearDisplayName = false,
     bool clearEmail = false,
     bool clearPhone = false,
     bool clearUsername = false,
+    bool clearBirthDate = false,
   }) {
     return FamilyProfileIdentity(
       avatarId: avatarId ?? this.avatarId,
@@ -100,6 +104,7 @@ class FamilyProfileIdentity {
       username: clearUsername ? null : (username ?? this.username),
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
+      birthDate: clearBirthDate ? null : (birthDate ?? this.birthDate),
     );
   }
 }
@@ -152,6 +157,7 @@ class FamilyProfileIdentityController
   static const _usernameKey = 'family_profile_username';
   static const _firstNameKey = 'family_profile_first_name';
   static const _lastNameKey = 'family_profile_last_name';
+  static const _birthDateKey = 'family_profile_birth_date';
 
   SharedPreferences get _prefs => ref.read(afterSharedPreferencesProvider);
 
@@ -201,6 +207,12 @@ class FamilyProfileIdentityController
       active = ids.first;
     }
 
+    DateTime? birthDate;
+    final birthRaw = prefs.getString(_birthDateKey);
+    if (birthRaw != null && birthRaw.isNotEmpty) {
+      birthDate = DateTime.tryParse(birthRaw);
+    }
+
     return FamilyProfileIdentity(
       avatarId: prefs.getString(_avatarKey) ?? 'avatar_1',
       photoIds: ids,
@@ -212,6 +224,7 @@ class FamilyProfileIdentityController
       username: prefs.getString(_usernameKey),
       firstName: prefs.getString(_firstNameKey),
       lastName: prefs.getString(_lastNameKey),
+      birthDate: birthDate,
     );
   }
 
@@ -290,6 +303,8 @@ class FamilyProfileIdentityController
     String? username,
     String? firstName,
     String? lastName,
+    DateTime? birthDate,
+    bool clearBirthDate = false,
   }) async {
     final prefs = _prefs;
     if (displayName != null) {
@@ -310,6 +325,15 @@ class FamilyProfileIdentityController
     if (lastName != null) {
       await prefs.setString(_lastNameKey, lastName.trim());
     }
+    if (clearBirthDate) {
+      await prefs.remove(_birthDateKey);
+    } else if (birthDate != null) {
+      final iso =
+          '${birthDate.year.toString().padLeft(4, '0')}-'
+          '${birthDate.month.toString().padLeft(2, '0')}-'
+          '${birthDate.day.toString().padLeft(2, '0')}';
+      await prefs.setString(_birthDateKey, iso);
+    }
     state = state.copyWith(
       displayName: displayName?.trim(),
       email: email?.trim().toLowerCase(),
@@ -317,6 +341,8 @@ class FamilyProfileIdentityController
       username: username?.trim(),
       firstName: firstName?.trim(),
       lastName: lastName?.trim(),
+      birthDate: birthDate,
+      clearBirthDate: clearBirthDate,
     );
   }
 
@@ -350,6 +376,7 @@ class FamilyProfileIdentityController
     await prefs.remove(_usernameKey);
     await prefs.remove(_firstNameKey);
     await prefs.remove(_lastNameKey);
+    await prefs.remove(_birthDateKey);
     state = const FamilyProfileIdentity();
   }
 }

@@ -15,7 +15,7 @@ void main() {
       expect(again.appId, 'superhealth');
       expect(again.userId, 'u1');
       expect(again.updatedAtMillis, 42);
-      expect(again.payload['stores'], isA<Map>());
+      expect(again.payload['stores'], isA<Map<dynamic, dynamic>>());
     });
 
     test('fromJson tolerates missing payload', () {

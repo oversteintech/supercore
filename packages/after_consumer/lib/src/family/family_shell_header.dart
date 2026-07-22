@@ -1,7 +1,9 @@
 import 'package:after_core/after_core.dart';
 import 'package:after_design_system/after_design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../location/after_current_locality.dart';
 import 'family_membership_badge.dart';
 
 /// Garage-parity MainShell top bar for every consumer Super App.
@@ -9,7 +11,10 @@ import 'family_membership_badge.dart';
 /// Delegates to shared [AfterShellTopBar]:
 /// membership (left) · location under it · centered app title ·
 /// notifications + animated AI (right).
-class FamilyShellHeader extends StatelessWidget {
+///
+/// When [locationLabel] is omitted, resolves city via
+/// [afterCurrentLocalityProvider] (same path Garage uses).
+class FamilyShellHeader extends ConsumerWidget {
   const FamilyShellHeader({
     super.key,
     this.plan = AfterUserPlan.free,
@@ -34,6 +39,7 @@ class FamilyShellHeader extends StatelessWidget {
   /// Override badge text; defaults to [AfterMembershipBadge.forPlan].
   final String? membershipLabel;
 
+  /// Optional explicit locality. When null, watches [afterCurrentLocalityProvider].
   final String? locationLabel;
   final VoidCallback? onLocationTap;
   final int notificationUnreadCount;
@@ -62,9 +68,11 @@ class FamilyShellHeader extends StatelessWidget {
       (membershipLabel ?? AfterMembershipBadge.forPlan(plan)).trim();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final resolvedTitle = _resolvedTitle;
     final badgeLabel = _resolvedBadge;
+    final resolvedLocation = locationLabel ??
+        ref.watch(afterCurrentLocalityProvider).asData?.value?.label;
 
     return AfterShellTopBar(
       plan: plan,
@@ -80,8 +88,11 @@ class FamilyShellHeader extends StatelessWidget {
               showIcon: false,
               displayContext: AfterMembershipBadgeContext.header,
             ),
-      locationLabel: locationLabel,
-      onLocationTap: onLocationTap,
+      locationLabel: resolvedLocation,
+      onLocationTap: onLocationTap ??
+          () {
+            ref.read(afterCurrentLocalityProvider.notifier).refresh();
+          },
       notificationUnreadCount: notificationUnreadCount,
       onNotifications: onNotifications,
       onAi: onAi,

@@ -56,6 +56,8 @@ Future<bool> showFamilyPlansSheet({
   required FamilyMembershipState membership,
   required Future<void> Function(AfterUserPlan plan) onSetPlan,
   AfterUserPlan? highlightPlan,
+  Future<void> Function(AfterUserPlan plan)? onPurchasePlan,
+  String? footerNote,
 }) async {
   if (_familyPlansSheetVisible) return false;
   _familyPlansSheetVisible = true;
@@ -70,6 +72,8 @@ Future<bool> showFamilyPlansSheet({
         membership: membership,
         onSetPlan: onSetPlan,
         highlightPlan: highlightPlan,
+        onPurchasePlan: onPurchasePlan,
+        footerNote: footerNote,
       ),
     );
     return result ?? false;
@@ -85,13 +89,20 @@ class FamilyPlansSheet extends StatelessWidget {
     required this.membership,
     required this.onSetPlan,
     this.highlightPlan,
+    this.onPurchasePlan,
+    this.footerNote,
     super.key,
   });
 
   final FamilyChromeConfig config;
   final FamilyMembershipState membership;
   final Future<void> Function(AfterUserPlan plan) onSetPlan;
+
+  /// Optional IAP / store purchase path (flagship Garage). When set, paid
+  /// plan taps call this instead of [onSetPlan].
+  final Future<void> Function(AfterUserPlan plan)? onPurchasePlan;
   final AfterUserPlan? highlightPlan;
+  final String? footerNote;
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +145,12 @@ class FamilyPlansSheet extends StatelessWidget {
                   onSelect: membership.isSuperAdmin
                       ? null
                       : () async {
-                          await onSetPlan(plan);
+                          final purchase = onPurchasePlan;
+                          if (purchase != null && plan != AfterUserPlan.free) {
+                            await purchase(plan);
+                          } else {
+                            await onSetPlan(plan);
+                          }
                           if (context.mounted) {
                             Navigator.of(context).pop(true);
                           }
@@ -155,8 +171,12 @@ class FamilyPlansSheet extends StatelessWidget {
                 ),
               const SizedBox(height: 8),
               Text(
-                'Scaffold billing: selecting a plan updates membership instantly. '
-                'Store IAP plugs in later via After subscription ports.',
+                footerNote ??
+                    (onPurchasePlan != null
+                        ? 'Store billing applies for paid tiers.'
+                        : 'Scaffold billing: selecting a plan updates membership '
+                            'instantly. Store IAP plugs in later via After '
+                            'subscription ports.'),
                 style: TextStyle(
                   fontSize: 12,
                   height: 1.35,

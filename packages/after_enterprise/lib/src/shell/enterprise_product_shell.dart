@@ -219,8 +219,8 @@ class _AfterEnterpriseMainShellState
             label: _tr('nav.documents'),
           ),
           AfterNavDestination(
-            icon: Icons.auto_awesome_outlined,
-            selectedIcon: Icons.auto_awesome,
+            icon: Icons.hub_outlined,
+            selectedIcon: Icons.hub_rounded,
             label: _tr('nav.ai'),
           ),
           AfterNavDestination(

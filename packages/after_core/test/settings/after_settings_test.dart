@@ -52,7 +52,7 @@ void main() {
       );
       expect(
         store.getString(AfterSettingsKeys.themeMode),
-        AfterThemeModeValue.system,
+        AfterThemeModeValue.light,
       );
       expect(store.getBool(AfterSettingsKeys.notificationsEnabled), isTrue);
       expect(store.getBool(AfterSettingsKeys.onboardingCompleted), isFalse);
@@ -92,12 +92,12 @@ void main() {
       final store = PrefsAfterSettingsStore(
         _MemoryPrefs(),
         defaults: <String, Object?>{
-          AfterSettingsKeys.themeMode: AfterThemeModeValue.system,
+          AfterSettingsKeys.themeMode: AfterThemeModeValue.light,
         },
       );
       await store.setString(AfterSettingsKeys.locale, 'tr');
       final snap = store.snapshot();
-      expect(snap[AfterSettingsKeys.themeMode], AfterThemeModeValue.system);
+      expect(snap[AfterSettingsKeys.themeMode], AfterThemeModeValue.light);
       expect(snap[AfterSettingsKeys.locale], 'tr');
     });
 

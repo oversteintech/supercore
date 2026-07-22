@@ -6,6 +6,15 @@
 /// architecturally consistent.
 library;
 
+export 'package:after_design_system/after_design_system.dart'
+    show
+        AfterProductIconCatalog,
+        AfterProductIconMark,
+        AfterProductIconSpec,
+        AfterProductIconStyle,
+        AfterProductIconStyleAccess,
+        AfterProductId;
+
 export 'src/catalog/consumer_feature_catalog.dart';
 export 'src/di/consumer_providers.dart';
 export 'src/family/entity_editor_sheet.dart';
@@ -33,5 +42,14 @@ export 'src/family/family_emergency_profile.dart';
 export 'src/family/family_shell_header.dart';
 export 'src/family/family_theme.dart';
 export 'src/family/family_theme_controller.dart';
+export 'src/family/family_product_icon_controller.dart';
+export 'src/family/family_ui_strings.dart';
+export 'src/launch/after_launch_consent.dart';
+export 'src/launch/after_launch_consent_gate.dart';
+export 'src/launch/after_launch_consent_strings.dart';
+export 'src/launch/after_legal_consent_screen.dart';
+export 'src/launch/after_location_permission.dart';
+export 'src/launch/after_permission_consent_screen.dart';
+export 'src/location/after_current_locality.dart';
 export 'src/membership/consumer_membership.dart';
 export 'src/vault/personal_vault.dart';

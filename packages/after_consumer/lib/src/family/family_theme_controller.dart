@@ -18,14 +18,15 @@ class FamilyThemeStyleController extends Notifier<AfterThemeStyle> {
   }
 
   Future<void> setStyle(AfterThemeStyle style) async {
+    // Product rule: no system-follow theme — white/light is the default.
+    final resolved =
+        style == AfterThemeStyle.system ? AfterThemeStyle.light : style;
     final store = ref.read(afterSettingsStoreProvider);
-    await store.setString(AfterSettingsKeys.themeStyle, style.name);
-    // Keep legacy themeMode in sync for light/dark/system.
-    if (style == AfterThemeStyle.system ||
-        style == AfterThemeStyle.light ||
-        style == AfterThemeStyle.dark) {
-      await store.setString(AfterSettingsKeys.themeMode, style.name);
+    await store.setString(AfterSettingsKeys.themeStyle, resolved.name);
+    if (resolved == AfterThemeStyle.light ||
+        resolved == AfterThemeStyle.dark) {
+      await store.setString(AfterSettingsKeys.themeMode, resolved.name);
     }
-    state = style;
+    state = resolved;
   }
 }

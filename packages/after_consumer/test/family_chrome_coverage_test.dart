@@ -30,15 +30,22 @@ void main() {
       iosAppGroupId: 'x',
     );
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: FamilyShellHeader(
-            plan: AfterUserPlan.premium,
-            title: 'Health',
-            locationLabel: 'Kadıköy',
-            onLocationTap: () {},
-            onNotifications: () => notifTapped = true,
-            onAi: () => aiTapped = true,
+      ProviderScope(
+        overrides: [
+          afterSharedPreferencesProvider.overrideWithValue(
+            await SharedPreferences.getInstance(),
+          ),
+        ],
+        child: MaterialApp(
+          home: Scaffold(
+            body: FamilyShellHeader(
+              plan: AfterUserPlan.premium,
+              title: 'Health',
+              locationLabel: 'Kadıköy',
+              onLocationTap: () {},
+              onNotifications: () => notifTapped = true,
+              onAi: () => aiTapped = true,
+            ),
           ),
         ),
       ),
@@ -67,9 +74,16 @@ void main() {
       iosAppGroupId: 'x',
     );
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: FamilyShellHeader(plan: AfterUserPlan.free),
+      ProviderScope(
+        overrides: [
+          afterSharedPreferencesProvider.overrideWithValue(
+            await SharedPreferences.getInstance(),
+          ),
+        ],
+        child: const MaterialApp(
+          home: Scaffold(
+            body: FamilyShellHeader(plan: AfterUserPlan.free),
+          ),
         ),
       ),
     );

@@ -26,6 +26,8 @@ export 'src/components/inputs.dart';
 export 'src/components/loading.dart';
 export 'src/components/navigation_bar.dart';
 export 'src/components/shell_top_bar.dart';
+export 'src/components/settings_section.dart';
+export 'src/components/premium_themes_accordion.dart';
 
 // Premium themes (Garage flagship pack — shared across Super Apps)
 export 'src/premium_themes/theme.dart';
@@ -43,6 +45,7 @@ export 'src/branding/overstein_company_splash.dart'
         OversteinCompanySplash,
         OversteinCompanySplashStore,
         OversteinCompanySplashTiming;
+export 'src/branding/after_product_icons.dart';
 
 // Membership chrome (Garage-parity header colors)
 export 'src/membership/after_user_plan_colors.dart';

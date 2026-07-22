@@ -121,6 +121,20 @@ abstract final class AfterUserPlanColors {
     };
   }
 
+  /// Notification bell on the shell header.
+  /// Gold tier → black (contrast on gold chrome); all other tiers → gold yellow.
+  static Color headerNotificationIcon(AfterUserPlan plan) => switch (plan) {
+        AfterUserPlan.superPlan => const Color(0xFF1A1200),
+        _ => superGoldBright,
+      };
+
+  /// Location pin (+ label) on the shell header.
+  /// Free / Business → white (contrast on green/emerald chrome); otherwise black.
+  static Color headerLocationIcon(AfterUserPlan plan) => switch (plan) {
+        AfterUserPlan.free || AfterUserPlan.business => Colors.white,
+        _ => const Color(0xFF111111),
+      };
+
   /// Static badge colors on the plan-colored header (no shiny sweep on same tint).
   static Color headerBadgeIcon(AfterUserPlan plan, Brightness brightness) {
     return switch (plan) {

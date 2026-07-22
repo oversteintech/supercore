@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:after_core/after_core.dart';
+import 'package:after_design_system/after_design_system.dart';
 import 'package:flutter/material.dart';
 
 /// Product chrome config for login / about / AI labels.
@@ -15,6 +16,7 @@ class FamilyChromeConfig {
     this.aiTitle = 'After AI',
     this.defaultLoginEmail = 'you@afterartificial.com',
     this.defaultLoginPassword = 'afterapp',
+    this.productId,
   });
 
   final String appName;
@@ -27,6 +29,17 @@ class FamilyChromeConfig {
   final String aiTitle;
   final String defaultLoginEmail;
   final String defaultLoginPassword;
+
+  /// Optional catalog id for shared premium product icons.
+  /// Garage leaves this null and keeps local monogram assets.
+  final AfterProductId? productId;
+
+  AfterProductIconSpec? get productIconSpec {
+    if (productId != null) {
+      return AfterProductIconCatalog.byId(productId!);
+    }
+    return AfterProductIconCatalog.byAppName(appName);
+  }
 
   String get shellTitle {
     if (headerTitle != null && headerTitle!.trim().isNotEmpty) {
@@ -200,13 +213,16 @@ class FamilyAboutScreen extends StatelessWidget {
   }
 }
 
-/// Thin AI chat shell — apps inject send handler (typically after_ai).
+/// Garage-parity AI chat shell — hub header, feature chips, message list,
+/// and Mate-style composer (+ / field / send↑·mic). Apps inject [onSend].
 class FamilyAiChatScreen extends StatefulWidget {
   const FamilyAiChatScreen({
     required this.title,
     required this.onSend,
     this.welcomeMessage =
         'Ask me anything about this Super App. Mock AI is ready.',
+    this.suggestions,
+    this.inputHint,
     super.key,
   });
 
@@ -214,14 +230,24 @@ class FamilyAiChatScreen extends StatefulWidget {
   final Future<String> Function(String prompt) onSend;
   final String welcomeMessage;
 
+  /// When null, [AfterAiQuickSuggestionCatalog.defaultsFor] is used.
+  final List<AfterAiQuickSuggestion>? suggestions;
+  final String? inputHint;
+
   @override
   State<FamilyAiChatScreen> createState() => _FamilyAiChatScreenState();
 }
 
 class _FamilyAiChatScreenState extends State<FamilyAiChatScreen> {
   final _input = TextEditingController();
+  final _scroll = ScrollController();
   final _lines = <({bool user, String text})>[];
   var _busy = false;
+  var _recording = false;
+  var _showSuggestions = true;
+
+  List<AfterAiQuickSuggestion> get _suggestions =>
+      widget.suggestions ?? AfterAiQuickSuggestionCatalog.defaultsFor(widget.title);
 
   @override
   void initState() {
@@ -232,75 +258,126 @@ class _FamilyAiChatScreenState extends State<FamilyAiChatScreen> {
   @override
   void dispose() {
     _input.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
-  Future<void> _send() async {
-    final text = _input.text.trim();
+  Future<void> _sendText(String raw) async {
+    final text = raw.trim();
     if (text.isEmpty || _busy) return;
     setState(() {
       _lines.add((user: true, text: text));
       _input.clear();
       _busy = true;
+      _showSuggestions = false;
+      _recording = false;
     });
+    _scrollToEnd();
     try {
       final reply = await widget.onSend(text);
       if (!mounted) return;
       setState(() => _lines.add((user: false, text: reply)));
+      _scrollToEnd();
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _lines.add((user: false, text: 'Error: $e')));
+      _scrollToEnd();
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
 
+  Future<void> _send() => _sendText(_input.text);
+
+  void _clearChat() {
+    setState(() {
+      _lines
+        ..clear()
+        ..add((user: false, text: widget.welcomeMessage));
+      _showSuggestions = true;
+      _recording = false;
+    });
+  }
+
+  void _toggleRecording() {
+    if (_busy) return;
+    setState(() => _recording = !_recording);
+    if (_recording) {
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        const SnackBar(
+          content: Text('Voice input attaches when the mic port is wired.'),
+        ),
+      );
+      setState(() => _recording = false);
+    }
+  }
+
+  void _onAttach() {
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+      const SnackBar(
+        content: Text('Attachments plug in later via After AI ports.'),
+      ),
+    );
+  }
+
+  void _scrollToEnd() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scroll.hasClients) return;
+      _scroll.animateTo(
+        _scroll.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
+    final userMessageCount = _lines.where((l) => l.user).length;
+
     return Column(
       children: [
+        if (!keyboardOpen)
+          AfterAiAssistantHeader(
+            title: widget.title,
+            hasMessages: userMessageCount > 0,
+            onClearChat: _clearChat,
+          ),
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: _lines.length,
-            itemBuilder: (context, i) {
-              final line = _lines[i];
-              return Align(
-                alignment:
-                    line.user ? Alignment.centerRight : Alignment.centerLeft,
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Text(line.text),
-                  ),
+          child: ListView(
+            controller: _scroll,
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+            children: [
+              if (_showSuggestions && userMessageCount == 0) ...[
+                AfterAiQuickSuggestionGrid(
+                  suggestions: _suggestions,
+                  onSuggestion: (s) => _sendText(s.sendText),
                 ),
-              );
-            },
+                const SizedBox(height: 16),
+              ],
+              for (var i = 0; i < _lines.length; i++) ...[
+                AfterAiMessageBubble(
+                  text: _lines[i].text,
+                  isUser: _lines[i].user,
+                ),
+                if (i != _lines.length - 1) const SizedBox(height: 10),
+              ],
+              if (_busy) ...[
+                const SizedBox(height: 12),
+                const AfterAiThinking(),
+              ],
+            ],
           ),
         ),
-        SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _input,
-                    decoration: InputDecoration(
-                      hintText: 'Ask ${widget.title}…',
-                      border: const OutlineInputBorder(),
-                    ),
-                    onSubmitted: (_) => _send(),
-                  ),
-                ),
-                IconButton.filled(
-                  onPressed: _busy ? null : _send,
-                  icon: const Icon(Icons.send),
-                ),
-              ],
-            ),
-          ),
+        AfterAiComposerBar(
+          controller: _input,
+          isBusy: _busy,
+          isRecording: _recording,
+          hintText: widget.inputHint ?? 'Ask ${widget.title}…',
+          onSend: () => unawaited(_send()),
+          onAttach: _onAttach,
+          onToggleRecording: _toggleRecording,
         ),
       ],
     );

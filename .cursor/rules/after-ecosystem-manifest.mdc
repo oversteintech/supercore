@@ -1,0 +1,57 @@
+---
+description: AfterArtificial Ecosystem Manifest v2.0 + Master Vision — binding law
+alwaysApply: true
+---
+
+# AfterArtificial Ecosystem Manifest v2.0
+
+**Master Vision:** `docs/AFTERARTIFICIAL_ECOSYSTEM_MASTER_VISION.md`  
+**Manifest:** `docs/AFTER_ECOSYSTEM_MANIFEST.md`  
+**Alignment:** `docs/MASTER_VISION_ALIGNMENT_2026.md`
+
+**You are designing modules of one AI-powered Digital Operating System** —
+not individual applications.
+
+## Platform-first (ask on every feature)
+
+> Should this belong to one application, or become a shared platform
+> capability every future application can reuse?
+
+Always prefer `after_*` platform capabilities when reasonable.
+
+## Core philosophy (One…)
+
+Identity · AI · Cloud · Subscription · Family · Calendar · Wallet ·
+Notification Center · Search · Marketplace · Documents Library ·
+Design Language · Engineering Standard · API Platform · Event Bus ·
+Data Platform · Ecosystem
+
+## Product-owned only
+
+Business Domain · Feature Modules · Navigation · Permissions ·
+AI Skills · Dashboard Widgets
+
+Everything else is inherited. ≥90% platform reuse.
+
+## Consumer spine
+
+Garage · Health · Kids · Finance · Home · Travel · Pet · Sports · News ·
+Games · Find · Documents · AI
+
+Presence truth = **SuperFind**. Documents UX = **SuperDocuments** over
+One Documents Library. **SuperAI** = thin shell over `after_ai` — never
+a second runtime.
+
+## Enterprise (canonical names)
+
+Hospital (ref) · Airport · Maritime · Factory · Construction · Retail ·
+**Education** (alias School) · Hotel · Restaurant · Logistics · Energy ·
+Municipality · **Farm** (alias Agriculture)
+
+## Admission filter
+
+“Is this a fundamental life/industry domain people manage for years?”
+If no → feature of an existing domain, not a new Super App.
+
+Events for communication. One AI with ecosystem context. Secure
+consumer ↔ enterprise interop. Scale: ≥100 apps, zero architecture forks.

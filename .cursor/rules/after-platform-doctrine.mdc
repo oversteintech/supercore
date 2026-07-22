@@ -1,0 +1,28 @@
+---
+description: Platform-first — generate products; ≥90% reuse; never fork architecture
+alwaysApply: true
+---
+
+# AfterArtificial Platform Doctrine
+
+- **Master Vision v2.0:** `docs/AFTERARTIFICIAL_ECOSYSTEM_MASTER_VISION.md`
+- **Company definition:** AfterArtificial is an AI Product Platform that
+  generates consumer and enterprise software from a unified architecture.
+- **Platform-first:** ask — app feature or shared `after_*` capability?
+  Prefer platform whenever reasonable.
+- **Organizing principle:** Life Domains + Industry Domains
+  (`docs/LIFE_DOMAINS.md`). Scale to ≥100 apps without architecture forks
+  (`docs/LIFE_DOMAIN_ROADMAP.md`).
+- **Objective:** generate hundreds of products — not hand-craft apps.
+  See `docs/PLATFORM_DOCTRINE.md` · `docs/MASTER_VISION_ALIGNMENT_2026.md`.
+- **≥90% reuse.** Product-owned: domain, vertical features under
+  `lib/features/<domain>/`, AI profile/skills, JSON catalogs (dashboard /
+  workflows / plugins), branding, locales.
+- **Identical architecture** across the ecosystem. Do not invent per-app
+  auth, shells, design systems, workflow/dashboard/plugin/AI engines.
+- **Create products via** `product.spec.yaml` + `generate_product.ps1`.
+  Do not expand `generate_enterprise_from_hospital.ps1` (transitional).
+- Enterprise products should mount `EnterpriseProductRuntime` +
+  `AfterEnterpriseAuthGate` + `AfterEnterpriseMainShell`.
+- Prefer investing in `supercore/packages/*` over any single product repo.
+- Run `scripts/check_reuse_contract.ps1` when reviewing product thickness.

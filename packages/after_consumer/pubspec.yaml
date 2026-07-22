@@ -15,11 +15,17 @@ environment:
 dependencies:
   after_core:
     path: ../after_core
+  after_design_system:
+    path: ../after_design_system
+  after_firebase:
+    path: ../after_firebase
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.3.2
+  image_picker: ^1.1.2
   meta: ^1.16.0
   riverpod: any
+  shared_preferences: any
 
 dev_dependencies:
   flutter_test:

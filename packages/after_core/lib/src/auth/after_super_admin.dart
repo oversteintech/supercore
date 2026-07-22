@@ -9,7 +9,18 @@ abstract final class AfterSuperAdmin {
     'admin@overstein.com',
     'superadmin@overstein.com',
     'ayhan@overstein.com',
+    'contact@overstein.com',
     'support@overstein.com',
+    // Per-product inboxes (Workspace) — ops may sign in via these too.
+    'supergarage@overstein.com',
+    'superhealth@overstein.com',
+    'superfinance@overstein.com',
+    'superhome@overstein.com',
+    'superpet@overstein.com',
+    'supersports@overstein.com',
+    'supertravel@overstein.com',
+    'supernews@overstein.com',
+    'supergames@overstein.com',
   };
 
   static bool isSuperAdminEmail(String? email) {

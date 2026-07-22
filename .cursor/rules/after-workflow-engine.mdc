@@ -1,0 +1,17 @@
+---
+description: Enterprise workflows use the shared After Workflow Engine (JSON / Remote Config)
+alwaysApply: true
+---
+
+# After Workflow Engine
+
+- Enterprise Super Apps MUST load workflow definitions from
+  `assets/workflows/catalog.json` (or equivalent) and/or Remote Config
+  key `after.workflow.catalog` via `hydrateWorkflowCatalog`.
+- Do not hard-code workflow graphs in product Dart for each admission,
+  flight prep, port arrival, machine repair, etc.
+- Every business-process state change goes through
+  `WorkflowEngine.transition` / `WorkflowRepository.applyTransition`.
+- Gate UI actions with RBAC; the engine re-checks
+  `requiredPermission` / `requiredRole`.
+- Docs: `docs/WORKFLOW_ENGINE.md`. Examples under `examples/workflows/`.

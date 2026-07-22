@@ -1,0 +1,64 @@
+apiVersion: after.ai/v1
+kind: OsShell
+
+metadata:
+  name: AfterHub
+  package: after_hub
+  bundle: com.overstein.afterhub
+  productLine: consumer
+  role: os_shell
+
+spec:
+  domain: Consumer Digital OS shell
+  reference: AfterHub
+
+  features:
+    - id: home
+      titleKey: features.home
+      subtitleKey: features.home_sub
+      icon: home_outlined
+    - id: ai
+      titleKey: features.ai
+      subtitleKey: features.ai_sub
+      icon: auto_awesome_outlined
+    - id: settings
+      titleKey: features.settings
+      subtitleKey: features.settings_sub
+      icon: settings_outlined
+
+  navigation:
+    tabs:
+      - id: home
+        labelKey: nav.home
+        icon: home_outlined
+      - id: ai
+        labelKey: nav.ai
+        icon: auto_awesome_outlined
+        module: assistant
+      - id: more
+        labelKey: nav.more
+        icon: more_horiz
+        module: more
+
+  permissions: []
+
+  ai:
+    skills:
+      - id: daily_briefing
+        description: Summarize cross-module daily priorities for the Hub Home.
+        tools:
+          - hub.briefing.compose
+
+  hub:
+    widgets: []
+    aiSkills: [daily_briefing]
+    calendarFeeds: []
+    notificationCategories: [hub.system]
+
+  locales:
+    - en
+    - tr
+
+  branding:
+    accent: '#7C3AED'
+    monogram: AH

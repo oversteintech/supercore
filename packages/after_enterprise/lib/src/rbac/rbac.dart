@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import '../scope/enterprise_scope.dart';
+
 /// A permission is a coarse capability string, e.g. `patients:read`,
 /// `workflows:approve`, `documents:delete`. Enterprise products declare
 /// their own strings; the OS layer never hard-codes verticals.
@@ -43,7 +45,8 @@ class PermissionSet {
 
 /// Port for role-based access control.
 abstract class RbacRepository {
-  Future<List<Role>> listRoles({String? organizationId});
+  /// Fail-closed: [organizationId] is required (ADR-002).
+  Future<List<Role>> listRoles({required String organizationId});
   Future<Role> upsertRole(Role role);
   Future<void> deleteRole(String roleId);
 
@@ -76,11 +79,10 @@ class InMemoryRbacRepository implements RbacRepository {
   String _assignmentKey(String userId, String orgId) => '$orgId::$userId';
 
   @override
-  Future<List<Role>> listRoles({String? organizationId}) async {
+  Future<List<Role>> listRoles({required String organizationId}) async {
+    final org = EnterpriseScope.requireOrganizationId(organizationId);
     return _roles.values
-        .where((r) => organizationId == null ||
-            r.organizationId == null ||
-            r.organizationId == organizationId)
+        .where((r) => r.organizationId == null || r.organizationId == org)
         .toList(growable: false);
   }
 

@@ -1,0 +1,28 @@
+---
+description: Every Super App uses the shared AfterAI Platform; products only enable/disable capabilities
+alwaysApply: true
+---
+
+# AfterAI Platform rule
+
+Every AfterArtificial Life Domain / Industry Domain module uses **`after_ai`**
+— never a parallel AI stack. There is **one assistant**; products extend it
+with domain skills only.
+
+## Product responsibility
+
+- Choose an `AfterAiProfile` (or build a domain-specific enable set).
+- Register domain **tools / skills / KB content** in the product repo.
+- Pass `AfterEcosystemAiContext` so Mate understands the whole Life Domain graph.
+- Bridge `OnlineAi` to `after_core` BYOK when shipping cloud Mate.
+
+## Platform responsibility (`packages/after_ai`)
+
+Conversation · Vision · OCR · STT · TTS · Translation · Recommendation · Prediction · Summarization · Semantic Search · Knowledge Base · Automation · Decision Support · Notifications · Workflow Suggestions · Context Memory · Offline AI · Online AI · Prompt Templates · Tool Calling · Plugins.
+
+## Fail closed
+
+Calling a disabled capability throws `AfterAiCapabilityDisabledException`.
+
+Docs: `docs/AFTER_AI_PLATFORM.md` · `docs/LIFE_DOMAINS.md`.
+References: `AfterAiProfile.superGarage` / `superHospital`.

@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
+import '../scope/enterprise_scope.dart';
+
 @immutable
 class MessagingChannel {
   const MessagingChannel({
@@ -41,7 +43,8 @@ class MessagingMessage {
 }
 
 abstract class MessagingRepository {
-  Future<List<MessagingChannel>> listChannels({String? organizationId});
+  /// Fail-closed: [organizationId] is required (ADR-002).
+  Future<List<MessagingChannel>> listChannels({required String organizationId});
   Future<MessagingChannel> createChannel(MessagingChannel channel);
   Future<List<MessagingMessage>> listMessages(String channelId);
   Future<MessagingMessage> postMessage(MessagingMessage message);
@@ -67,9 +70,12 @@ class InMemoryMessagingRepository implements MessagingRepository {
   }
 
   @override
-  Future<List<MessagingChannel>> listChannels({String? organizationId}) async {
+  Future<List<MessagingChannel>> listChannels({
+    required String organizationId,
+  }) async {
+    final org = EnterpriseScope.requireOrganizationId(organizationId);
     return _channels.values
-        .where((c) => organizationId == null || c.organizationId == organizationId)
+        .where((c) => c.organizationId == org)
         .toList(growable: false);
   }
 

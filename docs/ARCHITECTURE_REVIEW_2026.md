@@ -104,6 +104,14 @@ This review + ADRs + Manifest cross-links. No behavior change.
 
 Notification Center, calendar bridge, search wrap, analytics/settings façades, reuse-contract checks.
 
+**Landed (2026-07-20):** enterprise → ecosystem **calendar bridge**
+(`BridgingCalendarRepository`) and **Notification Center bridge**
+(`BridgingEnterpriseNotificationDispatcher`) with optional device-channel
+delivery; DI wraps `calendarRepositoryProvider` /
+`enterpriseNotificationDispatcherProvider`. Remaining: search wrap,
+analytics/settings façades, AI collapse, documents unify, reuse-contract
+checks.
+
 ### Phase 3 — Product migration
 
 Thin SuperHospital / SuperAirport to mount fabric + scope; stop hospital-clone expansion.

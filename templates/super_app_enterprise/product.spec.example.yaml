@@ -1,0 +1,92 @@
+apiVersion: after.ai/v1
+kind: SuperApp
+
+metadata:
+  name: SuperExampleEnterprise
+  package: super_example_enterprise
+  bundle: com.overstein.superexampleenterprise
+  productLine: enterprise
+
+spec:
+  domain: Example enterprise vertical
+  reference: SuperHospital
+
+  features:
+    - id: assets
+      titleKey: features.assets
+      subtitleKey: features.assets_sub
+      icon: category_outlined
+      requiredPermission: example.assets.read
+    - id: teams
+      titleKey: features.teams
+      subtitleKey: features.teams_sub
+      icon: groups_outlined
+      requiredPermission: example.teams.read
+
+  navigation:
+    tabs:
+      - id: home
+        labelKey: nav.home
+        icon: dashboard_outlined
+      - id: assets
+        labelKey: nav.assets
+        icon: category_outlined
+        feature: assets
+      - id: tasks
+        labelKey: nav.tasks
+        icon: task_alt_outlined
+        module: tasks
+      - id: calendar
+        labelKey: nav.calendar
+        icon: event_outlined
+        module: calendar
+      - id: assistant
+        labelKey: nav.assistant
+        icon: auto_awesome_outlined
+        module: assistant
+      - id: more
+        labelKey: nav.more
+        icon: more_horiz_outlined
+        module: more
+
+  permissions:
+    - example.assets.read
+    - example.assets.write
+    - example.teams.read
+    - example.teams.write
+
+  dashboard:
+    widgets:
+      - type: metric
+        id: active_assets
+        titleKey: dash.active_assets
+        source: vertical.assets.activeCount
+        order: 10
+        requiredPermission: example.assets.read
+      - type: module
+        id: open_tasks
+        titleKey: dash.open_tasks
+        module: tasks
+        limit: 5
+        order: 20
+      - type: module
+        id: today_calendar
+        titleKey: dash.calendar_today
+        module: calendar
+        limit: 5
+        order: 30
+
+  ai:
+    skills:
+      - id: asset_summary
+        description: Summarize asset status for the current shift.
+        tools:
+          - example.assets.list
+
+  branding:
+    accent: "#7C3AED"
+    monogram: SE
+
+  locales:
+    - en
+    - tr

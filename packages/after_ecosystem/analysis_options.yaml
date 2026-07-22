@@ -1,0 +1,15 @@
+﻿include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - build/**
+
+linter:
+  rules:
+    public_member_api_docs: false
+    lines_longer_than_80_chars: false
+    always_use_package_imports: false
+    prefer_initializing_formals: false
+    one_member_abstracts: false
+    sort_constructors_first: false
+    cascade_invocations: false

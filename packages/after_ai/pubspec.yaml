@@ -1,0 +1,31 @@
+name: after_ai
+description: >
+  AfterAI Platform — modular AI operating layer for every AfterArtificial
+  Super App. Conversation, vision, OCR, speech, translation, recommendation,
+  prediction, summarization, semantic search, knowledge base, automation,
+  decision support, tool calling, plugins, online/offline modes.
+version: 1.0.0
+publish_to: "none"
+repository: https://github.com/oversteintech/supercore
+
+environment:
+  sdk: ^3.12.2
+  flutter: ">=3.27.0"
+
+dependencies:
+  after_core:
+    path: ../after_core
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.3.2
+  meta: ^1.16.0
+  riverpod: any
+  uuid: ^4.5.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  very_good_analysis: ^10.3.0
+
+flutter:
+  uses-material-design: true

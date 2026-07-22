@@ -1,0 +1,41 @@
+---
+description: SuperGarage is the flagship; every Super App must feel like a sibling of the same premium family
+alwaysApply: true
+---
+
+# Super App family standard
+
+**SuperGarage is the flagship** consumer Life Domain of the AfterArtificial
+ecosystem. Every Super App MUST feel like a sibling of SuperGarage.
+
+Products are windows into Life Domains / Industry Domains — not isolated
+apps. See `docs/LIFE_DOMAINS.md`.
+
+## Non-negotiables (identical across apps)
+
+| Layer | Requirement |
+|-------|-------------|
+| Visual identity | Same After Design System primitives, density, typography, motion, and premium polish. Product color accents MAY differ; UI chrome and component vocabulary MUST match SuperGarage. |
+| Navigation | Same shell patterns: cold start → AuthGate → MainShell tabs (no ad-hoc routers). Feature catalog + navigator for domain features. |
+| Interaction | Same loading/empty/error, cards, app bars, nav bar, and notification affordances from `after_design_system`. |
+| Architecture | After Framework composition root, Riverpod DI, domain/data/features layout, mock→real ports. Follow SuperGarage + AAPS. |
+| Ecosystem | Mount `after_ecosystem`; communicate via events / secure APIs only. |
+| Code quality | Same naming, l10n (≥20 locales), tests, CI (sibling `supercore` checkout), analyze-clean bar, no TODO debt in skeletons. |
+| Engineering | Same packages (`after_core`, `after_design_system`, `after_ecosystem`, `after_ai`), bootstrap, membership, offline, analytics ports. |
+
+## When building or changing a Super App
+
+1. **Treat SuperGarage as the reference implementation** — copy structure and patterns from it (or the latest sibling that already matches SuperGarage), then swap only domain/features/branding.
+2. **Do not invent a new UX or architecture** for a vertical. Domain content changes; family feel does not.
+3. **If SuperGarage and a sibling diverge**, prefer SuperGarage’s intentional pattern unless AAPS documents an approved exception.
+4. **New Super Apps** ship as feature sets + branding + manifest on After Framework — not greenfield apps.
+
+## Brand hierarchy (do not invert)
+
+```
+Ayhan Uzundal → AfterArtificial (Life Domains + Industry Domains)
+             → SuperGarage (consumer flagship) + siblings
+             → Powered by After Framework → Built by Overstein Labs
+```
+
+Reference docs in SuperGarage: `docs/AFTERARTIFICIAL_PLATFORM_STANDARD_v1.md`, `docs/AFTER_FRAMEWORK.md`.

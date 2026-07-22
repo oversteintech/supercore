@@ -29,6 +29,7 @@ class AppPlatformManifest {
     required this.androidWidgetProvider,
     required this.iosAppGroupId,
     this.productLine = AfterProductLine.consumer,
+    this.supportEmail,
   });
 
   final String appName;
@@ -38,8 +39,24 @@ class AppPlatformManifest {
   final String iosAppGroupId;
   final AfterProductLine productLine;
 
+  /// Product support inbox (e.g. `supergarage@overstein.com`).
+  ///
+  /// When null, [resolvedSupportEmail] derives `{appId without _/-}@overstein.com`.
+  final String? supportEmail;
+
   bool get isConsumer => productLine == AfterProductLine.consumer;
   bool get isEnterprise => productLine == AfterProductLine.enterprise;
+
+  /// Canonical per-product support address for mailto / legal / settings.
+  String get resolvedSupportEmail {
+    final explicit = supportEmail?.trim();
+    if (explicit != null && explicit.isNotEmpty) return explicit;
+    final slug = appId.replaceAll(RegExp(r'[_-]'), '').toLowerCase();
+    if (slug.isEmpty || slug == 'afterunset') {
+      return 'contact@overstein.com';
+    }
+    return '$slug@overstein.com';
+  }
 }
 
 /// Holds the active Super App identity for shared After Framework code.
@@ -54,6 +71,7 @@ class PlatformConfig {
     androidWidgetProvider: '',
     iosAppGroupId: '',
     productLine: AfterProductLine.consumer,
+    supportEmail: 'contact@overstein.com',
   );
 }
 

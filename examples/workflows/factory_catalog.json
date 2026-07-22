@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "id": "superfactory",
+  "domain": "factory",
+  "workflows": [
+    {
+      "id": "machine_repair",
+      "name": "Machine Repair",
+      "nameKey": "wf.factory.machine_repair",
+      "domain": "factory",
+      "subjectType": "machine",
+      "initialState": "reported",
+      "states": [
+        "reported",
+        "assigned",
+        "in_repair",
+        "parts_wait",
+        "verified",
+        "closed"
+      ],
+      "terminalStates": ["closed"],
+      "transitions": [
+        {
+          "from": "reported",
+          "to": "assigned",
+          "event": "assign",
+          "requiredPermission": "machines.assign",
+          "createsTask": true,
+          "taskTitleKey": "wf.task.repair_machine"
+        },
+        {
+          "from": "assigned",
+          "to": "in_repair",
+          "event": "start_repair",
+          "requiredPermission": "machines.repair"
+        },
+        {
+          "from": "in_repair",
+          "to": "parts_wait",
+          "event": "wait_parts",
+          "requiredPermission": "machines.repair"
+        },
+        {
+          "from": "parts_wait",
+          "to": "in_repair",
+          "event": "resume",
+          "requiredPermission": "machines.repair"
+        },
+        {
+          "from": "in_repair",
+          "to": "verified",
+          "event": "verify",
+          "requiredPermission": "machines.verify",
+          "requiredRole": "supervisor"
+        },
+        {
+          "from": "verified",
+          "to": "closed",
+          "event": "close",
+          "requiredPermission": "machines.close"
+        }
+      ]
+    },
+    {
+      "id": "quality_control",
+      "name": "Quality Control",
+      "nameKey": "wf.factory.quality_control",
+      "domain": "factory",
+      "subjectType": "batch",
+      "initialState": "queued",
+      "states": ["queued", "inspecting", "passed", "rework", "scrapped"],
+      "terminalStates": ["passed", "scrapped"],
+      "transitions": [
+        {
+          "from": "queued",
+          "to": "inspecting",
+          "event": "start_inspection",
+          "requiredPermission": "qc.inspect"
+        },
+        {
+          "from": "inspecting",
+          "to": "passed",
+          "event": "pass",
+          "requiredPermission": "qc.decide",
+          "requiredRole": "qc_inspector"
+        },
+        {
+          "from": "inspecting",
+          "to": "rework",
+          "event": "rework",
+          "requiredPermission": "qc.decide"
+        },
+        {
+          "from": "rework",
+          "to": "inspecting",
+          "event": "reinspect",
+          "requiredPermission": "qc.inspect"
+        },
+        {
+          "from": "inspecting",
+          "to": "scrapped",
+          "event": "scrap",
+          "requiredPermission": "qc.decide",
+          "requiredRole": "qc_lead"
+        }
+      ]
+    }
+  ]
+}

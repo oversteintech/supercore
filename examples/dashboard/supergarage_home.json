@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "id": "home",
+  "widgets": [
+    {
+      "id": "stats",
+      "kind": "statistics",
+      "titleKey": "dash.stats",
+      "source": "garage.stats",
+      "order": 10,
+      "span": 2
+    },
+    {
+      "id": "ai",
+      "kind": "aiCard",
+      "titleKey": "dash.ai_insight",
+      "order": 20,
+      "span": 2
+    },
+    {
+      "id": "vehicles",
+      "kind": "vehicleCard",
+      "titleKey": "dash.vehicles",
+      "source": "garage.vehicles.recent",
+      "limit": 3,
+      "order": 30
+    },
+    {
+      "id": "tasks",
+      "kind": "tasks",
+      "titleKey": "dash.tasks",
+      "module": "tasks",
+      "limit": 5,
+      "order": 40
+    },
+    {
+      "id": "calendar",
+      "kind": "calendar",
+      "titleKey": "dash.calendar",
+      "module": "calendar",
+      "limit": 3,
+      "order": 50
+    },
+    {
+      "id": "qa",
+      "kind": "quickActions",
+      "titleKey": "dash.quick_actions",
+      "order": 60,
+      "data": {
+        "actions": [
+          { "id": "add_vehicle", "label": "Add vehicle", "route": "/vehicles/new" },
+          { "id": "log_service", "label": "Log service", "route": "/service/new" },
+          { "id": "scan", "label": "Scan docs", "route": "/documents/scan" }
+        ]
+      }
+    },
+    {
+      "id": "docs",
+      "kind": "documents",
+      "titleKey": "dash.documents",
+      "module": "documents",
+      "limit": 4,
+      "order": 70
+    },
+    {
+      "id": "recent",
+      "kind": "recentItems",
+      "titleKey": "dash.recent",
+      "source": "garage.recent",
+      "limit": 5,
+      "order": 80
+    },
+    {
+      "id": "favorites",
+      "kind": "favorites",
+      "titleKey": "dash.favorites",
+      "order": 90
+    },
+    {
+      "id": "notifications",
+      "kind": "notifications",
+      "titleKey": "dash.notifications",
+      "module": "notifications",
+      "limit": 5,
+      "order": 100
+    },
+    {
+      "id": "weather",
+      "kind": "weather",
+      "titleKey": "dash.weather",
+      "source": "location.weather",
+      "order": 110
+    },
+    {
+      "id": "location",
+      "kind": "location",
+      "titleKey": "dash.location",
+      "source": "location.current",
+      "order": 120
+    },
+    {
+      "id": "activity",
+      "kind": "activityTimeline",
+      "titleKey": "dash.activity",
+      "source": "garage.activity",
+      "limit": 8,
+      "order": 130,
+      "span": 2
+    }
+  ]
+}

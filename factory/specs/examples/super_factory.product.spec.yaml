@@ -1,0 +1,139 @@
+apiVersion: after.ai/v1
+kind: SuperApp
+
+metadata:
+  name: SuperFactory
+  package: super_factory
+  bundle: com.overstein.superfactory
+  productLine: enterprise
+
+spec:
+  domain: Factory floor and manufacturing operations
+  reference: SuperHospital
+
+  features:
+    - id: lines
+      titleKey: features.lines
+      subtitleKey: features.lines_sub
+      icon: view_week_outlined
+      requiredPermission: factory.lines.read
+    - id: work_orders
+      titleKey: features.work_orders
+      subtitleKey: features.work_orders_sub
+      icon: assignment_outlined
+      requiredPermission: factory.work_orders.read
+    - id: machines
+      titleKey: features.machines
+      subtitleKey: features.machines_sub
+      icon: precision_manufacturing_outlined
+      requiredPermission: factory.machines.read
+    - id: maintenance
+      titleKey: features.maintenance
+      subtitleKey: features.maintenance_sub
+      icon: build_outlined
+      requiredPermission: factory.maintenance.read
+    - id: downtime
+      titleKey: features.downtime
+      subtitleKey: features.downtime_sub
+      icon: report_problem_outlined
+      requiredPermission: factory.downtime.read
+    - id: oee
+      titleKey: features.oee
+      subtitleKey: features.oee_sub
+      icon: speed_outlined
+      requiredPermission: factory.oee.read
+    - id: quality
+      titleKey: features.quality
+      subtitleKey: features.quality_sub
+      icon: verified_outlined
+      requiredPermission: factory.quality.read
+    - id: shifts
+      titleKey: features.shifts
+      subtitleKey: features.shifts_sub
+      icon: schedule_outlined
+      requiredPermission: factory.shifts.read
+    - id: inventory
+      titleKey: features.inventory
+      subtitleKey: features.inventory_sub
+      icon: warehouse_outlined
+      requiredPermission: factory.inventory.read
+    - id: factory_ai
+      titleKey: features.factory_ai
+      subtitleKey: features.factory_ai_sub
+
+  navigation:
+    tabs:
+      - id: home
+        labelKey: nav.home
+        icon: dashboard_outlined
+      - id: tasks
+        labelKey: nav.tasks
+        icon: task_alt_outlined
+        module: tasks
+      - id: calendar
+        labelKey: nav.calendar
+        icon: event_outlined
+        module: calendar
+      - id: documents
+        labelKey: nav.documents
+        icon: folder_outlined
+        module: documents
+      - id: assistant
+        labelKey: nav.assistant
+        icon: auto_awesome_outlined
+        module: assistant
+      - id: more
+        labelKey: nav.more
+        icon: more_horiz_outlined
+        module: more
+
+  permissions:
+    - factory.lines.read
+    - factory.work_orders.read
+    - factory.machines.read
+    - factory.maintenance.read
+    - factory.downtime.read
+    - factory.oee.read
+    - factory.quality.read
+    - factory.shifts.read
+    - factory.inventory.read
+
+  dashboard:
+    widgets:
+      - type: kpi
+        id: oee_live
+        titleKey: dash.oee_live
+        source: vertical.oee.livePct
+        order: 10
+      - type: module
+        id: open_work_orders
+        titleKey: dash.open_work_orders
+        module: tasks
+        limit: 5
+        order: 20
+      - type: chart
+        id: downtime_chart
+        titleKey: dash.downtime
+        source: vertical.downtime.byLine
+        order: 30
+
+  ai:
+    skills:
+      - id: oee_brief
+        description: Summarize OEE and top downtime causes for the shift.
+        tools:
+          - factory.oee.metrics
+          - factory.downtime.top
+      - id: maintenance_next
+        description: Suggest next maintenance actions for critical machines.
+        tools:
+          - factory.machines.critical
+          - factory.maintenance.open
+
+  branding:
+    accent: "#F59E0B"
+    monogram: SF
+
+  locales:
+    - en
+    - tr

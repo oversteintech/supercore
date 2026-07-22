@@ -1,0 +1,134 @@
+apiVersion: after.ai/v1
+kind: SuperApp
+
+metadata:
+  name: SuperAirport
+  package: super_airport
+  bundle: com.overstein.superairport
+  productLine: enterprise
+
+spec:
+  domain: Airport / aviation operations
+  reference: SuperHospital
+
+  features:
+    - id: flights
+      titleKey: features.flights
+      subtitleKey: features.flights_sub
+      icon: flight_takeoff_outlined
+      requiredPermission: airport.flights.read
+    - id: gates
+      titleKey: features.gates
+      subtitleKey: features.gates_sub
+      icon: airline_seat_recline_normal_outlined
+      requiredPermission: airport.gates.read
+    - id: runways
+      titleKey: features.runways
+      subtitleKey: features.runways_sub
+      icon: airport_shuttle_outlined
+      requiredPermission: airport.runways.read
+    - id: baggage
+      titleKey: features.baggage
+      subtitleKey: features.baggage_sub
+      icon: luggage_outlined
+      requiredPermission: airport.baggage.read
+    - id: ground_ops
+      titleKey: features.ground_ops
+      subtitleKey: features.ground_ops_sub
+      icon: engineering_outlined
+      requiredPermission: airport.ground_ops.read
+
+  navigation:
+    tabs:
+      - id: home
+        labelKey: nav.home
+        icon: dashboard_outlined
+      - id: flights
+        labelKey: nav.flights
+        icon: flight_takeoff_outlined
+        feature: flights
+      - id: tasks
+        labelKey: nav.tasks
+        icon: task_alt_outlined
+        module: tasks
+      - id: assistant
+        labelKey: nav.assistant
+        icon: auto_awesome_outlined
+        module: assistant
+      - id: more
+        labelKey: nav.more
+        icon: more_horiz_outlined
+        module: more
+
+  permissions:
+    - airport.flights.read
+    - airport.flights.write
+    - airport.gates.read
+    - airport.gates.write
+    - airport.runways.read
+    - airport.runways.write
+    - airport.baggage.read
+    - airport.ground_ops.read
+
+  dashboard:
+    widgets:
+      - type: metric
+        id: active_flights
+        titleKey: dash.active_flights
+        source: vertical.flights.activeCount
+        order: 10
+        requiredPermission: airport.flights.read
+      - type: metric
+        id: delayed_flights
+        titleKey: dash.delayed_flights
+        source: vertical.flights.delayedCount
+        order: 20
+        requiredPermission: airport.flights.read
+      - type: metric
+        id: gate_utilization
+        titleKey: dash.gate_utilization
+        source: vertical.gates.utilizationPct
+        order: 30
+        requiredPermission: airport.gates.read
+      - type: module
+        id: open_tasks
+        titleKey: dash.open_tasks
+        module: tasks
+        limit: 5
+        order: 40
+      - type: module
+        id: today_calendar
+        titleKey: dash.calendar_today
+        module: calendar
+        limit: 5
+        order: 50
+      - type: quickActions
+        id: airside_quick_actions
+        titleKey: dash.quick_actions
+        order: 60
+
+  ai:
+    skills:
+      - id: gate_status
+        description: Summarize gate occupancy and turnaround times.
+        tools:
+          - airport.gates.list
+          - airport.gates.metrics
+      - id: delay_brief
+        description: Brief ops on the top delayed flights of the shift.
+        tools:
+          - airport.flights.delayed
+          - airport.flights.reasons
+      - id: runway_capacity
+        description: Explain runway slot availability for the next 3 hours.
+        tools:
+          - airport.runways.list
+          - airport.runways.slots
+
+  branding:
+    accent: "#0EA5E9"
+    monogram: SA
+
+  locales:
+    - en
+    - tr

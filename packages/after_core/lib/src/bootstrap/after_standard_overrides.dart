@@ -9,6 +9,7 @@ import '../network/after_http_client.dart';
 import '../notifications/after_notifications.dart';
 import '../remote_config/after_remote_config.dart';
 import '../storage/secure_storage.dart';
+import '../sync/after_user_blob_sync.dart';
 
 /// Standard After Framework provider overrides shared by every Super App.
 ///
@@ -25,6 +26,9 @@ abstract final class AfterStandardOverrides {
     required String userAgent,
     AfterHttpPolicy? httpPolicy,
     AfterLogger logger = const ConsoleAfterLogger(),
+    // False when composition root also spreads AfterFirebaseBootstrap.overrides
+    // (avoids double-override of afterUserBlobSyncPortProvider).
+    bool includeUserBlobSync = true,
   }) {
     final policy = httpPolicy ??
         AfterHttpPolicy(
@@ -52,6 +56,10 @@ abstract final class AfterStandardOverrides {
       afterAiCredentialVaultProvider.overrideWith((ref) {
         return AfterAiCredentialVault(ref.watch(afterSecureStorageProvider));
       }),
+      if (includeUserBlobSync)
+        afterUserBlobSyncPortProvider.overrideWithValue(
+          PrefsAfterUserBlobSync(preferences),
+        ),
     ];
   }
 }

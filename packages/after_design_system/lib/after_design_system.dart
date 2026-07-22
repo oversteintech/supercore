@@ -19,8 +19,30 @@ export 'src/foundations/typography.dart';
 export 'src/components/buttons.dart';
 export 'src/components/cards.dart';
 export 'src/components/charts.dart';
+export 'src/components/dashboard.dart';
 export 'src/components/dialogs.dart';
 export 'src/components/empty_states.dart';
 export 'src/components/inputs.dart';
 export 'src/components/loading.dart';
 export 'src/components/navigation_bar.dart';
+export 'src/components/shell_top_bar.dart';
+
+// Premium themes (Garage flagship pack — shared across Super Apps)
+export 'src/premium_themes/theme.dart';
+export 'src/premium_themes/after_theme_style.dart';
+export 'src/premium_themes/after_framework_theme.dart';
+export 'src/premium_themes/after_premium_app_shell.dart';
+export 'src/premium_themes/premium_theme_shell.dart';
+export 'src/premium_themes/overstein_brand_colors.dart';
+
+// OVERSTEIN company branding (identical splash across every Super App)
+export 'src/branding/overstein_logo.dart';
+export 'src/branding/overstein_company_splash.dart'
+    show
+        AfterLaunchShell,
+        OversteinCompanySplash,
+        OversteinCompanySplashStore,
+        OversteinCompanySplashTiming;
+
+// Membership chrome (Garage-parity header colors)
+export 'src/membership/after_user_plan_colors.dart';

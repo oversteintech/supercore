@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "id": "supergarage",
+  "plugins": [
+    {
+      "id": "vin_decoder",
+      "name": "VIN Decoder",
+      "nameKey": "plugin.vin_decoder",
+      "version": "1.0.0",
+      "productLines": ["consumer"],
+      "entryPoint": "package:after_plugin_vin/after_plugin_vin.dart",
+      "contributions": [
+        {
+          "id": "vin_page",
+          "kind": "page",
+          "titleKey": "plugin.vin.page",
+          "route": "/plugins/vin",
+          "iconKey": "qr_code_scanner",
+          "order": 10
+        },
+        {
+          "id": "vin_nav",
+          "kind": "navigationItem",
+          "titleKey": "plugin.vin.nav",
+          "route": "/plugins/vin",
+          "iconKey": "qr_code_scanner",
+          "order": 40,
+          "data": { "placement": "more" }
+        },
+        {
+          "id": "vin_widget",
+          "kind": "dashboardWidget",
+          "titleKey": "plugin.vin.widget",
+          "order": 55,
+          "data": {
+            "widgetKind": "quickActions",
+            "actions": [
+              { "id": "scan_vin", "label": "Scan VIN", "route": "/plugins/vin" }
+            ]
+          }
+        },
+        {
+          "id": "vin_skill",
+          "kind": "aiSkill",
+          "titleKey": "plugin.vin.skill",
+          "order": 10,
+          "data": {
+            "skillId": "decode_vin",
+            "toolName": "decode_vin",
+            "description": "Decode a vehicle VIN into make, model, year"
+          }
+        },
+        {
+          "id": "vin_form",
+          "kind": "form",
+          "titleKey": "plugin.vin.form",
+          "route": "/plugins/vin/form",
+          "data": {
+            "schema": {
+              "fields": [
+                { "id": "vin", "type": "text", "required": true, "maxLength": 17 }
+              ]
+            }
+          }
+        },
+        {
+          "id": "vin_api",
+          "kind": "api",
+          "titleKey": "plugin.vin.api",
+          "data": {
+            "method": "POST",
+            "path": "/v1/plugins/vin/decode"
+          }
+        },
+        {
+          "id": "vin_module",
+          "kind": "businessModule",
+          "titleKey": "plugin.vin.module",
+          "data": {
+            "moduleId": "vin_decoder",
+            "featureIds": ["vin_scan", "vin_history"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "service_reports",
+      "name": "Service Reports",
+      "version": "1.0.0",
+      "contributions": [
+        {
+          "id": "service_cost_report",
+          "kind": "report",
+          "titleKey": "plugin.service_reports.cost",
+          "requiredPermission": "reports.read",
+          "data": {
+            "reportId": "service_cost_by_vehicle",
+            "columns": ["vehicle", "total", "visits"]
+          }
+        },
+        {
+          "id": "reports_nav",
+          "kind": "navigationItem",
+          "titleKey": "plugin.service_reports.nav",
+          "route": "/plugins/service-reports",
+          "iconKey": "assessment",
+          "order": 60,
+          "data": { "placement": "more" }
+        }
+      ]
+    }
+  ]
+}

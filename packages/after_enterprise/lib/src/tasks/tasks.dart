@@ -1,4 +1,7 @@
+import 'package:after_core/after_core.dart';
 import 'package:meta/meta.dart';
+
+import '../scope/enterprise_scope.dart';
 
 enum TaskStatus { open, inProgress, blocked, done, cancelled }
 
@@ -60,8 +63,16 @@ class EnterpriseTask {
 }
 
 abstract class TaskRepository {
+  /// Fail-closed: [organizationId] is required (ADR-002).
   Future<List<EnterpriseTask>> listTasks({
-    String? organizationId,
+    required String organizationId,
+    String? assigneeId,
+    TaskStatus? status,
+  });
+
+  Future<Page<EnterpriseTask>> pageTasks({
+    required String organizationId,
+    PageQuery query = const PageQuery(),
     String? assigneeId,
     TaskStatus? status,
   });
@@ -81,18 +92,32 @@ class InMemoryTaskRepository implements TaskRepository {
 
   @override
   Future<List<EnterpriseTask>> listTasks({
-    String? organizationId,
+    required String organizationId,
     String? assigneeId,
     TaskStatus? status,
   }) async {
+    final org = EnterpriseScope.requireOrganizationId(organizationId);
     return _tasks.values.where((t) {
-      if (organizationId != null && t.organizationId != organizationId) {
-        return false;
-      }
+      if (t.organizationId != org) return false;
       if (assigneeId != null && t.assigneeId != assigneeId) return false;
       if (status != null && t.status != status) return false;
       return true;
     }).toList(growable: false);
+  }
+
+  @override
+  Future<Page<EnterpriseTask>> pageTasks({
+    required String organizationId,
+    PageQuery query = const PageQuery(),
+    String? assigneeId,
+    TaskStatus? status,
+  }) async {
+    final all = await listTasks(
+      organizationId: organizationId,
+      assigneeId: assigneeId,
+      status: status,
+    );
+    return Page.fromList(all, query);
   }
 
   @override

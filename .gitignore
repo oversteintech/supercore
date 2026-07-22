@@ -11,3 +11,27 @@ pubspec.lock
 **/pubspec.lock
 coverage/
 *.log
+
+# push hygiene
+node_modules/
+.vercel/
+.tmp/
+tmp_*/
+**/tmp_*/
+coverage/
+build/
+.dart_tool/
+*.iml
+.idea/
+.DS_Store
+google-services.json
+GoogleService-Info.plist
+*.jks
+*.keystore
+.env
+.env.*
+!.env.example
+dist/
+*.apk
+*.aab
+*.ipa

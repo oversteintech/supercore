@@ -1,28 +1,34 @@
 ---
-description: AfterArtificial is an AI OS — dual Consumer + Enterprise frameworks; generate products from standards
+description: AfterArtificial is an AI Product Platform — unified architecture; generate consumer + enterprise software
 alwaysApply: true
 ---
 
 # After OS platform rule
 
-AfterArtificial is an **AI Operating System company**, not a collection of one-off apps.
+**AfterArtificial is an AI Product Platform that generates consumer and
+enterprise software from a unified architecture** — not an app company,
+not a collection of one-off apps.
+
+Products are **Life Domains** (consumer) or **Industry Domains**
+(enterprise). See `docs/LIFE_DOMAINS.md`.
 
 ## Dual product lines (one kernel)
 
 | Line | OS package | Reference app |
 |------|------------|---------------|
-| Consumer | `after_consumer` (+ `after_core`) | **SuperGarage** |
-| Enterprise | `after_enterprise` (+ `after_core`) | **SuperHospital** |
+| Consumer Life Domains | `after_consumer` (+ `after_core` + `after_ecosystem`) | **SuperGarage** |
+| Enterprise Industry Domains | `after_enterprise` (+ `after_core` + `after_ecosystem`) | **SuperHospital** |
 
-Shared: `after_core`, `after_design_system`, OVERSTEIN splash/cold-start, Riverpod, AAPS layering.
+Shared: `after_core`, `after_design_system`, `after_ai`, `after_ecosystem`,
+OVERSTEIN splash/cold-start, Riverpod, AAPS layering.
 
 ## Non-negotiables
 
 1. **Never invent a new architecture** for a vertical. Assemble from templates + catalog (`catalog/products.yaml`).
-2. **Industry modules only** live in the product repo (`lib/features/`). Shared OS capabilities (org, RBAC, workflow, tasks, calendar, documents, AI, messaging, notifications, reporting, analytics, audit, offline sync, API) live in `after_enterprise` / `after_consumer` / `after_core`.
+2. **Domain modules only** live in the product repo (`lib/features/`). Shared OS capabilities live in `after_enterprise` / `after_consumer` / `after_core` / `after_ecosystem`.
 3. **SuperGarage** wins for consumer patterns; **SuperHospital** wins for enterprise patterns.
 4. New products: `templates/super_app_consumer` or `templates/super_app_enterprise` + unique `AppPlatformManifest` (`productLine`, `com.overstein.<app>`).
-5. Docs: `docs/AFTER_OS_ARCHITECTURE.md`, `CONSUMER_FRAMEWORK.md`, `ENTERPRISE_FRAMEWORK.md`, `PRODUCT_CATALOG.md`.
+5. Docs: `docs/AFTER_OS_ARCHITECTURE.md`, `LIFE_DOMAINS.md`, `LIFE_DOMAIN_ROADMAP.md`, `CONSUMER_FRAMEWORK.md`, `ENTERPRISE_FRAMEWORK.md`, `PRODUCT_CATALOG.md`.
 
 ## After generating a product
 

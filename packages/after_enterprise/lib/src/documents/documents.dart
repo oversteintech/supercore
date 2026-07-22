@@ -1,4 +1,7 @@
+import 'package:after_core/after_core.dart';
 import 'package:meta/meta.dart';
+
+import '../scope/enterprise_scope.dart';
 
 /// Metadata pointer for an enterprise document. Actual binary content lives
 /// in a vault (S3/GCS/etc.) referenced by [vaultKey].
@@ -34,8 +37,15 @@ class EnterpriseDocument {
 }
 
 abstract class DocumentRepository {
+  /// Fail-closed: [organizationId] is required (ADR-002).
   Future<List<EnterpriseDocument>> listDocuments({
-    String? organizationId,
+    required String organizationId,
+    List<String>? tags,
+  });
+
+  Future<Page<EnterpriseDocument>> pageDocuments({
+    required String organizationId,
+    PageQuery query = const PageQuery(),
     List<String>? tags,
   });
 
@@ -55,18 +65,27 @@ class InMemoryDocumentRepository implements DocumentRepository {
 
   @override
   Future<List<EnterpriseDocument>> listDocuments({
-    String? organizationId,
+    required String organizationId,
     List<String>? tags,
   }) async {
+    final org = EnterpriseScope.requireOrganizationId(organizationId);
     return _docs.values.where((d) {
-      if (organizationId != null && d.organizationId != organizationId) {
-        return false;
-      }
+      if (d.organizationId != org) return false;
       if (tags != null && tags.isNotEmpty) {
         if (!tags.every(d.tags.contains)) return false;
       }
       return true;
     }).toList(growable: false);
+  }
+
+  @override
+  Future<Page<EnterpriseDocument>> pageDocuments({
+    required String organizationId,
+    PageQuery query = const PageQuery(),
+    List<String>? tags,
+  }) async {
+    final all = await listDocuments(organizationId: organizationId, tags: tags);
+    return Page.fromList(all, query);
   }
 
   @override

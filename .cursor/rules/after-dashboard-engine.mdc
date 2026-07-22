@@ -1,0 +1,17 @@
+---
+description: Home screens use the shared Dashboard Engine (JSON / Remote Config)
+alwaysApply: true
+---
+
+# After Dashboard Engine
+
+- Every Super App Home MUST be assembled from `DashboardWidgetSpec` via
+  `DashboardEngine` — not hard-coded Dart widget trees for layout.
+- Seed with bundled `assets/dashboard/home.json`, then overlay Remote Config
+  key `after.dashboard.layout` using `hydrateDashboardEngine`.
+- Render with `AfterDashboard` from `after_design_system`.
+- Domain data stays in the app: pass `resolveValue` / `resolveLabel` /
+  `onAction`. Do not fork layout engines per product.
+- Docs: `docs/DASHBOARD_ENGINE.md`. Examples:
+  `examples/dashboard/supergarage_home.json`,
+  `examples/dashboard/superhospital_home.json`.

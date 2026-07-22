@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import '../scope/enterprise_scope.dart';
+
 enum EnterpriseNotificationChannel { push, email, sms, inApp }
 
 @immutable
@@ -46,9 +48,11 @@ class EnterpriseNotification {
 /// business notifications (workflow updates, mentions, approvals).
 abstract class EnterpriseNotificationDispatcher {
   Future<EnterpriseNotification> send(EnterpriseNotification notification);
+
+  /// Fail-closed: [organizationId] is required (ADR-002).
   Future<List<EnterpriseNotification>> inbox({
     required String recipientId,
-    String? organizationId,
+    required String organizationId,
     bool onlyUnread = false,
   });
   Future<void> markAsRead(String id);
@@ -84,14 +88,13 @@ class InMemoryEnterpriseNotificationDispatcher
   @override
   Future<List<EnterpriseNotification>> inbox({
     required String recipientId,
-    String? organizationId,
+    required String organizationId,
     bool onlyUnread = false,
   }) async {
+    final org = EnterpriseScope.requireOrganizationId(organizationId);
     return _all.values.where((n) {
       if (n.recipientId != recipientId) return false;
-      if (organizationId != null && n.organizationId != organizationId) {
-        return false;
-      }
+      if (n.organizationId != org) return false;
       if (onlyUnread && n.readAt != null) return false;
       return true;
     }).toList(growable: false);

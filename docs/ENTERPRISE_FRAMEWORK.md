@@ -1,18 +1,27 @@
 # Enterprise Framework
 
 The enterprise product line (`AfterProductLine.enterprise`) is the family
-of B2B / vertical AfterArtificial Super Apps. **SuperHospital is the
-reference.**
+of B2B **Industry Domain** modules. **SuperHospital is the reference.**
+
+Organizing principle: [`LIFE_DOMAINS.md`](LIFE_DOMAINS.md) (Industry Domains
+section) · Roadmap: [`LIFE_DOMAIN_ROADMAP.md`](LIFE_DOMAIN_ROADMAP.md).
+
+Industry Domains (Hospital, Airport, Maritime, Factory, Construction,
+Retail, School, Hotel, Restaurant, Logistics, Energy, Municipality, …)
+mount the same fabric as consumer Life Domains and interoperate via
+secure APIs (e.g. SuperSchool ↔ SuperKids).
 
 ## Stack
 
 ```
-Product (lib/features/<vertical>/)   ← industry modules only
+Industry Domain product (lib/features/<vertical>/)
         ↓
-after_enterprise   (this OS layer)
+after_ecosystem + after_ai + after_enterprise
         ↓
 after_core + after_design_system
 ```
+
+Technical ADRs: [`ARCHITECTURE_REVIEW_2026.md`](ARCHITECTURE_REVIEW_2026.md).
 
 ## Non-negotiable enterprise OS modules
 
@@ -24,8 +33,10 @@ so scaffolds run without any backend.
    the enterprise OS carries `organizationId`.
 2. **RBAC** — `RbacRepository`, `Role`, `PermissionSet`. Verticals
    declare their own permission strings; the OS never hard-codes them.
-3. **Workflow engine** — `WorkflowDefinition`, `WorkflowInstance`,
-   `WorkflowEngine`, `WorkflowRepository`.
+3. **Workflow engine** — JSON/RC catalog of unlimited definitions
+   (`WorkflowCatalog`, `hydrateWorkflowCatalog`), plus
+   `WorkflowEngine` / `WorkflowRepository`. See
+   [WORKFLOW_ENGINE.md](WORKFLOW_ENGINE.md).
 4. **Tasks** — `EnterpriseTask`, `TaskRepository`. Optional
    `linkedWorkflowInstanceId` glues tasks to workflows.
 5. **Calendar / scheduling** — `CalendarEvent`, `CalendarRepository`

@@ -1,0 +1,139 @@
+apiVersion: after.ai/v1
+kind: SuperApp
+
+metadata:
+  name: SuperMaritime
+  package: super_maritime
+  bundle: com.overstein.supermaritime
+  productLine: enterprise
+
+spec:
+  domain: Port and vessel operations
+  reference: SuperHospital
+
+  features:
+    - id: vessels
+      titleKey: features.vessels
+      subtitleKey: features.vessels_sub
+      icon: directions_boat_outlined
+      requiredPermission: maritime.vessels.read
+    - id: berths
+      titleKey: features.berths
+      subtitleKey: features.berths_sub
+      icon: anchor
+      requiredPermission: maritime.berths.read
+    - id: port_calls
+      titleKey: features.port_calls
+      subtitleKey: features.port_calls_sub
+      icon: harbour
+      requiredPermission: maritime.port_calls.read
+    - id: cargo
+      titleKey: features.cargo
+      subtitleKey: features.cargo_sub
+      icon: inventory_2_outlined
+      requiredPermission: maritime.cargo.read
+    - id: pilots
+      titleKey: features.pilots
+      subtitleKey: features.pilots_sub
+      icon: explore_outlined
+      requiredPermission: maritime.pilots.read
+    - id: tugs
+      titleKey: features.tugs
+      subtitleKey: features.tugs_sub
+      icon: tugboat
+      requiredPermission: maritime.tugs.read
+    - id: bunkering
+      titleKey: features.bunkering
+      subtitleKey: features.bunkering_sub
+      icon: local_gas_station_outlined
+      requiredPermission: maritime.bunkering.read
+    - id: customs
+      titleKey: features.customs
+      subtitleKey: features.customs_sub
+      icon: gavel_outlined
+      requiredPermission: maritime.customs.read
+    - id: crew_change
+      titleKey: features.crew_change
+      subtitleKey: features.crew_change_sub
+      icon: groups_outlined
+      requiredPermission: maritime.crew.read
+    - id: maritime_ai
+      titleKey: features.maritime_ai
+      subtitleKey: features.maritime_ai_sub
+
+  navigation:
+    tabs:
+      - id: home
+        labelKey: nav.home
+        icon: dashboard_outlined
+      - id: tasks
+        labelKey: nav.tasks
+        icon: task_alt_outlined
+        module: tasks
+      - id: calendar
+        labelKey: nav.calendar
+        icon: event_outlined
+        module: calendar
+      - id: documents
+        labelKey: nav.documents
+        icon: folder_outlined
+        module: documents
+      - id: assistant
+        labelKey: nav.assistant
+        icon: auto_awesome_outlined
+        module: assistant
+      - id: more
+        labelKey: nav.more
+        icon: more_horiz_outlined
+        module: more
+
+  permissions:
+    - maritime.vessels.read
+    - maritime.berths.read
+    - maritime.port_calls.read
+    - maritime.cargo.read
+    - maritime.pilots.read
+    - maritime.tugs.read
+    - maritime.bunkering.read
+    - maritime.customs.read
+    - maritime.crew.read
+
+  dashboard:
+    widgets:
+      - type: kpi
+        id: vessels_in_port
+        titleKey: dash.vessels_in_port
+        source: vertical.vessels.inPortCount
+        order: 10
+      - type: shipCard
+        id: arriving_ships
+        titleKey: dash.arriving
+        source: vertical.port_calls.arriving
+        order: 20
+      - type: module
+        id: open_tasks
+        titleKey: dash.open_tasks
+        module: tasks
+        limit: 5
+        order: 30
+
+  ai:
+    skills:
+      - id: berth_plan
+        description: Summarize berth allocation for the next 12 hours.
+        tools:
+          - maritime.berths.list
+          - maritime.port_calls.upcoming
+      - id: arrival_brief
+        description: Brief ops on inbound vessels and pilotage needs.
+        tools:
+          - maritime.port_calls.inbound
+          - maritime.pilots.availability
+
+  branding:
+    accent: "#0284C7"
+    monogram: SM
+
+  locales:
+    - en
+    - tr

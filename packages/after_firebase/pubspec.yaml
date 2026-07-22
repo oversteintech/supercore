@@ -1,0 +1,33 @@
+name: after_firebase
+description: >
+  Firebase Auth + Firestore blob adapters for AfterArtificial Super Apps.
+  Composition-root only — domain layers depend on after_core ports.
+version: 1.0.0
+publish_to: 'none'
+repository: https://github.com/oversteintech/supercore
+
+environment:
+  sdk: ^3.12.2
+  flutter: '>=3.27.0'
+
+dependencies:
+  after_core:
+    path: ../after_core
+  cloud_firestore: ^6.1.2
+  firebase_auth: ^6.5.4
+  firebase_core: ^4.11.0
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.3.2
+  google_sign_in: ^7.2.0
+  meta: ^1.16.0
+  riverpod: any
+  shared_preferences: ^2.5.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  very_good_analysis: ^10.3.0
+
+flutter:
+  uses-material-design: true

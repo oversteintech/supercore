@@ -1,27 +1,59 @@
+import 'package:after_core/after_core.dart';
+import 'package:after_ecosystem/after_ecosystem.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../ai/enterprise_ai.dart';
 import '../analytics/enterprise_analytics.dart';
 import '../api/enterprise_api.dart';
 import '../audit/audit_log.dart';
+import '../calendar/bridging_calendar_repository.dart';
 import '../calendar/calendar.dart';
 import '../documents/documents.dart';
 import '../messaging/messaging.dart';
+import '../notifications/bridging_enterprise_notification_dispatcher.dart';
 import '../notifications/enterprise_notifications.dart';
 import '../organization/organization.dart';
 import '../rbac/rbac.dart';
 import '../reporting/reporting.dart';
 import '../repository/enterprise_repository.dart';
+import '../scope/enterprise_scope.dart';
 import '../sync/offline_sync.dart';
 import '../tasks/tasks.dart';
 import '../workflow/workflow.dart';
+
+/// Product id stamped on ecosystem bridge writes (override at app root).
+final enterpriseBridgeSourceProductIdProvider = Provider<String>((ref) {
+  return 'after_enterprise';
+});
+
+/// Optional device delivery for bridged notifications (override at app root).
+final enterpriseNotificationDeviceChannelProvider =
+    Provider<AfterLocalNotifications?>((ref) => null);
+
+/// Bootstrap mode for enterprise composition (ADR-007).
+///
+/// Override to [AfterBootstrapMode.production] at the app root — mock
+/// repository defaults are then rejected.
+final enterpriseBootstrapModeProvider = Provider<AfterBootstrapMode>((ref) {
+  return AfterBootstrapMode.scaffold;
+});
 
 /// Composition root binds a concrete [EnterpriseRepository] here — override
 /// with a real backend adapter or [MockEnterpriseRepository] in tests /
 /// mock scaffolds.
 final enterpriseRepositoryProvider = Provider<EnterpriseRepository>((ref) {
+  final mode = ref.watch(enterpriseBootstrapModeProvider);
+  if (mode == AfterBootstrapMode.production) {
+    throw StateError(
+      'enterpriseRepositoryProvider: MockEnterpriseRepository is not allowed '
+      'in production bootstrap mode. Override with a real adapter (ADR-007).',
+    );
+  }
   return MockEnterpriseRepository();
 });
+
+/// Optional active tenant scope for UI / auditing helpers.
+final enterpriseScopeProvider = Provider<EnterpriseScope?>((ref) => null);
 
 final organizationRepositoryProvider = Provider<OrganizationRepository>((ref) {
   return ref.watch(enterpriseRepositoryProvider).organizations;
@@ -48,7 +80,11 @@ final taskRepositoryProvider = Provider<TaskRepository>((ref) {
 });
 
 final calendarRepositoryProvider = Provider<CalendarRepository>((ref) {
-  return ref.watch(enterpriseRepositoryProvider).calendar;
+  return BridgingCalendarRepository(
+    inner: ref.watch(enterpriseRepositoryProvider).calendar,
+    ecosystem: ref.watch(afterEcosystemCalendarProvider),
+    sourceProductId: ref.watch(enterpriseBridgeSourceProductIdProvider),
+  );
 });
 
 final documentRepositoryProvider = Provider<DocumentRepository>((ref) {
@@ -65,7 +101,12 @@ final messagingRepositoryProvider = Provider<MessagingRepository>((ref) {
 
 final enterpriseNotificationDispatcherProvider =
     Provider<EnterpriseNotificationDispatcher>((ref) {
-  return ref.watch(enterpriseRepositoryProvider).notifications;
+  return BridgingEnterpriseNotificationDispatcher(
+    inner: ref.watch(enterpriseRepositoryProvider).notifications,
+    notificationCenter: ref.watch(afterNotificationCenterProvider),
+    sourceProductId: ref.watch(enterpriseBridgeSourceProductIdProvider),
+    deviceChannel: ref.watch(enterpriseNotificationDeviceChannelProvider),
+  );
 });
 
 final reportingRepositoryProvider = Provider<ReportingRepository>((ref) {

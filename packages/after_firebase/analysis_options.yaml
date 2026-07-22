@@ -1,0 +1,9 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  errors:
+    public_member_api_docs: ignore
+    directives_ordering: ignore
+    comment_references: ignore
+    prefer_initializing_formals: ignore
+    always_use_package_imports: ignore

@@ -1,0 +1,25 @@
+---
+description: After Ecosystem — one OS feel; After ID, events, shared services, cross-app APIs
+alwaysApply: true
+---
+
+# After Ecosystem Platform
+
+**Manifest:** `docs/AFTER_ECOSYSTEM_MANIFEST.md` (v1.0) — binding.  
+**Life Domains:** `docs/LIFE_DOMAINS.md` · `docs/LIFE_DOMAIN_ROADMAP.md`.
+
+**AfterArtificial is an AI Product Platform that generates consumer and
+enterprise software from a unified architecture.**
+
+- Products are **Life Domain / Industry Domain modules**, not standalone apps.
+- Every product uses `after_ecosystem`: After ID, After+, event bus,
+  product APIs, shared calendar / notifications / search / documents /
+  wallet / family / marketplace / settings / personalization.
+- Publish domain events; subscribe to influence other modules — do not
+  hard-import sibling apps. Every domain can communicate with every other.
+- Cross consumer↔enterprise calls go through `AfterSecureInteropBridge`
+  with `interop.cross_line` scope.
+- AfterAI must receive `AfterEcosystemAiContext` for cross-module awareness.
+- Adding SuperKids / SuperFood / SuperMunicipality does not change the
+  fabric architecture — only a new top-layer module.
+- Docs: `docs/AFTER_ECOSYSTEM_PLATFORM.md`.

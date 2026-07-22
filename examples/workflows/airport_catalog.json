@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "id": "superairport",
+  "domain": "airport",
+  "workflows": [
+    {
+      "id": "flight_preparation",
+      "name": "Flight Preparation",
+      "nameKey": "wf.airport.flight_preparation",
+      "domain": "airport",
+      "subjectType": "flight",
+      "initialState": "scheduled",
+      "states": [
+        "scheduled",
+        "fueling",
+        "boarding",
+        "ready",
+        "departed",
+        "cancelled"
+      ],
+      "terminalStates": ["departed", "cancelled"],
+      "transitions": [
+        {
+          "from": "scheduled",
+          "to": "fueling",
+          "event": "start_fueling",
+          "requiredPermission": "flights.prepare"
+        },
+        {
+          "from": "fueling",
+          "to": "boarding",
+          "event": "open_boarding",
+          "requiredPermission": "flights.boarding"
+        },
+        {
+          "from": "boarding",
+          "to": "ready",
+          "event": "close_boarding",
+          "requiredPermission": "flights.boarding"
+        },
+        {
+          "from": "ready",
+          "to": "departed",
+          "event": "depart",
+          "requiredPermission": "flights.depart",
+          "requiredRole": "tower"
+        },
+        {
+          "from": "scheduled",
+          "to": "cancelled",
+          "event": "cancel",
+          "requiredPermission": "flights.cancel"
+        }
+      ]
+    },
+    {
+      "id": "aircraft_maintenance",
+      "name": "Maintenance",
+      "nameKey": "wf.airport.maintenance",
+      "domain": "airport",
+      "subjectType": "aircraft",
+      "initialState": "reported",
+      "states": ["reported", "diagnosed", "in_repair", "qa", "released"],
+      "terminalStates": ["released"],
+      "transitions": [
+        {
+          "from": "reported",
+          "to": "diagnosed",
+          "event": "diagnose",
+          "requiredPermission": "maintenance.diagnose"
+        },
+        {
+          "from": "diagnosed",
+          "to": "in_repair",
+          "event": "start_repair",
+          "requiredPermission": "maintenance.repair"
+        },
+        {
+          "from": "in_repair",
+          "to": "qa",
+          "event": "submit_qa",
+          "requiredPermission": "maintenance.repair"
+        },
+        {
+          "from": "qa",
+          "to": "released",
+          "event": "release",
+          "requiredPermission": "maintenance.release",
+          "requiredRole": "qa_inspector"
+        },
+        {
+          "from": "qa",
+          "to": "in_repair",
+          "event": "reject_qa",
+          "requiredPermission": "maintenance.release"
+        }
+      ]
+    },
+    {
+      "id": "crew_assignment",
+      "name": "Crew Assignment",
+      "nameKey": "wf.airport.crew_assignment",
+      "domain": "airport",
+      "subjectType": "flight",
+      "initialState": "unassigned",
+      "states": ["unassigned", "proposed", "confirmed", "briefed"],
+      "terminalStates": ["briefed"],
+      "transitions": [
+        {
+          "from": "unassigned",
+          "to": "proposed",
+          "event": "propose",
+          "requiredPermission": "crew.assign"
+        },
+        {
+          "from": "proposed",
+          "to": "confirmed",
+          "event": "confirm",
+          "requiredPermission": "crew.confirm",
+          "requiredRole": "crew_chief"
+        },
+        {
+          "from": "confirmed",
+          "to": "briefed",
+          "event": "brief",
+          "requiredPermission": "crew.brief"
+        },
+        {
+          "from": "proposed",
+          "to": "unassigned",
+          "event": "reject",
+          "requiredPermission": "crew.confirm"
+        }
+      ]
+    }
+  ]
+}

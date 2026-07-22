@@ -1,7 +1,7 @@
 # After Hub — Consumer Digital OS shell
 
 **Version:** 1.0  
-**Status:** Binding (H0 — design & contracts)  
+**Status:** H2 scaffold (Calendar + Apps tabs; Garage/Health/Find widget adapters)  
 **ADR:** [`adr/ADR-019-after-hub.md`](adr/ADR-019-after-hub.md)  
 **Companions:** Master Vision v2.0 · Manifest · `LIFE_DOMAINS.md` · Dashboard Engine · Plugin System
 

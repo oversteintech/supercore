@@ -24,6 +24,7 @@ class PrefsGoogleAuthRepository implements AfterAuthRepository {
     this.googleServerClientId,
     this.googleIosClientId,
     this.mockGoogleEmailForTests,
+    this.softGoogleFallbackOnMisconfig = false,
   }) {
     restoreFromPrefs();
   }
@@ -41,6 +42,10 @@ class PrefsGoogleAuthRepository implements AfterAuthRepository {
 
   /// When non-null (tests only), [signInWithGoogle] skips the plugin.
   final String? mockGoogleEmailForTests;
+
+  /// When true (placeholder Firebase / local fallback), Google Console
+  /// misconfiguration yields a local demo Google session instead of a hard fail.
+  final bool softGoogleFallbackOnMisconfig;
 
   final _controller = StreamController<AfterAuthSession>.broadcast();
   AfterAuthSession _session = const AfterAuthSession.unauthenticated();
@@ -122,19 +127,24 @@ class PrefsGoogleAuthRepository implements AfterAuthRepository {
 
   Future<void> _ensureGoogleInitialized() {
     return _googleInit ??= () async {
-      final server = googleServerClientId?.trim();
-      final ios = googleIosClientId?.trim();
-      if (server != null && server.isNotEmpty) {
-        await GoogleSignIn.instance.initialize(
-          serverClientId: server,
-          clientId: (ios != null && ios.isNotEmpty) ? ios : null,
-        );
-      } else if (ios != null && ios.isNotEmpty) {
-        await GoogleSignIn.instance.initialize(clientId: ios);
-      } else {
-        await GoogleSignIn.instance.initialize();
+      try {
+        final server = googleServerClientId?.trim();
+        final ios = googleIosClientId?.trim();
+        if (server != null && server.isNotEmpty) {
+          await GoogleSignIn.instance.initialize(
+            serverClientId: server,
+            clientId: (ios != null && ios.isNotEmpty) ? ios : null,
+          );
+        } else if (ios != null && ios.isNotEmpty) {
+          await GoogleSignIn.instance.initialize(clientId: ios);
+        } else {
+          await GoogleSignIn.instance.initialize();
+        }
+        _googleReady = true;
+      } on Object {
+        _googleInit = null;
+        rethrow;
       }
-      _googleReady = true;
     }();
   }
 
@@ -196,6 +206,31 @@ class PrefsGoogleAuthRepository implements AfterAuthRepository {
     );
   }
 
+  Future<AfterAuthUser> _softGoogleSession() {
+    final email = 'google.demo@$prefsKeyPrefix.afterartificial.app';
+    if (kDebugMode) {
+      debugPrint(
+        'PrefsGoogleAuth: soft Google fallback for $prefsKeyPrefix '
+        '(OAuth client not configured)',
+      );
+    }
+    return _persistSignedIn(
+      email: email,
+      displayName: 'Google',
+      provider: AfterAuthProvider.google,
+    );
+  }
+
+  bool _isGoogleMisconfigured(Object error) {
+    if (error is GoogleSignInException) {
+      return error.code == GoogleSignInExceptionCode.clientConfigurationError ||
+          error.code == GoogleSignInExceptionCode.providerConfigurationError;
+    }
+    final text = error.toString().toLowerCase();
+    return text.contains('clientconfigurationerror') ||
+        text.contains('providerconfigurationerror');
+  }
+
   @override
   Future<AfterAuthUser> signInWithGoogle() async {
     final mockEmail = mockGoogleEmailForTests?.trim();
@@ -210,6 +245,7 @@ class PrefsGoogleAuthRepository implements AfterAuthRepository {
     try {
       await _ensureGoogleInitialized();
       if (!_googleReady || !GoogleSignIn.instance.supportsAuthenticate()) {
+        if (softGoogleFallbackOnMisconfig) return _softGoogleSession();
         throw const AfterAuthException(
           'Google Sign-In is not available on this device. '
           'Register the app package and SHA-1 in Google Cloud Console.',
@@ -245,7 +281,11 @@ class PrefsGoogleAuthRepository implements AfterAuthRepository {
         displayName: account.displayName ?? email.split('@').first,
         provider: AfterAuthProvider.google,
       );
-    } on AfterException {
+    } on AfterException catch (error) {
+      if (softGoogleFallbackOnMisconfig &&
+          error.code == 'auth/google-misconfigured') {
+        return _softGoogleSession();
+      }
       rethrow;
     } on GoogleSignInException catch (error) {
       if (error.code == GoogleSignInExceptionCode.canceled ||
@@ -255,23 +295,25 @@ class PrefsGoogleAuthRepository implements AfterAuthRepository {
           code: 'auth/google-canceled',
         );
       }
-      if (error.code == GoogleSignInExceptionCode.clientConfigurationError ||
-          error.code == GoogleSignInExceptionCode.providerConfigurationError) {
+      if (softGoogleFallbackOnMisconfig) return _softGoogleSession();
+      if (_isGoogleMisconfigured(error)) {
         throw AfterAuthException(
           'Google Sign-In is misconfigured for this app. '
-          'Add OAuth clients for this package in Google Cloud Console. '
-          '(${error.code.name})',
+          'Add OAuth clients for this package in Google Cloud Console.',
           code: 'auth/google-misconfigured',
+          cause: error,
         );
       }
       throw AfterAuthException(
         'Google Sign-In failed: ${error.code.name}',
         code: 'auth/google-failed',
+        cause: error,
       );
     } on Object catch (error, stack) {
       if (kDebugMode) {
         debugPrint('Google Sign-In failed: $error\n$stack');
       }
+      if (softGoogleFallbackOnMisconfig) return _softGoogleSession();
       throw AfterAuthException(
         'Google Sign-In failed: $error',
         code: 'auth/google-failed',

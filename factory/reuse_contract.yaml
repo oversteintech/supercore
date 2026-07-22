@@ -1,0 +1,65 @@
+# AfterArtificial — 90% platform reuse contract (machine-readable).
+# Enforced by scripts/check_reuse_contract.ps1 and PLATFORM_DOCTRINE.md.
+
+version: 1
+targetReusePercent: 90
+
+# Concerns a product MAY own (≤ 10%).
+productOwned:
+  - domain
+  - vertical_features
+  - ai_profile_and_skills
+  - dashboard_layout_json
+  - workflow_catalog_json
+  - plugin_catalog_json
+  - rbac_permission_strings
+  - branding_accent_monogram
+  - locales
+  - product_manifest_identity
+
+# Concerns a product MUST inherit (never re-implement).
+platformOwned:
+  - auth_and_session
+  - google_sign_in_and_superadmin
+  - design_system
+  - cold_start_splash_contract
+  - shell_tabs_and_navigation_chrome
+  - dashboard_engine
+  - plugin_system
+  - search_engine
+  - settings_engine
+  - workflow_engine
+  - tasks_calendar_documents
+  - organization_and_rbac_engine
+  - messaging_notifications_reporting_audit
+  - offline_sync
+  - api_client_conventions
+  - after_ai_platform
+  - analytics
+  - ci_pipeline_shape
+
+# Paths that must not appear as hand-rolled platform forks in products
+# once they mount AfterEnterpriseProductApp / consumer host.
+# (Transitional clones may still have these — check script warns.)
+discouragedProductPaths:
+  - lib/features/shell/main_shell.dart
+  - lib/features/auth/auth_gate.dart
+  - lib/features/overstein_splash/
+  - lib/features/tasks/
+  - lib/features/calendar/
+  - lib/features/documents/
+
+# Required thin-product files after generation.
+requiredProductFiles:
+  - product.spec.yaml
+  - pubspec.yaml
+  - lib/main.dart
+  - lib/app/platform/manifest.dart
+  - lib/features/feature_catalog.dart
+
+# Required path dependencies.
+requiredPathDeps:
+  - after_core
+  - after_design_system
+  # exactly one of:
+  - after_consumer|after_enterprise

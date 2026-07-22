@@ -1,4 +1,7 @@
+import 'package:after_core/after_core.dart';
 import 'package:meta/meta.dart';
+
+import '../scope/enterprise_scope.dart';
 
 @immutable
 class CalendarEvent {
@@ -31,8 +34,17 @@ class CalendarEvent {
 }
 
 abstract class CalendarRepository {
+  /// Fail-closed: [organizationId] is required (ADR-002).
   Future<List<CalendarEvent>> listEvents({
-    String? organizationId,
+    required String organizationId,
+    DateTime? from,
+    DateTime? to,
+    String? attendeeId,
+  });
+
+  Future<Page<CalendarEvent>> pageEvents({
+    required String organizationId,
+    PageQuery query = const PageQuery(),
     DateTime? from,
     DateTime? to,
     String? attendeeId,
@@ -53,15 +65,14 @@ class InMemoryCalendarRepository implements CalendarRepository {
 
   @override
   Future<List<CalendarEvent>> listEvents({
-    String? organizationId,
+    required String organizationId,
     DateTime? from,
     DateTime? to,
     String? attendeeId,
   }) async {
+    final org = EnterpriseScope.requireOrganizationId(organizationId);
     return _events.values.where((e) {
-      if (organizationId != null && e.organizationId != organizationId) {
-        return false;
-      }
+      if (e.organizationId != org) return false;
       if (from != null && e.end.isBefore(from)) return false;
       if (to != null && e.start.isAfter(to)) return false;
       if (attendeeId != null && !e.attendeeIds.contains(attendeeId)) {
@@ -70,6 +81,23 @@ class InMemoryCalendarRepository implements CalendarRepository {
       return true;
     }).toList(growable: false)
       ..sort((a, b) => a.start.compareTo(b.start));
+  }
+
+  @override
+  Future<Page<CalendarEvent>> pageEvents({
+    required String organizationId,
+    PageQuery query = const PageQuery(),
+    DateTime? from,
+    DateTime? to,
+    String? attendeeId,
+  }) async {
+    final all = await listEvents(
+      organizationId: organizationId,
+      from: from,
+      to: to,
+      attendeeId: attendeeId,
+    );
+    return Page.fromList(all, query);
   }
 
   @override

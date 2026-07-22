@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "id": "supermaritime",
+  "domain": "maritime",
+  "workflows": [
+    {
+      "id": "port_arrival",
+      "name": "Port Arrival",
+      "nameKey": "wf.maritime.port_arrival",
+      "domain": "maritime",
+      "subjectType": "ship",
+      "initialState": "inbound",
+      "states": [
+        "inbound",
+        "pilot_onboard",
+        "berthed",
+        "cleared",
+        "diverted"
+      ],
+      "terminalStates": ["cleared", "diverted"],
+      "transitions": [
+        {
+          "from": "inbound",
+          "to": "pilot_onboard",
+          "event": "board_pilot",
+          "requiredPermission": "port.pilot"
+        },
+        {
+          "from": "pilot_onboard",
+          "to": "berthed",
+          "event": "berth",
+          "requiredPermission": "port.berth"
+        },
+        {
+          "from": "berthed",
+          "to": "cleared",
+          "event": "clear_customs",
+          "requiredPermission": "port.clear"
+        },
+        {
+          "from": "inbound",
+          "to": "diverted",
+          "event": "divert",
+          "requiredPermission": "port.divert"
+        }
+      ]
+    },
+    {
+      "id": "ship_maintenance",
+      "name": "Maintenance",
+      "nameKey": "wf.maritime.maintenance",
+      "domain": "maritime",
+      "subjectType": "ship",
+      "initialState": "open",
+      "states": ["open", "scheduled", "dry_dock", "complete"],
+      "terminalStates": ["complete"],
+      "transitions": [
+        {
+          "from": "open",
+          "to": "scheduled",
+          "event": "schedule",
+          "requiredPermission": "ship.maintenance"
+        },
+        {
+          "from": "scheduled",
+          "to": "dry_dock",
+          "event": "enter_dry_dock",
+          "requiredPermission": "ship.maintenance"
+        },
+        {
+          "from": "dry_dock",
+          "to": "complete",
+          "event": "complete",
+          "requiredPermission": "ship.maintenance",
+          "requiredRole": "chief_engineer"
+        }
+      ]
+    },
+    {
+      "id": "inspection",
+      "name": "Inspection",
+      "nameKey": "wf.maritime.inspection",
+      "domain": "maritime",
+      "subjectType": "ship",
+      "initialState": "requested",
+      "states": ["requested", "in_progress", "passed", "failed"],
+      "terminalStates": ["passed", "failed"],
+      "transitions": [
+        {
+          "from": "requested",
+          "to": "in_progress",
+          "event": "start",
+          "requiredPermission": "ship.inspect"
+        },
+        {
+          "from": "in_progress",
+          "to": "passed",
+          "event": "pass",
+          "requiredPermission": "ship.inspect",
+          "requiredRole": "inspector"
+        },
+        {
+          "from": "in_progress",
+          "to": "failed",
+          "event": "fail",
+          "requiredPermission": "ship.inspect",
+          "requiredRole": "inspector"
+        }
+      ]
+    }
+  ]
+}

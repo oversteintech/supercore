@@ -28,7 +28,7 @@ products:
     role: os_shell
     lifeDomain: null
     reference: false
-    status: planned
+    status: scaffold
     description: >
       Consumer Digital OS shell — entry product for identity, dashboard, AI,
       calendar, documents, notifications, family, search, settings, and After+.
@@ -364,7 +364,7 @@ products:
     productLine: enterprise
     lifeDomain: Agriculture / farm operations
     reference: false
-    status: planned
+    status: scaffold
     description: >
       Farm Industry Domain — crops, livestock, equipment, satellite/drone,
       farm finance, Farm AI. Canonical name per Master Vision v2.0

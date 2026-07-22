@@ -15,6 +15,10 @@ environment:
 dependencies:
   after_core:
     path: ../after_core
+  after_design_system:
+    path: ../after_design_system
+  after_ecosystem:
+    path: ../after_ecosystem
   clock: ^1.1.2
   collection: ^1.19.0
   flutter:

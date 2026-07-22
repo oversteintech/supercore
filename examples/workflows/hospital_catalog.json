@@ -1,0 +1,159 @@
+{
+  "version": 1,
+  "id": "superhospital",
+  "domain": "hospital",
+  "workflows": [
+    {
+      "id": "patient_admission",
+      "name": "Patient Admission",
+      "nameKey": "wf.hospital.admission",
+      "domain": "hospital",
+      "subjectType": "patient",
+      "version": 1,
+      "initialState": "registered",
+      "states": [
+        { "id": "registered", "labelKey": "wf.state.registered" },
+        { "id": "triaged", "labelKey": "wf.state.triaged" },
+        { "id": "admitted", "labelKey": "wf.state.admitted" },
+        { "id": "cancelled", "labelKey": "wf.state.cancelled", "terminal": true }
+      ],
+      "terminalStates": ["cancelled"],
+      "transitions": [
+        {
+          "from": "registered",
+          "to": "triaged",
+          "event": "triage",
+          "labelKey": "wf.action.triage",
+          "requiredPermission": "patients.triage",
+          "createsTask": true,
+          "taskTitleKey": "wf.task.complete_triage"
+        },
+        {
+          "from": "triaged",
+          "to": "admitted",
+          "event": "admit",
+          "labelKey": "wf.action.admit",
+          "requiredPermission": "patients.admit"
+        },
+        {
+          "from": "registered",
+          "to": "cancelled",
+          "event": "cancel",
+          "requiredPermission": "patients.admit"
+        },
+        {
+          "from": "triaged",
+          "to": "cancelled",
+          "event": "cancel",
+          "requiredPermission": "patients.admit"
+        }
+      ]
+    },
+    {
+      "id": "medication_approval",
+      "name": "Medication Approval",
+      "nameKey": "wf.hospital.medication_approval",
+      "domain": "hospital",
+      "subjectType": "medication_order",
+      "initialState": "draft",
+      "states": ["draft", "pending_review", "approved", "rejected", "administered"],
+      "terminalStates": ["rejected", "administered"],
+      "transitions": [
+        {
+          "from": "draft",
+          "to": "pending_review",
+          "event": "submit",
+          "requiredPermission": "pharmacy.order"
+        },
+        {
+          "from": "pending_review",
+          "to": "approved",
+          "event": "approve",
+          "requiredPermission": "pharmacy.approve",
+          "requiredRole": "pharmacist"
+        },
+        {
+          "from": "pending_review",
+          "to": "rejected",
+          "event": "reject",
+          "requiredPermission": "pharmacy.approve",
+          "requiredRole": "pharmacist"
+        },
+        {
+          "from": "approved",
+          "to": "administered",
+          "event": "administer",
+          "requiredPermission": "pharmacy.administer",
+          "requiredRole": "nurse"
+        }
+      ]
+    },
+    {
+      "id": "discharge",
+      "name": "Discharge",
+      "nameKey": "wf.hospital.discharge",
+      "domain": "hospital",
+      "subjectType": "patient",
+      "initialState": "ready",
+      "states": ["ready", "summary_pending", "cleared", "discharged"],
+      "terminalStates": ["discharged"],
+      "transitions": [
+        {
+          "from": "ready",
+          "to": "summary_pending",
+          "event": "request_summary",
+          "requiredPermission": "patients.discharge"
+        },
+        {
+          "from": "summary_pending",
+          "to": "cleared",
+          "event": "clear_clinical",
+          "requiredPermission": "patients.discharge",
+          "requiredRole": "physician"
+        },
+        {
+          "from": "cleared",
+          "to": "discharged",
+          "event": "complete_discharge",
+          "requiredPermission": "patients.discharge"
+        }
+      ]
+    },
+    {
+      "id": "lab_request",
+      "name": "Lab Request",
+      "nameKey": "wf.hospital.lab_request",
+      "domain": "hospital",
+      "subjectType": "lab_order",
+      "initialState": "ordered",
+      "states": ["ordered", "collected", "processing", "resulted", "cancelled"],
+      "terminalStates": ["resulted", "cancelled"],
+      "transitions": [
+        {
+          "from": "ordered",
+          "to": "collected",
+          "event": "collect",
+          "requiredPermission": "labs.collect"
+        },
+        {
+          "from": "collected",
+          "to": "processing",
+          "event": "start_processing",
+          "requiredPermission": "labs.process"
+        },
+        {
+          "from": "processing",
+          "to": "resulted",
+          "event": "publish_results",
+          "requiredPermission": "labs.result"
+        },
+        {
+          "from": "ordered",
+          "to": "cancelled",
+          "event": "cancel",
+          "requiredPermission": "labs.order"
+        }
+      ]
+    }
+  ]
+}

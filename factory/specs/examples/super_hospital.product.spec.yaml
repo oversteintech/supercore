@@ -1,0 +1,118 @@
+apiVersion: after.ai/v1
+kind: SuperApp
+
+metadata:
+  name: SuperHospital
+  package: super_hospital
+  bundle: com.overstein.superhospital
+  productLine: enterprise
+
+spec:
+  domain: Hospital operations
+  reference: SuperHospital
+
+  features:
+    - id: patients
+      titleKey: features.patients
+      subtitleKey: features.patients_sub
+      icon: personal_injury_outlined
+      requiredPermission: hospital.patients.read
+    - id: wards
+      titleKey: features.wards
+      subtitleKey: features.wards_sub
+      icon: bed_outlined
+      requiredPermission: hospital.wards.read
+    - id: pharmacy
+      titleKey: features.pharmacy
+      subtitleKey: features.pharmacy_sub
+      icon: medication_outlined
+      requiredPermission: hospital.pharmacy.read
+    - id: theatres
+      titleKey: features.theatres
+      subtitleKey: features.theatres_sub
+      icon: medical_services_outlined
+      requiredPermission: hospital.theatres.read
+
+  navigation:
+    tabs:
+      - id: home
+        labelKey: nav.home
+        icon: dashboard_outlined
+      - id: patients
+        labelKey: nav.patients
+        icon: personal_injury_outlined
+        feature: patients
+      - id: tasks
+        labelKey: nav.tasks
+        icon: task_alt_outlined
+        module: tasks
+      - id: calendar
+        labelKey: nav.calendar
+        icon: event_outlined
+        module: calendar
+      - id: assistant
+        labelKey: nav.assistant
+        icon: auto_awesome_outlined
+        module: assistant
+      - id: more
+        labelKey: nav.more
+        icon: more_horiz_outlined
+        module: more
+
+  permissions:
+    - hospital.patients.read
+    - hospital.patients.write
+    - hospital.wards.read
+    - hospital.wards.write
+    - hospital.pharmacy.read
+    - hospital.pharmacy.dispense
+    - hospital.theatres.read
+    - hospital.theatres.schedule
+
+  dashboard:
+    widgets:
+      - type: metric
+        id: active_admissions
+        titleKey: dash.active_admissions
+        source: vertical.patients.activeCount
+        order: 10
+        requiredPermission: hospital.patients.read
+      - type: metric
+        id: bed_occupancy
+        titleKey: dash.bed_occupancy
+        source: vertical.wards.occupancyPct
+        order: 20
+        requiredPermission: hospital.wards.read
+      - type: module
+        id: today_calendar
+        titleKey: dash.calendar_today
+        module: calendar
+        limit: 5
+        order: 30
+      - type: module
+        id: open_tasks
+        titleKey: dash.open_tasks
+        module: tasks
+        limit: 5
+        order: 40
+
+  ai:
+    skills:
+      - id: ward_round_brief
+        description: Summarize ward rounds and highlight critical patients.
+        tools:
+          - hospital.patients.list
+          - hospital.wards.metrics
+      - id: pharmacy_alerts
+        description: Surface pharmacy stockouts and expiries.
+        tools:
+          - hospital.pharmacy.stock
+          - hospital.pharmacy.expiries
+
+  branding:
+    accent: "#F43F5E"
+    monogram: SH
+
+  locales:
+    - en
+    - tr

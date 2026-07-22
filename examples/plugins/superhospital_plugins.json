@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "id": "superhospital",
+  "plugins": [
+    {
+      "id": "fhir_bridge",
+      "name": "FHIR Bridge",
+      "nameKey": "plugin.fhir_bridge",
+      "version": "1.2.0",
+      "productLines": ["enterprise"],
+      "contributions": [
+        {
+          "id": "fhir_page",
+          "kind": "page",
+          "titleKey": "plugin.fhir.page",
+          "route": "/plugins/fhir",
+          "iconKey": "local_hospital",
+          "order": 20,
+          "requiredPermission": "fhir.read"
+        },
+        {
+          "id": "fhir_nav",
+          "kind": "navigationItem",
+          "titleKey": "plugin.fhir.nav",
+          "route": "/plugins/fhir",
+          "iconKey": "local_hospital",
+          "order": 50,
+          "requiredPermission": "fhir.read",
+          "data": { "placement": "more" }
+        },
+        {
+          "id": "fhir_skill",
+          "kind": "aiSkill",
+          "titleKey": "plugin.fhir.skill",
+          "data": {
+            "skillId": "lookup_patient_fhir",
+            "toolName": "lookup_patient_fhir",
+            "description": "Look up a patient resource via FHIR"
+          }
+        },
+        {
+          "id": "fhir_api",
+          "kind": "api",
+          "titleKey": "plugin.fhir.api",
+          "data": {
+            "method": "GET",
+            "path": "/fhir/Patient/{id}"
+          }
+        },
+        {
+          "id": "fhir_module",
+          "kind": "businessModule",
+          "titleKey": "plugin.fhir.module",
+          "data": {
+            "moduleId": "fhir_bridge",
+            "featureIds": ["fhir_patient", "fhir_encounter"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "clinical_forms",
+      "name": "Clinical Forms Pack",
+      "version": "1.0.0",
+      "contributions": [
+        {
+          "id": "triage_form",
+          "kind": "form",
+          "titleKey": "plugin.clinical.triage_form",
+          "route": "/plugins/forms/triage",
+          "requiredPermission": "patients.triage",
+          "data": {
+            "schema": {
+              "fields": [
+                { "id": "pain_score", "type": "number", "min": 0, "max": 10 },
+                { "id": "notes", "type": "text" }
+              ]
+            }
+          }
+        },
+        {
+          "id": "census_report",
+          "kind": "report",
+          "titleKey": "plugin.clinical.census_report",
+          "requiredPermission": "reports.read",
+          "data": {
+            "reportId": "ward_census",
+            "columns": ["ward", "occupied", "available"]
+          }
+        },
+        {
+          "id": "census_widget",
+          "kind": "dashboardWidget",
+          "titleKey": "plugin.clinical.census_widget",
+          "order": 15,
+          "data": {
+            "widgetKind": "kpi",
+            "source": "hospital.kpis.census"
+          }
+        }
+      ]
+    }
+  ]
+}

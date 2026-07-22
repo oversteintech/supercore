@@ -1,20 +1,36 @@
 # After OS — master architecture
 
-AfterArtificial is an **AI Operating System company**. All AfterArtificial
-products share ONE kernel (`after_core`) plus ONE of TWO product-line
+> **AfterArtificial is an AI Product Platform that generates consumer and
+> enterprise software from a unified architecture.**
+
+**Manifest:** [`AFTER_ECOSYSTEM_MANIFEST.md`](AFTER_ECOSYSTEM_MANIFEST.md)
+(v1.0). After OS is the shared runtime of that ecosystem. See
+[`PLATFORM_DOCTRINE.md`](PLATFORM_DOCTRINE.md): **≥90% reuse**; only
+business domain, feature modules, and AI change.
+
+Organizing principle: **Life Domains** (consumer) and **Industry Domains**
+(enterprise) — [`LIFE_DOMAINS.md`](LIFE_DOMAINS.md). Scale plan:
+[`LIFE_DOMAIN_ROADMAP.md`](LIFE_DOMAIN_ROADMAP.md) (≥100 apps, zero
+architecture forks).
+
+All products share ONE kernel (`after_core`) plus ONE of TWO product-line
 OS layers:
 
-- `after_consumer` → B2C Super Apps (reference: **SuperGarage**).
-- `after_enterprise` → B2B / vertical Super Apps (reference: **SuperHospital**).
+- `after_consumer` → B2C Life Domain modules (reference: **SuperGarage**).
+- `after_enterprise` → B2B Industry Domain modules (reference: **SuperHospital**).
 
 Both lines share:
 
+- After Ecosystem fabric (`after_ecosystem`) — After ID, After+, events, interop.
 - After Design System (`after_design_system`) — identical visual family.
 - After Framework composition root — same bootstrap contract for every app.
-- The OVERSTEIN cold-start splash contract.
-- Riverpod DI, domain/data/features layering, l10n, tests, CI.
+- OVERSTEIN cold-start splash contract.
+- Dashboard Engine · Plugin System · Search · Settings (`after_core`).
+- Workflow Engine · Product runtime / shell host (`after_enterprise`).
+- AfterAI Platform (`after_ai`) — enable/disable per product; one assistant.
+- Riverpod DI, domain/data/features layering, l10n (≥20 locales), tests, CI.
 
-Hundreds of vertical products are **assembled from standards**, not
+≥100 Life/Industry Domain products are **assembled from standards**, not
 architected from scratch.
 
 ## Package map
@@ -22,57 +38,40 @@ architected from scratch.
 ```
 supercore/
   packages/
-    after_core/            # SHARED kernel: auth, network, DI, AI, premium
+    after_core/            # SHARED kernel: auth, network, DI, engines
+    after_ecosystem/       # UNIFIED fabric: After ID, events, shared services
+    after_ai/              # SHARED AI capability platform
     after_design_system/   # SHARED visual language
-    after_consumer/        # OS layer for B2C Super Apps
-    after_enterprise/      # OS layer for B2B vertical Super Apps
+    after_consumer/        # OS layer for B2C modules
+    after_enterprise/      # OS layer for B2B modules
   templates/
     super_app_consumer/    # consumer scaffold blueprint
     super_app_enterprise/  # enterprise scaffold blueprint
   catalog/
     products.yaml          # machine-readable product registry
   docs/
+    LIFE_DOMAINS.md
+    LIFE_DOMAIN_ROADMAP.md
+    AFTER_ECOSYSTEM_PLATFORM.md
     AFTER_OS_ARCHITECTURE.md
+    PLATFORM_DOCTRINE.md
     PRODUCT_CATALOG.md
-    CONSUMER_FRAMEWORK.md
-    ENTERPRISE_FRAMEWORK.md
-    SUPER_HOSPITAL_STANDARD.md
 ```
 
 ## Dependency diagram
 
 ```
-                     ┌───────────────────────────┐
-                     │      after_design_system   │
-                     └─────────────┬──────────────┘
-                                   │
-                     ┌─────────────┴──────────────┐
-                     │          after_core        │
-                     └──────┬──────────────┬──────┘
-                            │              │
-                ┌───────────┴───┐    ┌─────┴────────────┐
-                │ after_consumer │    │  after_enterprise │
-                └───────┬────────┘    └─────────┬────────┘
-                        │                        │
-    ┌───────────────────┴──┐             ┌───────┴────────────────┐
-    │ SuperGarage (ref)     │             │ SuperHospital (ref)     │
-    │ SuperHealth           │             │ SuperAirport            │
-    │ SuperFinance          │             │ SuperMaritime           │
-    │ SuperHome             │             │ SuperLogistics          │
-    │ SuperTravel           │             │ SuperFactory            │
-    │ SuperPet              │             │ SuperConstruction       │
-    │ SuperSports           │             │ SuperSchool             │
-    │ SuperNews             │             │ SuperHotel              │
-    │ SuperGames            │             │ SuperRestaurant         │
-    │ SuperFamily           │             │ SuperRetail             │
-    │ SuperDocuments        │             │ SuperEnergy             │
-    │ SuperLearning         │             │ SuperAgriculture        │
-    │                       │             │ SuperMunicipality       │
-    │                       │             │ SuperPolice             │
-    │                       │             │ SuperFire               │
-    │                       │             │ SuperMining             │
-    └───────────────────────┘             └─────────────────────────┘
+Life Domains (Garage, Health, Kids, Sports, …)
+Industry Domains (Hospital, Airport, Factory, …)
+        ↓ events / secure APIs only
+after_ecosystem + after_ai + (after_consumer | after_enterprise)
+        ↓
+after_core + after_design_system
 ```
+
+Adding a domain adds a top-layer module only — this diagram does not change.
+
+See [`ARCHITECTURE_REVIEW_2026.md`](ARCHITECTURE_REVIEW_2026.md) and [`adr/`](adr/).
 
 ## Product-line manifest
 

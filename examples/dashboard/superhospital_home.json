@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "id": "home",
+  "widgets": [
+    {
+      "id": "kpis",
+      "kind": "kpi",
+      "titleKey": "dash.kpis",
+      "source": "hospital.kpis",
+      "order": 10,
+      "span": 2,
+      "requiredPermission": "dashboard.read"
+    },
+    {
+      "id": "ai",
+      "kind": "aiCard",
+      "titleKey": "dash.ai_clinical",
+      "order": 20,
+      "span": 2
+    },
+    {
+      "id": "patients",
+      "kind": "patientCard",
+      "titleKey": "dash.patients",
+      "source": "hospital.patients.active",
+      "limit": 5,
+      "order": 30,
+      "requiredPermission": "patients.read"
+    },
+    {
+      "id": "tasks",
+      "kind": "tasks",
+      "titleKey": "dash.tasks_due",
+      "module": "tasks",
+      "limit": 8,
+      "order": 40
+    },
+    {
+      "id": "upcoming",
+      "kind": "upcomingEvents",
+      "titleKey": "dash.upcoming",
+      "source": "hospital.schedule.upcoming",
+      "limit": 5,
+      "order": 50
+    },
+    {
+      "id": "calendar",
+      "kind": "calendar",
+      "titleKey": "dash.calendar",
+      "module": "calendar",
+      "order": 60
+    },
+    {
+      "id": "chart",
+      "kind": "chart",
+      "titleKey": "dash.occupancy",
+      "source": "hospital.charts.occupancy",
+      "order": 70,
+      "span": 2
+    },
+    {
+      "id": "notifications",
+      "kind": "notifications",
+      "titleKey": "dash.alerts",
+      "module": "notifications",
+      "limit": 6,
+      "order": 80
+    },
+    {
+      "id": "docs",
+      "kind": "documents",
+      "titleKey": "dash.clinical_docs",
+      "module": "documents",
+      "limit": 4,
+      "order": 90
+    },
+    {
+      "id": "qa",
+      "kind": "quickActions",
+      "titleKey": "dash.quick_actions",
+      "order": 100,
+      "data": {
+        "actions": [
+          { "id": "admit", "label": "Admit patient", "route": "/patients/admit" },
+          { "id": "rounds", "label": "Start rounds", "route": "/rounds/new" },
+          { "id": "order", "label": "New order", "route": "/orders/new" }
+        ]
+      }
+    },
+    {
+      "id": "activity",
+      "kind": "activityTimeline",
+      "titleKey": "dash.activity",
+      "source": "hospital.activity",
+      "limit": 10,
+      "order": 110,
+      "span": 2
+    }
+  ]
+}

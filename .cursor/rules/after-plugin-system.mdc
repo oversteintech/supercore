@@ -1,0 +1,19 @@
+---
+description: Super Apps extend via the After Plugin System (JSON / Remote Config)
+alwaysApply: true
+---
+
+# After Plugin System
+
+- Do not fork the app shell for optional features. Contribute via
+  `AfterPluginManifest` / `AfterPluginRegistry`.
+- Load catalogs with `hydrateAfterPlugins` from `assets/plugins/catalog.json`
+  and/or Remote Config key `after.plugins.catalog`.
+- Supported contributions: `page`, `dashboardWidget`, `aiSkill`, `report`,
+  `form`, `api`, `navigationItem`, `businessModule`.
+- Shell reads `afterPluginNavigationItemsProvider` /
+  `afterPluginPagesProvider` / `afterPluginAiSkillsProvider` — never
+  hard-code plugin routes in core.
+- Use `AfterPlugin.install` only for executable handlers on `AfterPluginHost`.
+- Merge dashboard tiles with `applyPluginDashboardWidgets`.
+- Docs: `docs/PLUGIN_SYSTEM.md`. Examples: `examples/plugins/`.

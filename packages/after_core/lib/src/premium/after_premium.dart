@@ -32,6 +32,7 @@ abstract final class AfterMembershipBadge {
   static const business = 'BUSINESS';
   static const royal = 'SUPER';
   static const admin = 'ADMIN';
+  static const comingSoon = 'COMING SOON';
 
   static String forPlan(AfterUserPlan plan) => switch (plan) {
         AfterUserPlan.free => free,
@@ -221,4 +222,31 @@ class NoOpAfterSubscriptionVerifier implements AfterSubscriptionVerifier {
     required String source,
   }) async =>
       null;
+}
+
+/// In-memory verifier for tests / skeleton — maps productId → plan.
+///
+/// Production apps keep [NoOpAfterSubscriptionVerifier] until store IAP
+/// adapters are wired; this does not talk to Play Billing or App Store.
+class MemoryAfterSubscriptionVerifier implements AfterSubscriptionVerifier {
+  MemoryAfterSubscriptionVerifier([
+    Map<String, AfterUserPlan>? productPlans,
+  ]) : _productPlans = productPlans ??
+            const {
+              'after_plus_premium': AfterUserPlan.premium,
+              'after_plus_super': AfterUserPlan.superPlan,
+              'after_plus_business': AfterUserPlan.business,
+            };
+
+  final Map<String, AfterUserPlan> _productPlans;
+
+  @override
+  Future<AfterUserPlan?> verifyPurchase({
+    required String productId,
+    required String verificationData,
+    required String source,
+  }) async {
+    if (verificationData.isEmpty) return null;
+    return _productPlans[productId];
+  }
 }

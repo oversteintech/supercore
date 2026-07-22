@@ -26,10 +26,24 @@ void main() {
     final org1 = await repo.query(organizationId: 'org1');
     expect(org1, hasLength(2));
 
-    final byU1 = await repo.query(actorId: 'u1');
-    expect(byU1, hasLength(2));
+    final byU1 = await repo.query(organizationId: 'org1', actorId: 'u1');
+    expect(byU1, hasLength(1));
 
-    final admits = await repo.query(action: 'patient.admit');
-    expect(admits, hasLength(2));
+    final admits = await repo.query(
+      organizationId: 'org1',
+      action: 'patient.admit',
+    );
+    expect(admits, hasLength(1));
+  });
+
+  test('query without organizationId throws (fail-closed)', () async {
+    expect(
+      () => EnterpriseScope.requireOrganizationId(null),
+      throwsStateError,
+    );
+    expect(
+      () => EnterpriseScope.requireOrganizationId(''),
+      throwsStateError,
+    );
   });
 }

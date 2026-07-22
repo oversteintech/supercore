@@ -16,10 +16,14 @@ class AfterTheme extends ThemeExtension<AfterTheme> {
   final AfterColorScheme colors;
   final AfterTypography typography;
 
-  static AfterTheme light({AfterTypography typography = const AfterTypography()}) =>
+  static AfterTheme light({
+    AfterTypography typography = AfterTypography.garage,
+  }) =>
       AfterTheme(colors: AfterColorScheme.light, typography: typography);
 
-  static AfterTheme dark({AfterTypography typography = const AfterTypography()}) =>
+  static AfterTheme dark({
+    AfterTypography typography = AfterTypography.garage,
+  }) =>
       AfterTheme(colors: AfterColorScheme.dark, typography: typography);
 
   @override
@@ -52,7 +56,7 @@ extension AfterThemeContext on BuildContext {
 /// Builds Material 3 [ThemeData] wired to After tokens.
 abstract final class AfterThemeData {
   static ThemeData light({
-    AfterTypography typography = const AfterTypography(),
+    AfterTypography typography = AfterTypography.garage,
     Color? accentOverride,
   }) {
     return _build(
@@ -64,7 +68,7 @@ abstract final class AfterThemeData {
   }
 
   static ThemeData dark({
-    AfterTypography typography = const AfterTypography(),
+    AfterTypography typography = AfterTypography.garage,
     Color? accentOverride,
   }) {
     return _build(

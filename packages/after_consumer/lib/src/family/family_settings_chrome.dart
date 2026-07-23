@@ -24,6 +24,15 @@ class FamilySettingsPlugins {
     this.insideProfile,
     this.belowProfile,
     this.regionalExtras,
+    this.onOpenPermissions,
+    this.onOpenPrivacyPolicy,
+    this.onOpenTerms,
+    this.onExportData,
+    this.onContactSupport,
+    this.faqItems,
+    this.helpExtras,
+    this.securityExtras,
+    this.aboutExtras,
   });
 
   final List<Widget> Function(BuildContext context, WidgetRef ref)? aboveTheme;
@@ -41,6 +50,29 @@ class FamilySettingsPlugins {
   /// Extra tiles under Region & language (currency, detect location, …).
   final List<Widget> Function(BuildContext context, WidgetRef ref)?
       regionalExtras;
+
+  /// Product legal / privacy overrides (Garage opens full [LegalDocumentScreen]).
+  final VoidCallback? onOpenPermissions;
+  final VoidCallback? onOpenPrivacyPolicy;
+  final VoidCallback? onOpenTerms;
+  final VoidCallback? onExportData;
+  final VoidCallback? onContactSupport;
+
+  /// When set, replaces the default family FAQ list.
+  final List<({String title, String body})> Function(
+    BuildContext context,
+    WidgetRef ref,
+  )? faqItems;
+
+  /// Extra widgets under Help / FAQ (feedback form, …).
+  final List<Widget> Function(BuildContext context, WidgetRef ref)? helpExtras;
+
+  /// Extra widgets under Security (protected-items list, …).
+  final List<Widget> Function(BuildContext context, WidgetRef ref)?
+      securityExtras;
+
+  /// Extra widgets under About (wordmark, company lines, …).
+  final List<Widget> Function(BuildContext context, WidgetRef ref)? aboutExtras;
 }
 
 /// Shared profile card — Garage-parity account header + avatar + fields.

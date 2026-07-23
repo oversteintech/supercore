@@ -107,9 +107,31 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('Display name'), findsOneWidget);
-    expect(find.text('Username'), findsOneWidget);
+    expect(find.text('Full name'), findsOneWidget);
     expect(find.text('Phone'), findsOneWidget);
+    expect(find.text('Date of birth'), findsOneWidget);
+    expect(find.text('Profile photos'), findsOneWidget);
+    expect(find.text('Email'), findsOneWidget);
+    expect(find.text('Username'), findsOneWidget);
     expect(find.byType(FamilyAnimatedProfileAvatar), findsOneWidget);
+  });
+
+  test('hydrateFromAuthIfEmpty fills only blank fields', () async {
+    final prefs = await SharedPreferences.getInstance();
+    final container = ProviderContainer(
+      overrides: [afterSharedPreferencesProvider.overrideWithValue(prefs)],
+    );
+    addTearDown(container.dispose);
+    final notifier = container.read(familyProfileIdentityProvider.notifier);
+    await notifier.updateFields(displayName: 'Keep Me');
+    await notifier.hydrateFromAuthIfEmpty(
+      displayName: 'Auth Name',
+      email: 'a@b.com',
+      phoneNumber: '+1555',
+    );
+    final identity = container.read(familyProfileIdentityProvider);
+    expect(identity.displayName, 'Keep Me');
+    expect(identity.email, 'a@b.com');
+    expect(identity.phoneNumber, '+1555');
   });
 }

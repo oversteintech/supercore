@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../media/after_photo_crop.dart';
 import 'family_animated_profile_avatar.dart';
 import 'family_avatar_options.dart';
 import 'family_profile_identity.dart';
@@ -53,20 +54,33 @@ class _FamilyProfileIdentitySheetState
     final picker = ImagePicker();
     final picked = await picker.pickImage(
       source: ImageSource.gallery,
-      imageQuality: 80,
-      maxWidth: 1024,
-      maxHeight: 1024,
+      imageQuality: 92,
+      maxWidth: 4096,
+      maxHeight: 4096,
     );
     if (picked == null || !mounted) return;
 
     setState(() => _busy = true);
     try {
       final bytes = await picked.readAsBytes();
-      if (bytes.isNotEmpty) {
-        await ref
-            .read(familyProfileIdentityProvider.notifier)
-            .addProfilePhoto(Uint8List.fromList(bytes));
+      if (!mounted) return;
+      if (bytes.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AfterPhotoCropCopy.english().failedMessage)),
+        );
+        return;
       }
+
+      final cropped = await AfterPhotoCropScreen.open(
+        context,
+        imageBytes: Uint8List.fromList(bytes),
+        aspectRatio: AfterPhotoCropScreen.profileAspectRatio,
+      );
+      if (cropped == null || !mounted) return;
+
+      await ref
+          .read(familyProfileIdentityProvider.notifier)
+          .addProfilePhoto(cropped);
     } finally {
       if (mounted) setState(() => _busy = false);
     }

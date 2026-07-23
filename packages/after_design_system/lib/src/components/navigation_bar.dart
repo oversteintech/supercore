@@ -10,13 +10,18 @@ import '../foundations/typography.dart';
 
 class AfterNavDestination {
   const AfterNavDestination({
-    required this.icon,
     required this.label,
+    this.icon,
     this.selectedIcon,
-  });
+    this.iconBuilder,
+  }) : assert(
+          (icon != null) || iconBuilder != null,
+          'Provide icon or iconBuilder',
+        );
 
-  final IconData icon;
+  final IconData? icon;
   final IconData? selectedIcon;
+  final Widget Function(bool selected)? iconBuilder;
   final String label;
 }
 
@@ -89,10 +94,11 @@ class _AfterNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final icon = selected
+    final color = selected ? colors.accent : colors.muted;
+    final customIcon = destination.iconBuilder?.call(selected);
+    final iconData = selected
         ? (destination.selectedIcon ?? destination.icon)
         : destination.icon;
-    final color = selected ? colors.accent : colors.muted;
 
     return InkWell(
       onTap: onTap,
@@ -107,7 +113,12 @@ class _AfterNavItem extends StatelessWidget {
               color: selected ? colors.accentSoft : Colors.transparent,
               borderRadius: AfterRadius.fullAll,
             ),
-            child: Icon(icon, size: AfterIconSpec.sizeLg - 2, color: color),
+            child: customIcon ??
+                Icon(
+                  iconData,
+                  size: AfterIconSpec.sizeLg - 2,
+                  color: color,
+                ),
           ),
           const SizedBox(height: 2),
           Text(

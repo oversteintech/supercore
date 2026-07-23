@@ -104,6 +104,7 @@ void main() {
     test('AfterSettingsKeys.all catalogs every standard key', () {
       expect(AfterSettingsKeys.all, contains(AfterSettingsKeys.themeMode));
       expect(AfterSettingsKeys.all, contains(AfterSettingsKeys.locale));
+      expect(AfterSettingsKeys.all, contains(AfterSettingsKeys.country));
       expect(
         AfterSettingsKeys.all,
         contains(AfterSettingsKeys.analyticsEnabled),

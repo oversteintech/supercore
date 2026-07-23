@@ -17,10 +17,10 @@ void main() {
     accent: Color(0xFF0D9488),
   );
 
-  testWidgets('FamilyShellHeader renders title, badge, location and actions', (
+  testWidgets('FamilyShellHeader renders title, badge and profile', (
     tester,
   ) async {
-    var aiTapped = false;
+    var profileTapped = false;
     var notifTapped = false;
     PlatformConfig.current = const AppPlatformManifest(
       appName: 'SuperHealth',
@@ -41,10 +41,8 @@ void main() {
             body: FamilyShellHeader(
               plan: AfterUserPlan.premium,
               title: 'Health',
-              locationLabel: 'Kadıköy',
-              onLocationTap: () {},
               onNotifications: () => notifTapped = true,
-              onAi: () => aiTapped = true,
+              onProfile: () => profileTapped = true,
             ),
           ),
         ),
@@ -53,14 +51,15 @@ void main() {
     await tester.pump();
     expect(find.text('Health'), findsOneWidget);
     expect(find.text('SILVER'), findsOneWidget);
-    expect(find.text('Kadıköy'), findsOneWidget);
-    expect(find.byIcon(Icons.location_on_rounded), findsOneWidget);
+    expect(find.text('Kadıköy'), findsNothing);
+    expect(find.byIcon(Icons.location_on_rounded), findsNothing);
     expect(find.byIcon(Icons.notifications_rounded), findsOneWidget);
-    expect(find.byType(AfterAnimatedAiIcon), findsOneWidget);
+    expect(find.byType(FamilyAnimatedProfileAvatar), findsOneWidget);
+    expect(find.byType(AfterAnimatedAiIcon), findsNothing);
     await tester.tap(find.byIcon(Icons.notifications_rounded));
-    await tester.tap(find.byType(AfterAnimatedAiIcon));
+    await tester.tap(find.byType(FamilyAnimatedProfileAvatar));
     expect(notifTapped, isTrue);
-    expect(aiTapped, isTrue);
+    expect(profileTapped, isTrue);
   });
 
   testWidgets('FamilyShellHeader resolves title from PlatformConfig', (

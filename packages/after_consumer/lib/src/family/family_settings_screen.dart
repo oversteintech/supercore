@@ -13,15 +13,16 @@ import 'family_membership_badge.dart';
 import 'family_membership_controller.dart';
 import 'family_plans_chrome.dart';
 import 'family_profile_identity.dart';
+import 'family_region_language_section.dart';
 import 'family_settings_chrome.dart';
 import 'family_theme_controller.dart';
 import 'family_ui_strings.dart';
 
 /// Garage-parity settings body used as the rightmost MainShell tab.
 ///
-/// Sections: Profile · Emergency · Theme · App icon · Subscription ·
-/// Cloud sync · Privacy · Security · Early access · Help/FAQ · App tour ·
-/// About · Sign out · Delete account.
+/// Sections: Profile · Emergency · Region & language · Theme · App icon ·
+/// Subscription · Cloud sync · Privacy · Security · Early access · Help/FAQ ·
+/// App tour · About · Sign out · Delete account.
 class FamilySettingsScreen extends ConsumerWidget {
   const FamilySettingsScreen({
     required this.config,
@@ -33,11 +34,16 @@ class FamilySettingsScreen extends ConsumerWidget {
     this.onThemeMode,
     this.localeCode,
     this.onLocale,
+    this.countryCode,
+    this.onCountry,
     this.plugins = const FamilySettingsPlugins(),
     this.canUsePremiumThemes = true,
     this.version = '0.1.0',
     this.embedded = false,
     this.tourPages = const <FamilyAppTourPage>[],
+    this.onDeleteAccount,
+    this.onSignOut,
+    this.onAccountDeletionFeedback,
     super.key,
   });
 
@@ -52,6 +58,10 @@ class FamilySettingsScreen extends ConsumerWidget {
 
   /// App language change. Pass `null` for device/system language when supported.
   final ValueChanged<String?>? onLocale;
+
+  /// ISO country code shown in Region & language (optional — prefs fallback).
+  final String? countryCode;
+  final ValueChanged<String?>? onCountry;
   final FamilySettingsPlugins plugins;
   final bool canUsePremiumThemes;
   final String version;
@@ -61,6 +71,17 @@ class FamilySettingsScreen extends ConsumerWidget {
 
   /// Optional product tour pages; defaults to a short generic tour.
   final List<FamilyAppTourPage> tourPages;
+
+  /// Product-specific permanent delete (Garage cloud wipe, etc.).
+  /// Defaults to [AfterAuthRepository.deleteAccount] + local profile clear.
+  final Future<void> Function({String? feedback})? onDeleteAccount;
+
+  /// Optional product sign-out (Garage [AppSession.signOut]). When set, used
+  /// instead of the default After auth repository sign-out alone.
+  final Future<void> Function()? onSignOut;
+
+  /// Optional feedback submit without deleting.
+  final Future<void> Function(String feedback)? onAccountDeletionFeedback;
 
   Future<void> _selectTheme(
     BuildContext context,
@@ -111,8 +132,19 @@ class FamilySettingsScreen extends ConsumerWidget {
       ),
     );
     if (ok != true) return;
-    await ref.read(familyProfileIdentityProvider.notifier).clearAll();
-    await ref.read(afterAuthRepositoryProvider).signOut();
+    final custom = onSignOut;
+    if (custom != null) {
+      await custom();
+      return;
+    }
+    try {
+      await ref.read(afterAuthRepositoryProvider).signOut();
+    } on Object catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$error')),
+      );
+    }
   }
 
   Future<void> _deleteAccount(
@@ -120,26 +152,20 @@ class FamilySettingsScreen extends ConsumerWidget {
     WidgetRef ref,
     String locale,
   ) async {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(FamilyUiStrings.t('delete_q', locale)),
-        content: Text(FamilyUiStrings.t('delete_body', locale)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(FamilyUiStrings.t('cancel', locale)),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(FamilyUiStrings.t('delete', locale)),
-          ),
-        ],
-      ),
+    await AfterAccountDeletionFlow.show(
+      context,
+      localeCode: locale,
+      onFeedback: onAccountDeletionFeedback,
+      onDelete: ({String? feedback}) async {
+        final custom = onDeleteAccount;
+        if (custom != null) {
+          await custom(feedback: feedback);
+          return;
+        }
+        await ref.read(familyProfileIdentityProvider.notifier).clearAll();
+        await ref.read(afterAuthRepositoryProvider).deleteAccount();
+      },
     );
-    if (ok != true) return;
-    await ref.read(familyProfileIdentityProvider.notifier).clearAll();
-    await ref.read(afterAuthRepositoryProvider).deleteAccount();
   }
 
   @override
@@ -162,9 +188,9 @@ class FamilySettingsScreen extends ConsumerWidget {
                 config: config,
                 membership: membership,
                 localeCode: locale,
-                // Product plugins supply Garage-style personal rows inside
-                // the accordion; hide defaults to avoid duplicate name/phone.
-                showFieldEditors: plugins.insideProfile == null,
+                // Canonical profile rows are always core-backed and identical
+                // across every Super App (Garage included).
+                showFieldEditors: true,
                 animateAvatar: false,
                 embeddedInSection: true,
               ),
@@ -185,6 +211,19 @@ class FamilySettingsScreen extends ConsumerWidget {
           headerBackgroundColor: AfterSettingsSection.emergencyRed,
           headerTextColor: Colors.white,
           child: const FamilyEmergencyProfileSection(),
+        ),
+        const AfterSettingsSectionGap(),
+        AfterSettingsSection(
+          title: s('region_language'),
+          subtitle: s('region_language_sub'),
+          icon: Icons.public_rounded,
+          child: FamilyRegionLanguageSection(
+            localeCode: locale,
+            onLocale: onLocale,
+            countryCode: countryCode,
+            onCountry: onCountry,
+            extras: plugins.regionalExtras?.call(context, ref) ?? const [],
+          ),
         ),
         if (plugins.aboveTheme != null) ...[
           const AfterSettingsSectionGap(),

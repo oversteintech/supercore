@@ -128,12 +128,8 @@ abstract final class AfterUserPlanColors {
         _ => superGoldBright,
       };
 
-  /// Location pin (+ label) on the shell header.
-  /// Free / Business → white (contrast on green/emerald chrome); otherwise black.
-  static Color headerLocationIcon(AfterUserPlan plan) => switch (plan) {
-        AfterUserPlan.free || AfterUserPlan.business => Colors.white,
-        _ => const Color(0xFF111111),
-      };
+  /// Location pin (+ label) on the shell header — always white (family chrome).
+  static Color headerLocationIcon(AfterUserPlan plan) => Colors.white;
 
   /// Static badge colors on the plan-colored header (no shiny sweep on same tint).
   static Color headerBadgeIcon(AfterUserPlan plan, Brightness brightness) {

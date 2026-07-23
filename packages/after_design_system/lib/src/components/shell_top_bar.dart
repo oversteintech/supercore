@@ -9,12 +9,10 @@ import '../membership/after_user_plan_colors.dart';
 ///
 /// Layout (single source of truth):
 /// ```
-/// [ membership ]              App title              [ 🔔  ✨ ]
-/// [ 📍 location ]
+/// [ membership ]              App title              [ 🔔  👤 ]
 /// ```
-/// Left: membership text with location directly under it.
-/// Center: product title (true page center).
-/// Right: notifications + theme-visible animated AI icon.
+/// Left: membership text, vertically aligned with the centered app title.
+/// Right: notifications + animated profile avatar (AI lives on the bottom tab).
 class AfterShellTopBar extends StatelessWidget {
   const AfterShellTopBar({
     super.key,
@@ -22,15 +20,17 @@ class AfterShellTopBar extends StatelessWidget {
     this.title,
     this.membershipLabel,
     this.membershipBadge,
-    this.locationLabel,
-    this.onLocationTap,
     this.notificationUnreadCount = 0,
     this.onNotifications,
-    this.onAi,
-    this.aiLocked = false,
-    this.locationTooltip = 'Location',
+    this.profileAction,
     this.notificationsTooltip = 'Notifications',
-    this.aiTooltip = 'AI',
+    @Deprecated('Location removed from shell top bar; ignored.')
+    String? locationLabel,
+    @Deprecated('Location removed from shell top bar; ignored.')
+    VoidCallback? onLocationTap,
+    @Deprecated('Location removed from shell top bar; ignored.')
+    this.locationTooltip = 'Location',
+    @Deprecated('AI moved to the bottom tab; ignored.') VoidCallback? onAi,
   });
 
   /// Plan tint for header chrome + default badge label.
@@ -46,23 +46,19 @@ class AfterShellTopBar extends StatelessWidget {
   /// Optional custom badge widget (animated family badges, etc.).
   final Widget? membershipBadge;
 
-  /// Optional locality text under the membership row.
-  final String? locationLabel;
-
-  final VoidCallback? onLocationTap;
   final int notificationUnreadCount;
   final VoidCallback? onNotifications;
-  final VoidCallback? onAi;
-  final bool aiLocked;
+
+  /// Trailing profile control (animated avatar). Replaces the former AI mark.
+  final Widget? profileAction;
   final String locationTooltip;
   final String notificationsTooltip;
-  final String aiTooltip;
 
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final fg = AfterUserPlanColors.headerForeground(plan, brightness);
-    final locationColor = AfterUserPlanColors.headerLocationIcon(plan);
+    const titleColor = Colors.white;
     final notificationColor = AfterUserPlanColors.headerNotificationIcon(plan);
     final resolvedTitle = title?.trim();
     final resolvedLabel =
@@ -87,17 +83,13 @@ class AfterShellTopBar extends StatelessWidget {
                     Expanded(
                       child: Align(
                         alignment: Alignment.centerLeft,
-                        child: _MembershipLocationBlock(
+                        child: _MembershipLabel(
                           membershipBadge: membershipBadge,
                           membershipLabel:
                               hasMembership && membershipBadge == null
                                   ? resolvedLabel.toUpperCase()
                                   : null,
                           membershipColor: fg,
-                          locationLabel: locationLabel,
-                          locationColor: locationColor,
-                          locationTooltip: locationTooltip,
-                          onLocationTap: onLocationTap,
                         ),
                       ),
                     ),
@@ -113,8 +105,8 @@ class AfterShellTopBar extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: fg,
+                        style: const TextStyle(
+                          color: titleColor,
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 0.2,
@@ -150,19 +142,7 @@ class AfterShellTopBar extends StatelessWidget {
                           ),
                         ),
                       ),
-                      IconButton(
-                        tooltip: aiTooltip,
-                        visualDensity: VisualDensity.compact,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(
-                          minWidth: 40,
-                          minHeight: 40,
-                        ),
-                        onPressed: onAi,
-                        icon: AfterAnimatedAiIcon(
-                          locked: aiLocked,
-                        ),
-                      ),
+                      if (profileAction != null) profileAction!,
                     ],
                   ),
                 ),
@@ -175,109 +155,39 @@ class AfterShellTopBar extends StatelessWidget {
   }
 }
 
-class _MembershipLocationBlock extends StatelessWidget {
-  const _MembershipLocationBlock({
+class _MembershipLabel extends StatelessWidget {
+  const _MembershipLabel({
     required this.membershipColor,
-    required this.locationColor,
-    required this.locationTooltip,
     this.membershipBadge,
     this.membershipLabel,
-    this.locationLabel,
-    this.onLocationTap,
   });
 
   final Widget? membershipBadge;
   final String? membershipLabel;
   final Color membershipColor;
-  final String? locationLabel;
-  final Color locationColor;
-  final String locationTooltip;
-  final VoidCallback? onLocationTap;
 
   @override
   Widget build(BuildContext context) {
     final maxLeft = MediaQuery.sizeOf(context).width * 0.36;
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: maxLeft),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (membershipBadge != null)
-            membershipBadge!
-          else if (membershipLabel != null && membershipLabel!.isNotEmpty)
-            Text(
-              membershipLabel!,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: membershipColor,
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.45,
-                height: 1.1,
-              ),
-            ),
-          const SizedBox(height: 2),
-          _LocationChip(
-            label: locationLabel,
-            color: locationColor,
-            tooltip: locationTooltip,
-            onTap: onLocationTap,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LocationChip extends StatelessWidget {
-  const _LocationChip({
-    required this.color,
-    required this.tooltip,
-    this.label,
-    this.onTap,
-  });
-
-  final String? label;
-  final Color color;
-  final String tooltip;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final text = label?.trim();
-    return Tooltip(
-      message: tooltip,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.location_on_rounded, size: 14, color: color),
-              if (text != null && text.isNotEmpty) ...[
-                const SizedBox(width: 3),
-                Flexible(
-                  child: Text(
-                    text,
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: membershipBadge ??
+            (membershipLabel != null && membershipLabel!.isNotEmpty
+                ? Text(
+                    membershipLabel!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
+                      color: membershipColor,
                       fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.1,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.45,
                       height: 1.1,
-                      color: color,
                     ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
+                  )
+                : const SizedBox.shrink()),
       ),
     );
   }

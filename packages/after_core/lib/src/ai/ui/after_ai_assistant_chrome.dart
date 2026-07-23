@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 
-import 'after_ai_hub_icon.dart';
+/// Dismisses the soft keyboard after an AI message is sent.
+///
+/// AI shells hide the hub header while the keyboard is open; leaving focus on
+/// the composer traps the user on that screen. Call this from every send path.
+void dismissAfterAiKeyboard() {
+  FocusManager.instance.primaryFocus?.unfocus();
+}
 
 /// One quick-action chip on the Garage-parity AI home surface.
 @immutable
@@ -67,59 +73,6 @@ abstract final class AfterAiQuickSuggestionCatalog {
         prompt: 'What should I do first in an emergency situation?',
       ),
     ];
-  }
-}
-
-/// Title row: animated hub + "{App} AI" + clear chat (Garage `_AiTopPanel`).
-class AfterAiAssistantHeader extends StatelessWidget {
-  const AfterAiAssistantHeader({
-    required this.title,
-    required this.hasMessages,
-    required this.onClearChat,
-    super.key,
-  });
-
-  final String title;
-  final bool hasMessages;
-  final VoidCallback onClearChat;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
-      child: Row(
-        children: [
-          IconTheme(
-            data: IconThemeData(size: 30, color: scheme.primary),
-            child: const AfterAiHubIcon(),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-          IconButton(
-            tooltip: 'Clear chat',
-            onPressed: hasMessages ? onClearChat : null,
-            icon: Icon(
-              Icons.delete_outline_rounded,
-              color: hasMessages
-                  ? scheme.onSurfaceVariant
-                  : scheme.onSurfaceVariant.withValues(alpha: 0.35),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 
@@ -201,8 +154,12 @@ class AfterAiComposerBar extends StatefulWidget {
     this.hintText = 'Ask Mate…',
     this.isRecording = false,
     this.onAttach,
+    this.onClearChat,
+    this.hasMessages = false,
     this.onToggleRecording,
     this.recordingLabel = 'Listening…',
+    this.clearChatLabel = 'Clear chat',
+    this.attachLabel = 'Attach',
     super.key,
   });
 
@@ -212,8 +169,12 @@ class AfterAiComposerBar extends StatefulWidget {
   final String hintText;
   final bool isRecording;
   final VoidCallback? onAttach;
+  final VoidCallback? onClearChat;
+  final bool hasMessages;
   final VoidCallback? onToggleRecording;
   final String recordingLabel;
+  final String clearChatLabel;
+  final String attachLabel;
 
   @override
   State<AfterAiComposerBar> createState() => _AfterAiComposerBarState();
@@ -306,11 +267,7 @@ class _AfterAiComposerBarState extends State<AfterAiComposerBar> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    _composerIconButton(
-                      tooltip: 'Attach',
-                      onPressed: widget.isBusy ? null : widget.onAttach,
-                      icon: Icons.add_rounded,
-                    ),
+                    _buildPlusButton(context),
                     const SizedBox(width: 8),
                     Expanded(
                       child: ConstrainedBox(
@@ -344,6 +301,68 @@ class _AfterAiComposerBarState extends State<AfterAiComposerBar> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlusButton(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final canAttach = widget.onAttach != null;
+    final canClear =
+        widget.onClearChat != null && widget.hasMessages && !widget.isBusy;
+    if (!canAttach && !canClear) {
+      return _composerIconButton(
+        tooltip: widget.attachLabel,
+        onPressed: null,
+        icon: Icons.add_rounded,
+      );
+    }
+
+    return SizedBox(
+      width: _actionButtonSize,
+      height: _actionButtonSize,
+      child: PopupMenuButton<String>(
+        tooltip: widget.attachLabel,
+        enabled: !widget.isBusy,
+        padding: EdgeInsets.zero,
+        offset: const Offset(0, -8),
+        position: PopupMenuPosition.over,
+        onSelected: (value) {
+          if (value == 'attach') {
+            widget.onAttach?.call();
+          } else if (value == 'clear') {
+            widget.onClearChat?.call();
+          }
+        },
+        itemBuilder: (context) => [
+          if (canAttach)
+            PopupMenuItem<String>(
+              value: 'attach',
+              child: Row(
+                children: [
+                  Icon(Icons.attach_file_rounded, color: scheme.primary),
+                  const SizedBox(width: 12),
+                  Text(widget.attachLabel),
+                ],
+              ),
+            ),
+          if (canClear)
+            PopupMenuItem<String>(
+              value: 'clear',
+              child: Row(
+                children: [
+                  Icon(Icons.delete_outline_rounded, color: scheme.error),
+                  const SizedBox(width: 12),
+                  Text(widget.clearChatLabel),
+                ],
+              ),
+            ),
+        ],
+        child: Icon(
+          Icons.add_rounded,
+          size: _attachIconSize,
+          color: scheme.onSurfaceVariant,
         ),
       ),
     );
@@ -422,7 +441,12 @@ class _AfterAiComposerBarState extends State<AfterAiComposerBar> {
             backgroundColor: scheme.primary,
             foregroundColor: scheme.onPrimary,
           ),
-          onPressed: widget.isBusy ? null : widget.onSend,
+          onPressed: widget.isBusy
+              ? null
+              : () {
+                  dismissAfterAiKeyboard();
+                  widget.onSend();
+                },
           icon: widget.isBusy
               ? SizedBox(
                   width: 18,

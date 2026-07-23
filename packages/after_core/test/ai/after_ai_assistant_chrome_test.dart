@@ -3,21 +3,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('AfterAiAssistantHeader shows hub and title', (tester) async {
+  testWidgets('AfterAiComposerBar + menu embeds clear chat', (tester) async {
+    final controller = TextEditingController();
+    addTearDown(controller.dispose);
+    var cleared = false;
+
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: AfterAiAssistantHeader(
-            title: 'SuperFarm AI',
-            hasMessages: false,
-            onClearChat: () {},
+          body: AfterAiComposerBar(
+            controller: controller,
+            isBusy: false,
+            onSend: () {},
+            onAttach: () {},
+            hasMessages: true,
+            onClearChat: () => cleared = true,
           ),
         ),
       ),
     );
-    await tester.pump();
-    expect(find.text('SuperFarm AI'), findsOneWidget);
-    expect(find.byIcon(Icons.hub_rounded), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.add_rounded));
+    await tester.pumpAndSettle();
+    expect(find.text('Clear chat'), findsOneWidget);
+    await tester.tap(find.text('Clear chat'));
+    await tester.pumpAndSettle();
+    expect(cleared, isTrue);
   });
 
   testWidgets('AfterAiComposerBar shows attach and mic when empty', (tester) async {
@@ -31,7 +42,6 @@ void main() {
             isBusy: false,
             onSend: () {},
             onAttach: () {},
-            onToggleRecording: () {},
           ),
         ),
       ),
@@ -55,6 +65,39 @@ void main() {
       ),
     );
     expect(find.byIcon(Icons.arrow_upward_rounded), findsOneWidget);
+  });
+
+  testWidgets('AfterAiComposerBar dismisses keyboard focus on send', (
+    tester,
+  ) async {
+    final controller = TextEditingController(text: 'hello');
+    addTearDown(controller.dispose);
+    var sent = false;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: AfterAiComposerBar(
+            controller: controller,
+            isBusy: false,
+            onSend: () => sent = true,
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(TextField));
+    await tester.pump();
+    final composerFocus = tester
+        .widget<EditableText>(find.byType(EditableText))
+        .focusNode;
+    expect(composerFocus.hasFocus, isTrue);
+
+    await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+    await tester.pump();
+
+    expect(sent, isTrue);
+    expect(composerFocus.hasFocus, isFalse);
   });
 
   test('default suggestions are non-empty', () {

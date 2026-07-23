@@ -365,6 +365,43 @@ class FamilyProfileIdentityController
     );
   }
 
+  /// Fills empty identity fields from auth / product session (no overwrite).
+  ///
+  /// Every Super App settings Profile accordion reads [familyProfileIdentityProvider];
+  /// call this after login so Garage and siblings show the same core-backed rows.
+  ///
+  /// [avatarId] is applied only while core still has the default `avatar_1`
+  /// (legacy Garage session migration).
+  Future<void> hydrateFromAuthIfEmpty({
+    String? displayName,
+    String? email,
+    String? phoneNumber,
+    String? username,
+    String? firstName,
+    String? lastName,
+    DateTime? birthDate,
+    String? avatarId,
+  }) async {
+    final cur = state;
+    bool empty(String? v) => v == null || v.trim().isEmpty;
+    await updateFields(
+      displayName: empty(cur.displayName) ? displayName : null,
+      email: empty(cur.email) ? email : null,
+      phoneNumber: empty(cur.phoneNumber) ? phoneNumber : null,
+      username: empty(cur.username) ? username : null,
+      firstName: empty(cur.firstName) ? firstName : null,
+      lastName: empty(cur.lastName) ? lastName : null,
+      birthDate: cur.birthDate == null ? birthDate : null,
+    );
+    final incomingAvatar = avatarId?.trim();
+    if (incomingAvatar != null &&
+        incomingAvatar.isNotEmpty &&
+        cur.avatarId == 'avatar_1' &&
+        incomingAvatar != 'avatar_1') {
+      await setAvatarId(incomingAvatar);
+    }
+  }
+
   Future<void> clearAll() async {
     final prefs = _prefs;
     await prefs.remove(_avatarKey);

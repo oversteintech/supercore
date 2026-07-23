@@ -23,19 +23,24 @@ class FamilySettingsPlugins {
     this.belowTheme,
     this.insideProfile,
     this.belowProfile,
+    this.regionalExtras,
   });
 
   final List<Widget> Function(BuildContext context, WidgetRef ref)? aboveTheme;
   final List<Widget> Function(BuildContext context, WidgetRef ref)? belowTheme;
 
-  /// Widgets rendered **inside** the Profile accordion (personal fields, etc.).
-  /// When set, [FamilyProfileSection] hides its default field editors to avoid
-  /// duplicates — use for Garage-parity personal rows.
+  /// Widgets rendered **inside** the Profile accordion **after** the shared
+  /// core field editors (Garage phone-verify, passport, …). Must not replace
+  /// the canonical profile rows — those always come from [FamilyProfileSection].
   final List<Widget> Function(BuildContext context, WidgetRef ref)?
       insideProfile;
 
   /// Widgets rendered **below** the Profile accordion (e.g. garage visibility).
   final List<Widget> Function(BuildContext context, WidgetRef ref)? belowProfile;
+
+  /// Extra tiles under Region & language (currency, detect location, …).
+  final List<Widget> Function(BuildContext context, WidgetRef ref)?
+      regionalExtras;
 }
 
 /// Shared profile card — Garage-parity account header + avatar + fields.
@@ -78,7 +83,7 @@ class FamilyProfileSection extends ConsumerWidget {
     );
     final email = identity.email?.trim().isNotEmpty == true
         ? identity.email!
-        : (user?.email ?? 'guest');
+        : (user?.email ?? '—');
     final avatar = familyAvatarForId(identity.avatarId);
     final phone = identity.phoneNumber?.trim().isNotEmpty == true
         ? identity.phoneNumber!

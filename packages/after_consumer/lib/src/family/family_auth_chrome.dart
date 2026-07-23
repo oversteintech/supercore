@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:after_core/after_core.dart';
 import 'package:after_design_system/after_design_system.dart';
 import 'package:after_firebase/after_firebase.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,8 +12,14 @@ import 'family_product_icon_controller.dart';
 import 'family_profile_identity.dart';
 
 String _authErrorMessage(Object error) {
+  if (error is TimeoutException) {
+    return 'Sign-in timed out. Please try again.';
+  }
   if (error is AfterException) return error.message;
   final text = error.toString().toLowerCase();
+  if (text.contains('cancel') || text.contains('interrupted')) {
+    return 'Sign-in was cancelled.';
+  }
   if (text.contains('email-already-in-use') ||
       text.contains('email already')) {
     return 'This email is already in use.';
@@ -23,6 +30,11 @@ String _authErrorMessage(Object error) {
   if (text.contains('invalid-email')) {
     return 'Enter a valid email address.';
   }
+  if (text.contains('wrong-password') ||
+      text.contains('invalid-credential') ||
+      text.contains('user-not-found')) {
+    return 'Wrong email or password.';
+  }
   if (text.contains('network-request-failed') || text.contains('network')) {
     return 'Network error. Check your connection.';
   }
@@ -31,10 +43,12 @@ String _authErrorMessage(Object error) {
   }
   if (text.contains('operation-not-allowed') ||
       text.contains('api-key') ||
-      text.contains('app-not-authorized')) {
-    return 'Sign-up is not configured on this build.';
+      text.contains('app-not-authorized') ||
+      text.contains('googlesigninmisconfigured') ||
+      text.contains('googlesignin')) {
+    return 'Google Sign-In is not available on this device. Try email sign-in.';
   }
-  return 'Account creation failed. Please try again.';
+  return 'Sign-in failed. Please try again.';
 }
 
 enum _UsernameAvailability { idle, checking, available, taken, invalid }
@@ -78,8 +92,18 @@ class FamilyAuthChromeConfig extends FamilyChromeConfig {
 
   final FamilyRegistrationPlugin? registrationPlugin;
   final bool enableGoogle;
+
+  /// Product wants Apple Sign-In. UI still shows it only on iOS — never on
+  /// Android APKs (Google only there).
   final bool enableApple;
   final bool enableGuest;
+}
+
+/// Apple Sign-In is offered on iPhone/iPad only — not Android APKs or web.
+bool familyAuthShowsAppleSignIn(bool enableApple) {
+  return enableApple &&
+      !kIsWeb &&
+      defaultTargetPlatform == TargetPlatform.iOS;
 }
 
 enum FamilyAuthStatusTone { info, success, error }
@@ -316,8 +340,12 @@ class FamilyLoginScreen extends ConsumerStatefulWidget {
   const FamilyLoginScreen({
     required this.config,
     this.onAuthenticated,
+    this.onContinueAsGuest,
+    this.onSignInWithGoogle,
+    this.onSignInWithApple,
     this.authConfig,
     this.onRegistrationActive,
+    this.onForgotPassword,
     super.key,
   });
 
@@ -325,9 +353,24 @@ class FamilyLoginScreen extends ConsumerStatefulWidget {
   final FamilyAuthChromeConfig? authConfig;
   final VoidCallback? onAuthenticated;
 
+  /// When set, "Continue as guest" uses this instead of anonymous account
+  /// creation (flagship apps: local browse-only guest).
+  final Future<void> Function()? onContinueAsGuest;
+
+  /// When set, Google button uses this instead of [afterAuthRepositoryProvider].
+  final Future<void> Function()? onSignInWithGoogle;
+
+  /// When set, Apple button uses this instead of [afterAuthRepositoryProvider].
+  final Future<void> Function()? onSignInWithApple;
+
   /// Fired when the registration wizard is pushed (`true`) / popped (`false`).
   /// Flagship apps use this to hold AuthGate on the login shell mid-signup.
   final ValueChanged<bool>? onRegistrationActive;
+
+  /// Opens a dedicated reset screen. Defaults to [FamilyForgotPasswordScreen].
+  /// Flagship apps may push a localized product screen instead.
+  final void Function(BuildContext context, {String? initialEmail})?
+      onForgotPassword;
 
   @override
   ConsumerState<FamilyLoginScreen> createState() => _FamilyLoginScreenState();
@@ -412,12 +455,23 @@ class _FamilyLoginScreenState extends ConsumerState<FamilyLoginScreen> {
       _error = null;
     });
     try {
+      final localGuest = widget.onContinueAsGuest;
+      if (localGuest != null) {
+        await localGuest();
+        return;
+      }
       await ref
           .read(afterAuthRepositoryProvider)
           .signInAnonymously(installationId: 'family-guest');
       widget.onAuthenticated?.call();
     } on Object catch (e) {
-      if (mounted) setState(() => _error = _authErrorMessage(e));
+      if (mounted) {
+        setState(() {
+          _error = widget.onContinueAsGuest != null
+              ? 'Could not continue as guest. Please try again.'
+              : _authErrorMessage(e);
+        });
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -429,7 +483,15 @@ class _FamilyLoginScreenState extends ConsumerState<FamilyLoginScreen> {
       _error = null;
     });
     try {
-      await ref.read(afterAuthRepositoryProvider).signInWithGoogle();
+      final custom = widget.onSignInWithGoogle;
+      if (custom != null) {
+        await custom().timeout(const Duration(seconds: 90));
+      } else {
+        await ref
+            .read(afterAuthRepositoryProvider)
+            .signInWithGoogle()
+            .timeout(const Duration(seconds: 90));
+      }
       widget.onAuthenticated?.call();
     } on Object catch (e) {
       if (mounted) setState(() => _error = _authErrorMessage(e));
@@ -444,7 +506,15 @@ class _FamilyLoginScreenState extends ConsumerState<FamilyLoginScreen> {
       _error = null;
     });
     try {
-      await ref.read(afterAuthRepositoryProvider).signInWithApple();
+      final custom = widget.onSignInWithApple;
+      if (custom != null) {
+        await custom().timeout(const Duration(seconds: 90));
+      } else {
+        await ref
+            .read(afterAuthRepositoryProvider)
+            .signInWithApple()
+            .timeout(const Duration(seconds: 90));
+      }
       widget.onAuthenticated?.call();
     } on Object catch (e) {
       if (mounted) setState(() => _error = _authErrorMessage(e));
@@ -453,21 +523,27 @@ class _FamilyLoginScreenState extends ConsumerState<FamilyLoginScreen> {
     }
   }
 
-  Future<void> _forgot() async {
+  void _forgot() {
     final email = _email.text.trim();
-    if (email.isEmpty) {
-      setState(() => _error = 'Enter your email first');
-      return;
-    }
-    try {
-      await ref.read(afterAuthRepositoryProvider).sendPasswordResetEmail(email);
+    final initialEmail = email.isEmpty ? null : email;
+    final nav = Navigator.of(context);
+    final custom = widget.onForgotPassword;
+    // Defer push so accordion / AuthGate listeners settle (InactiveElements).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password reset email sent')),
+      if (custom != null) {
+        custom(context, initialEmail: initialEmail);
+        return;
+      }
+      nav.push(
+        MaterialPageRoute<void>(
+          builder: (_) => FamilyForgotPasswordScreen(
+            config: _auth,
+            initialEmail: initialEmail,
+          ),
+        ),
       );
-    } on Object catch (e) {
-      if (mounted) setState(() => _error = _authErrorMessage(e));
-    }
+    });
   }
 
   @override
@@ -495,7 +571,7 @@ class _FamilyLoginScreenState extends ConsumerState<FamilyLoginScreen> {
               ),
               const SizedBox(height: 12),
             ],
-            if (_auth.enableApple) ...[
+            if (familyAuthShowsAppleSignIn(_auth.enableApple)) ...[
               OutlinedButton.icon(
                 onPressed: _busy ? null : _apple,
                 style: OutlinedButton.styleFrom(
@@ -665,6 +741,58 @@ class _FamilyLoginScreenState extends ConsumerState<FamilyLoginScreen> {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Dedicated email-only password reset — feeds from [AfterForgotPasswordForm].
+class FamilyForgotPasswordScreen extends ConsumerWidget {
+  const FamilyForgotPasswordScreen({
+    required this.config,
+    this.initialEmail,
+    this.onSend,
+    this.resetAvailable = true,
+    this.errorMapper,
+    super.key,
+  });
+
+  final FamilyAuthChromeConfig config;
+  final String? initialEmail;
+  final Future<void> Function(String email)? onSend;
+  final bool resetAvailable;
+  final String Function(Object error)? errorMapper;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    const copy = AfterForgotPasswordCopy(
+      title: 'Forgot password',
+      subtitle:
+          'Enter your email and we will send a link to reset your password.',
+      emailLabel: 'Email',
+      validEmail: 'Enter a valid email',
+      sendButton: 'Send reset link',
+      sentMessage: 'Password reset email sent. Check your inbox.',
+      resendButton: 'Send again',
+      unavailableMessage: 'Password reset is unavailable in this build.',
+    );
+
+    return FamilyAuthExperienceShell(
+      config: config,
+      title: copy.title,
+      subtitle: copy.subtitle,
+      heroIcon: Icons.lock_reset_rounded,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_rounded),
+        onPressed: () => Navigator.of(context).maybePop(),
+      ),
+      child: AfterForgotPasswordForm(
+        copy: copy,
+        initialEmail: initialEmail,
+        onSend: onSend,
+        resetAvailable: resetAvailable,
+        accent: config.accent,
+        errorMapper: errorMapper ?? _authErrorMessage,
       ),
     );
   }

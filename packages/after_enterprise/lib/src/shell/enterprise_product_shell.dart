@@ -161,14 +161,7 @@ class _AfterEnterpriseMainShellState
           AfterShellTopBar(
             plan: AfterUserPlan.free,
             title: shortTitle,
-            locationLabel: null,
-            onLocationTap: () {},
             onNotifications: () {},
-            onAi: () {
-              ref
-                  .read(enterpriseShellTabProvider.notifier)
-                  .select(EnterpriseShellTab.ai);
-            },
           ),
           Expanded(
             child: Stack(

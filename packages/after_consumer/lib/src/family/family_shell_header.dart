@@ -3,32 +3,37 @@ import 'package:after_design_system/after_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../location/after_current_locality.dart';
+import 'family_animated_profile_avatar.dart';
+import 'family_avatar_options.dart';
 import 'family_membership_badge.dart';
+import 'family_profile_identity.dart';
 
 /// Garage-parity MainShell top bar for every consumer Super App.
 ///
 /// Delegates to shared [AfterShellTopBar]:
-/// membership (left) · location under it · centered app title ·
-/// notifications + animated AI (right).
-///
-/// When [locationLabel] is omitted, resolves city via
-/// [afterCurrentLocalityProvider] (same path Garage uses).
+/// membership (left, aligned with title) · centered app title ·
+/// notifications + animated profile avatar (right).
 class FamilyShellHeader extends ConsumerWidget {
   const FamilyShellHeader({
     super.key,
     this.plan = AfterUserPlan.free,
     this.title,
     this.membershipLabel,
-    this.locationLabel,
-    this.onLocationTap,
     this.notificationUnreadCount = 0,
     this.onNotifications,
-    this.onAi,
-    this.aiLocked = false,
-    this.locationTooltip = 'Location',
+    this.onProfile,
+    this.profileAction,
     this.notificationsTooltip = 'Notifications',
-    this.aiTooltip = 'AI',
+    this.profileTooltip = 'Profile',
+    @Deprecated('Location removed from shell top bar; ignored.')
+    String? locationLabel,
+    @Deprecated('Location removed from shell top bar; ignored.')
+    VoidCallback? onLocationTap,
+    @Deprecated('Location removed from shell top bar; ignored.')
+    this.locationTooltip = 'Location',
+    @Deprecated('AI moved to the bottom tab; ignored.') VoidCallback? onAi,
+    @Deprecated('AI moved to the bottom tab; ignored.') bool aiLocked = false,
+    @Deprecated('AI moved to the bottom tab; ignored.') String aiTooltip = 'AI',
   });
 
   final AfterUserPlan plan;
@@ -39,16 +44,18 @@ class FamilyShellHeader extends ConsumerWidget {
   /// Override badge text; defaults to [AfterMembershipBadge.forPlan].
   final String? membershipLabel;
 
-  /// Optional explicit locality. When null, watches [afterCurrentLocalityProvider].
-  final String? locationLabel;
-  final VoidCallback? onLocationTap;
   final int notificationUnreadCount;
   final VoidCallback? onNotifications;
-  final VoidCallback? onAi;
-  final bool aiLocked;
+
+  /// Opens profile / settings when the trailing avatar is tapped.
+  final VoidCallback? onProfile;
+
+  /// Optional custom profile control (tests only). Prefer the default
+  /// [FamilyAnimatedProfileAvatar] from [familyProfileIdentityProvider].
+  final Widget? profileAction;
   final String locationTooltip;
   final String notificationsTooltip;
-  final String aiTooltip;
+  final String profileTooltip;
 
   String get _resolvedTitle {
     final explicit = title?.trim();
@@ -71,8 +78,21 @@ class FamilyShellHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final resolvedTitle = _resolvedTitle;
     final badgeLabel = _resolvedBadge;
-    final resolvedLocation = locationLabel ??
-        ref.watch(afterCurrentLocalityProvider).asData?.value?.label;
+    final identity = ref.watch(familyProfileIdentityProvider);
+    final avatar = familyAvatarForId(identity.avatarId);
+    final resolvedProfile = profileAction ??
+        IconButton(
+          tooltip: profileTooltip,
+          visualDensity: VisualDensity.compact,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+          onPressed: onProfile,
+          icon: FamilyAnimatedProfileAvatar(
+            avatar: avatar,
+            imageBytes: identity.activePhotoBytes,
+            radius: 16,
+          ),
+        );
 
     return AfterShellTopBar(
       plan: plan,
@@ -88,18 +108,10 @@ class FamilyShellHeader extends ConsumerWidget {
               showIcon: false,
               displayContext: AfterMembershipBadgeContext.header,
             ),
-      locationLabel: resolvedLocation,
-      onLocationTap: onLocationTap ??
-          () {
-            ref.read(afterCurrentLocalityProvider.notifier).refresh();
-          },
       notificationUnreadCount: notificationUnreadCount,
       onNotifications: onNotifications,
-      onAi: onAi,
-      aiLocked: aiLocked,
-      locationTooltip: locationTooltip,
+      profileAction: resolvedProfile,
       notificationsTooltip: notificationsTooltip,
-      aiTooltip: aiTooltip,
     );
   }
 }

@@ -152,7 +152,16 @@ class FamilyMockAuthRepository implements AfterAuthRepository {
   }
 
   @override
-  Future<void> sendPasswordResetEmail(String email) async {}
+  Future<void> sendPasswordResetEmail(String email) async {
+    lastPasswordResetEmail = email.trim();
+    passwordResetCallCount += 1;
+  }
+
+  /// Last email passed to [sendPasswordResetEmail] (tests).
+  String? lastPasswordResetEmail;
+
+  /// How many times [sendPasswordResetEmail] was called (tests).
+  int passwordResetCallCount = 0;
 
   @override
   Future<void> sendEmailVerification() async {}
@@ -265,6 +274,7 @@ class _FamilyAiChatScreenState extends State<FamilyAiChatScreen> {
   Future<void> _sendText(String raw) async {
     final text = raw.trim();
     if (text.isEmpty || _busy) return;
+    dismissAfterAiKeyboard();
     setState(() {
       _lines.add((user: true, text: text));
       _input.clear();
@@ -333,17 +343,10 @@ class _FamilyAiChatScreenState extends State<FamilyAiChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
     final userMessageCount = _lines.where((l) => l.user).length;
 
     return Column(
       children: [
-        if (!keyboardOpen)
-          AfterAiAssistantHeader(
-            title: widget.title,
-            hasMessages: userMessageCount > 0,
-            onClearChat: _clearChat,
-          ),
         Expanded(
           child: ListView(
             controller: _scroll,
@@ -377,6 +380,8 @@ class _FamilyAiChatScreenState extends State<FamilyAiChatScreen> {
           hintText: widget.inputHint ?? 'Ask ${widget.title}…',
           onSend: () => unawaited(_send()),
           onAttach: _onAttach,
+          onClearChat: _clearChat,
+          hasMessages: userMessageCount > 0,
           onToggleRecording: _toggleRecording,
         ),
       ],

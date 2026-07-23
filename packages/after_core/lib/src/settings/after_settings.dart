@@ -21,6 +21,9 @@ class AfterSettingsKeys {
   /// Current locale (BCP-47, e.g. `en` / `tr`).
   static const locale = 'after.settings.locale';
 
+  /// ISO 3166-1 alpha-2 country / region (e.g. `TR` / `US`).
+  static const country = 'after.settings.country';
+
   /// Master notifications toggle — governs push + local dispatch.
   static const notificationsEnabled = 'after.settings.notifications.enabled';
 
@@ -49,6 +52,7 @@ class AfterSettingsKeys {
     themeMode,
     themeStyle,
     locale,
+    country,
     notificationsEnabled,
     hapticsEnabled,
     accentColor,

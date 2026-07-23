@@ -69,6 +69,12 @@ abstract final class AfterDynamicAppIconService {
   }
 
   static Future<void> initialize([SharedPreferences? preferences]) async {
+    // Widget tests inject [platformApplyOverride] — skip plugin channels so
+    // Linux CI / desktop hosts never hang on MissingPluginException awaits.
+    if (platformApplyOverride != null) {
+      _initialized = true;
+      return;
+    }
     if (!_enabled) {
       return;
     }
@@ -121,11 +127,20 @@ abstract final class AfterDynamicAppIconService {
     }
   }
 
-  /// Applies [whiteBackground] and relaunches on Android so the launcher icon
-  /// refreshes immediately (Garage settings behaviour).
+  /// Applies [whiteBackground] without killing the process.
+  ///
+  /// Android launcher aliases update in-place; forcing a relaunch previously
+  /// cold-started the app and looked like a sign-out to users.
   static Future<bool> applyBackgroundAndRestart({
     required bool whiteBackground,
   }) async {
+    // Honor test overrides even on Linux/web where launcher aliases are N/A.
+    if (platformApplyOverride != null) {
+      _initialized = true;
+      _pendingWhiteBackground = whiteBackground;
+      return _flushPendingSync(restartAfterApply: false);
+    }
+
     if (!_enabled) {
       return false;
     }
@@ -136,7 +151,7 @@ abstract final class AfterDynamicAppIconService {
     }
 
     _pendingWhiteBackground = whiteBackground;
-    return _flushPendingSync(restartAfterApply: true);
+    return _flushPendingSync(restartAfterApply: false);
   }
 
   static void scheduleBackgroundSync({required bool whiteBackground}) {

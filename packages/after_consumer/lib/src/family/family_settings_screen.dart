@@ -95,7 +95,8 @@ class FamilySettingsScreen extends ConsumerWidget {
       );
       return;
     }
-    if (style.isPremiumOnly && !canUsePremiumThemes) {
+    // Silver pack stays Premium-gated; Gold/Diamond are launch-free.
+    if (style.isSilverPremiumOnly && !canUsePremiumThemes) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(FamilyUiStrings.t('upgrade_themes', locale))),
       );
@@ -394,12 +395,19 @@ class FamilySettingsScreen extends ConsumerWidget {
                 title: Text(s('permissions')),
                 subtitle: Text(s('permissions_sub')),
                 trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => _info(
-                  context,
-                  s('permissions'),
-                  s('permissions_body'),
-                  locale: locale,
-                ),
+                onTap: () {
+                  final open = plugins.onOpenPermissions;
+                  if (open != null) {
+                    open();
+                    return;
+                  }
+                  _info(
+                    context,
+                    s('permissions'),
+                    s('permissions_body'),
+                    locale: locale,
+                  );
+                },
               ),
               const Divider(height: 1),
               ListTile(
@@ -407,12 +415,19 @@ class FamilySettingsScreen extends ConsumerWidget {
                 leading: const Icon(Icons.privacy_tip_rounded),
                 title: Text(s('privacy_policy')),
                 trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => _info(
-                  context,
-                  s('privacy_policy'),
-                  '${s('privacy_policy_body')}\n\n${s('support')}: ${config.supportEmail}',
-                  locale: locale,
-                ),
+                onTap: () {
+                  final open = plugins.onOpenPrivacyPolicy;
+                  if (open != null) {
+                    open();
+                    return;
+                  }
+                  _info(
+                    context,
+                    s('privacy_policy'),
+                    '${s('privacy_policy_body')}\n\n${s('support')}: ${config.supportEmail}',
+                    locale: locale,
+                  );
+                },
               ),
               const Divider(height: 1),
               ListTile(
@@ -420,12 +435,19 @@ class FamilySettingsScreen extends ConsumerWidget {
                 leading: const Icon(Icons.description_rounded),
                 title: Text(s('terms')),
                 trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => _info(
-                  context,
-                  s('terms'),
-                  '${s('terms_body', args: {'app': config.appName})}\n\n${s('support')}: ${config.supportEmail}',
-                  locale: locale,
-                ),
+                onTap: () {
+                  final open = plugins.onOpenTerms;
+                  if (open != null) {
+                    open();
+                    return;
+                  }
+                  _info(
+                    context,
+                    s('terms'),
+                    '${s('terms_body', args: {'app': config.appName})}\n\n${s('support')}: ${config.supportEmail}',
+                    locale: locale,
+                  );
+                },
               ),
               const Divider(height: 1),
               ListTile(
@@ -435,6 +457,11 @@ class FamilySettingsScreen extends ConsumerWidget {
                 subtitle: Text(s('export_sub')),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () {
+                  final open = plugins.onExportData;
+                  if (open != null) {
+                    open();
+                    return;
+                  }
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(s('export_soon')),
@@ -496,6 +523,10 @@ class FamilySettingsScreen extends ConsumerWidget {
                   locale: locale,
                 ),
               ),
+              if (plugins.securityExtras != null) ...[
+                const Divider(height: 1),
+                ...plugins.securityExtras!(context, ref),
+              ],
             ],
           ),
         ),
@@ -543,13 +574,23 @@ class FamilySettingsScreen extends ConsumerWidget {
           icon: Icons.help_outline_rounded,
           child: Column(
             children: [
-              ..._faqTiles(config.appName, locale),
+              if (plugins.faqItems != null)
+                ..._faqTilesFromItems(
+                  plugins.faqItems!(context, ref),
+                )
+              else
+                ..._faqTiles(config.appName, locale),
+              if (plugins.helpExtras != null) ...[
+                const Divider(height: 1),
+                ...plugins.helpExtras!(context, ref),
+              ],
               const Divider(height: 1),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.support_agent_rounded),
                 title: Text(s('contact_support')),
                 subtitle: Text(config.supportEmail),
+                onTap: plugins.onContactSupport,
               ),
             ],
           ),
@@ -653,6 +694,18 @@ class FamilySettingsScreen extends ConsumerWidget {
 
   static List<Widget> _faqTiles(String appName, String locale) {
     final faqs = _defaultFaqs(appName, locale);
+    return _faqTilesFromPairs(faqs);
+  }
+
+  static List<Widget> _faqTilesFromItems(
+    List<({String title, String body})> items,
+  ) {
+    return _faqTilesFromPairs([
+      for (final item in items) (item.title, item.body),
+    ]);
+  }
+
+  static List<Widget> _faqTilesFromPairs(List<(String, String)> faqs) {
     return [
       for (var i = 0; i < faqs.length; i++) ...[
         if (i > 0) const Divider(height: 1),
@@ -746,7 +799,7 @@ String _premiumThemeSubtitle(
   if (style.isComingSoonRoyalTheme) {
     return s('theme_royal_sub');
   }
-  if (style.isPremiumOnly && !canUsePremiumThemes) {
+  if (style.isSilverPremiumOnly && !canUsePremiumThemes) {
     return s('theme_locked');
   }
   return switch (style) {

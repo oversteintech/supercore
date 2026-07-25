@@ -76,12 +76,14 @@ abstract final class AfterDefaultPlanMatrix {
   static const Map<AfterUserPlan, Set<AfterPlanFeature>> features = {
     AfterUserPlan.free: {
       AfterPlanFeature.aiLimited,
+      AfterPlanFeature.cloudSyncBasic,
     },
     AfterUserPlan.premium: {
       AfterPlanFeature.aiLimited,
       AfterPlanFeature.unlimitedEntities,
       AfterPlanFeature.premiumThemes,
       AfterPlanFeature.cloudSyncBasic,
+      AfterPlanFeature.adFree,
     },
     AfterUserPlan.superPlan: {
       AfterPlanFeature.aiLimited,
@@ -189,7 +191,7 @@ abstract final class AfterEntitlementEngine {
     if (productKey == null || productKey.isEmpty) return null;
     return switch (productKey) {
       'premium' => AfterUserPlan.premium,
-      'super' => AfterUserPlan.superPlan,
+      'super' || 'overstein' => AfterUserPlan.superPlan,
       'business' => AfterUserPlan.business,
       _ => null,
     };
@@ -236,6 +238,9 @@ class MemoryAfterSubscriptionVerifier implements AfterSubscriptionVerifier {
               'after_plus_premium': AfterUserPlan.premium,
               'after_plus_super': AfterUserPlan.superPlan,
               'after_plus_business': AfterUserPlan.business,
+              'overstein_membership_monthly': AfterUserPlan.superPlan,
+              'overstein_membership_yearly': AfterUserPlan.superPlan,
+              'overstein_membership_lifetime': AfterUserPlan.superPlan,
             };
 
   final Map<String, AfterUserPlan> _productPlans;

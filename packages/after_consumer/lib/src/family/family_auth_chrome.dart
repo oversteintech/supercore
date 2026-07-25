@@ -343,6 +343,7 @@ class FamilyLoginScreen extends ConsumerStatefulWidget {
     this.onContinueAsGuest,
     this.onSignInWithGoogle,
     this.onSignInWithApple,
+    this.onSignInWithEmailPassword,
     this.authConfig,
     this.onRegistrationActive,
     this.onForgotPassword,
@@ -362,6 +363,11 @@ class FamilyLoginScreen extends ConsumerStatefulWidget {
 
   /// When set, Apple button uses this instead of [afterAuthRepositoryProvider].
   final Future<void> Function()? onSignInWithApple;
+
+  /// When set, email/password submit uses this instead of
+  /// [afterAuthRepositoryProvider] so flagship apps can persist AppSession.
+  final Future<void> Function(String email, String password)?
+      onSignInWithEmailPassword;
 
   /// Fired when the registration wizard is pushed (`true`) / popped (`false`).
   /// Flagship apps use this to hold AuthGate on the login shell mid-signup.
@@ -434,13 +440,18 @@ class _FamilyLoginScreenState extends ConsumerState<FamilyLoginScreen> {
       _error = null;
     });
     try {
-      final auth = ref.read(afterAuthRepositoryProvider);
-      await auth.signInWithEmailPassword(
-        AfterEmailPasswordCredentials(
-          email: _email.text.trim(),
-          password: _password.text,
-        ),
-      );
+      final customEmail = widget.onSignInWithEmailPassword;
+      if (customEmail != null) {
+        await customEmail(_email.text.trim(), _password.text);
+      } else {
+        final auth = ref.read(afterAuthRepositoryProvider);
+        await auth.signInWithEmailPassword(
+          AfterEmailPasswordCredentials(
+            email: _email.text.trim(),
+            password: _password.text,
+          ),
+        );
+      }
       widget.onAuthenticated?.call();
     } on Object catch (e) {
       if (mounted) setState(() => _error = _authErrorMessage(e));

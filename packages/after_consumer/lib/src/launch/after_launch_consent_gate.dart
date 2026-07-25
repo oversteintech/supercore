@@ -10,7 +10,7 @@ import 'after_permission_consent_screen.dart';
 ///
 /// Wrap each Super App [AuthGate] body with this so splash is always followed
 /// by consent screens before login/shell.
-class AfterLaunchConsentGate extends ConsumerWidget {
+class AfterLaunchConsentGate extends ConsumerStatefulWidget {
   const AfterLaunchConsentGate({
     required this.appName,
     required this.child,
@@ -29,31 +29,64 @@ class AfterLaunchConsentGate extends ConsumerWidget {
   final VoidCallback? onPermissionAccepted;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AfterLaunchConsentGate> createState() =>
+      _AfterLaunchConsentGateState();
+}
+
+class _AfterLaunchConsentGateState
+    extends ConsumerState<AfterLaunchConsentGate> {
+  @override
+  Widget build(BuildContext context) {
     final legal = ref.watch(afterLegalConsentProvider);
     final permission = ref.watch(afterPermissionConsentProvider);
+    // Explicit listens keep this State rebuildable if a parent Element
+    // temporarily drops ConsumerWidget watch notifications (test harness).
+    ref.listen<AfterLegalConsent>(afterLegalConsentProvider, (previous, next) {
+      if (previous?.needsConsent != next.needsConsent && mounted) {
+        setState(() {});
+      }
+    });
+    ref.listen<AfterPermissionConsent>(
+      afterPermissionConsentProvider,
+      (previous, next) {
+        if (previous?.needsConsent != next.needsConsent && mounted) {
+          setState(() {});
+        }
+      },
+    );
+
     final strings = AfterLaunchConsentStrings.forLocale(
-      appName: appName,
+      appName: widget.appName,
       locale: Localizations.maybeLocaleOf(context),
     );
 
     if (legal.needsConsent) {
       return AfterLegalConsentScreen(
+        key: const ValueKey('after-legal-consent'),
         strings: strings,
-        privacyPolicyUrl: privacyPolicyUrl,
-        termsOfUseUrl: termsOfUseUrl,
-        onAccepted: () {},
+        privacyPolicyUrl: widget.privacyPolicyUrl,
+        termsOfUseUrl: widget.termsOfUseUrl,
+        onAccepted: () {
+          if (mounted) setState(() {});
+        },
       );
     }
 
     if (permission.needsConsent) {
       return AfterPermissionConsentScreen(
+        key: const ValueKey('after-permission-consent'),
         strings: strings,
-        requestLocationOnAccept: requestLocationOnAccept,
-        onAccepted: () => onPermissionAccepted?.call(),
+        requestLocationOnAccept: widget.requestLocationOnAccept,
+        onAccepted: () {
+          widget.onPermissionAccepted?.call();
+          if (mounted) setState(() {});
+        },
       );
     }
 
-    return child;
+    return KeyedSubtree(
+      key: const ValueKey('after-consent-complete'),
+      child: widget.child,
+    );
   }
 }

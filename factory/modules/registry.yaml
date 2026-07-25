@@ -348,6 +348,23 @@ modules:
       - EnterpriseAiAssistant
     description: BYOK AI ports + enterprise wrapper that adds tenant/role context.
 
+  - id: community
+    name: Shared Community Feed
+    package: after_core
+    line: shared
+    status: shipping
+    ports:
+      - AfterCommunityPost
+      - AfterCommunityComment
+      - AfterCommunityInteractions
+      - AfterCommunityModeration
+      - AfterRoomInviteStore
+      - AfterCommunityRoomScope
+    description: >
+      Cross-app community primitives — posts, Instagram-style likes/comments,
+      private-room invites, and moderation. Verticals map roomKey to their
+      owned resource (vehicle, clinic, account…).
+
   # ---- Templates ----------------------------------------------------
   - id: template_consumer
     name: Consumer App Template

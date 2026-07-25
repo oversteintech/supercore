@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:after_design_system/after_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'family_ui_strings.dart';
 
 /// Shared ICE (In Case of Emergency) profile — Garage-parity fields for every
 /// Super App. Stored locally; cloud sync is product-specific later.
@@ -149,11 +150,17 @@ const _kBloodTypes = <String>[
 
 /// Garage-parity emergency profile editor for Settings.
 class FamilyEmergencyProfileSection extends ConsumerWidget {
-  const FamilyEmergencyProfileSection({super.key});
+  const FamilyEmergencyProfileSection({
+    super.key,
+    this.localeCode = 'en',
+  });
+
+  final String localeCode;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(familyEmergencyProfileProvider);
+    String t(String key) => FamilyUiStrings.t(key, localeCode);
     return async.when(
       loading: () => const Padding(
         padding: EdgeInsets.symmetric(vertical: 24),
@@ -162,32 +169,38 @@ class FamilyEmergencyProfileSection extends ConsumerWidget {
       error: (error, _) => Padding(
         padding: const EdgeInsets.all(12),
         child: Text(
-          'Could not load emergency profile',
+          t('emergency_load_error'),
           style: TextStyle(color: Theme.of(context).colorScheme.error),
         ),
       ),
       data: (profile) {
         if (!profile.consentAccepted) {
           return _ConsentGate(
+            localeCode: localeCode,
             onAccept: () => unawaited(
               ref.read(familyEmergencyProfileProvider.notifier).acceptConsent(),
             ),
           );
         }
-        return _EmergencyForm(profile: profile);
+        return _EmergencyForm(profile: profile, localeCode: localeCode);
       },
     );
   }
 }
 
 class _ConsentGate extends StatelessWidget {
-  const _ConsentGate({required this.onAccept});
+  const _ConsentGate({
+    required this.onAccept,
+    required this.localeCode,
+  });
 
   final VoidCallback onAccept;
+  final String localeCode;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    String t(String key) => FamilyUiStrings.t(key, localeCode);
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -200,17 +213,17 @@ class _ConsentGate extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: scheme.outlineVariant),
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(Icons.health_and_safety_rounded),
-                    SizedBox(width: 10),
+                    const Icon(Icons.health_and_safety_rounded),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Emergency profile privacy',
-                        style: TextStyle(
+                        t('emergency_privacy_title'),
+                        style: const TextStyle(
                           fontWeight: FontWeight.w800,
                           fontSize: 15,
                         ),
@@ -218,12 +231,10 @@ class _ConsentGate extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
-                  'Blood type, contacts, and medical notes stay on this device '
-                  'unless you later enable cloud sync. Share them only with '
-                  'people you trust in an emergency.',
-                  style: TextStyle(height: 1.4),
+                  t('emergency_privacy_body'),
+                  style: const TextStyle(height: 1.4),
                 ),
               ],
             ),
@@ -232,7 +243,7 @@ class _ConsentGate extends StatelessWidget {
           FilledButton.icon(
             onPressed: onAccept,
             icon: const Icon(Icons.check_rounded),
-            label: const Text('I understand — set up profile'),
+            label: Text(t('emergency_consent_cta')),
           ),
         ],
       ),
@@ -241,15 +252,20 @@ class _ConsentGate extends StatelessWidget {
 }
 
 class _EmergencyForm extends ConsumerWidget {
-  const _EmergencyForm({required this.profile});
+  const _EmergencyForm({
+    required this.profile,
+    required this.localeCode,
+  });
 
   final FamilyEmergencyProfile profile;
+  final String localeCode;
 
   Future<void> _editText({
     required BuildContext context,
     required WidgetRef ref,
     required String title,
     required String? current,
+    required bool multiline,
     required FamilyEmergencyProfile Function(String?) apply,
   }) async {
     final controller = TextEditingController(text: current ?? '');
@@ -260,17 +276,17 @@ class _EmergencyForm extends ConsumerWidget {
         content: TextField(
           controller: controller,
           autofocus: true,
-          maxLines: title.contains('Notes') || title.contains('Allerg') ? 4 : 1,
+          maxLines: multiline ? 4 : 1,
           decoration: InputDecoration(hintText: title),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(FamilyUiStrings.t('cancel', localeCode)),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-            child: const Text('Save'),
+            child: Text(FamilyUiStrings.t('save', localeCode)),
           ),
         ],
       ),
@@ -283,25 +299,32 @@ class _EmergencyForm extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    String t(String key) => FamilyUiStrings.t(key, localeCode);
     return Column(
       children: [
         ListTile(
           leading: const Icon(Icons.bloodtype_rounded),
-          title: const Text('Blood type'),
-          subtitle: Text(profile.bloodType?.trim().isNotEmpty == true
-              ? profile.bloodType!
-              : 'Not set'),
+          title: Text(t('emergency_blood_type')),
+          subtitle: Text(
+            profile.bloodType?.trim().isNotEmpty == true
+                ? profile.bloodType!
+                : t('emergency_not_set'),
+          ),
           trailing: const Icon(Icons.edit_outlined, size: 18),
           onTap: () async {
             final selected = await showDialog<String>(
               context: context,
               builder: (ctx) => SimpleDialog(
-                title: const Text('Blood type'),
+                title: Text(t('emergency_blood_type')),
                 children: [
                   for (final type in _kBloodTypes)
                     SimpleDialogOption(
                       onPressed: () => Navigator.pop(ctx, type),
-                      child: Text(type),
+                      child: Text(
+                        type == 'Unknown'
+                            ? t('emergency_blood_unknown')
+                            : type,
+                      ),
                     ),
                 ],
               ),
@@ -318,7 +341,7 @@ class _EmergencyForm extends ConsumerWidget {
         const Divider(height: 1),
         ListTile(
           leading: const Icon(Icons.contact_emergency_rounded),
-          title: const Text('Emergency contact'),
+          title: Text(t('emergency_contact')),
           subtitle: Text(
             [
               if (profile.contactName?.trim().isNotEmpty == true)
@@ -328,7 +351,7 @@ class _EmergencyForm extends ConsumerWidget {
               if (profile.contactRelationship?.trim().isNotEmpty == true)
                 profile.contactRelationship!,
             ].isEmpty
-                ? 'Add a primary contact'
+                ? t('emergency_contact_add')
                 : [
                     if (profile.contactName?.trim().isNotEmpty == true)
                       profile.contactName!,
@@ -346,8 +369,9 @@ class _EmergencyForm extends ConsumerWidget {
           context,
           ref,
           icon: Icons.warning_amber_rounded,
-          title: 'Allergies',
+          title: t('emergency_allergies'),
           value: profile.allergies,
+          multiline: true,
           apply: (v) => profile.copyWith(
             allergies: v,
             clearAllergies: v == null,
@@ -358,8 +382,9 @@ class _EmergencyForm extends ConsumerWidget {
           context,
           ref,
           icon: Icons.medical_services_outlined,
-          title: 'Medical conditions',
+          title: t('emergency_conditions'),
           value: profile.medicalConditions,
+          multiline: false,
           apply: (v) => profile.copyWith(
             medicalConditions: v,
             clearMedicalConditions: v == null,
@@ -370,8 +395,9 @@ class _EmergencyForm extends ConsumerWidget {
           context,
           ref,
           icon: Icons.medication_rounded,
-          title: 'Medications',
+          title: t('emergency_medications'),
           value: profile.medications,
+          multiline: false,
           apply: (v) => profile.copyWith(
             medications: v,
             clearMedications: v == null,
@@ -382,8 +408,9 @@ class _EmergencyForm extends ConsumerWidget {
           context,
           ref,
           icon: Icons.notes_rounded,
-          title: 'Emergency notes',
+          title: t('emergency_notes'),
           value: profile.emergencyNotes,
+          multiline: true,
           apply: (v) => profile.copyWith(
             emergencyNotes: v,
             clearEmergencyNotes: v == null,
@@ -399,12 +426,17 @@ class _EmergencyForm extends ConsumerWidget {
     required IconData icon,
     required String title,
     required String? value,
+    required bool multiline,
     required FamilyEmergencyProfile Function(String?) apply,
   }) {
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
-      subtitle: Text(value?.trim().isNotEmpty == true ? value! : 'Not set'),
+      subtitle: Text(
+        value?.trim().isNotEmpty == true
+            ? value!
+            : FamilyUiStrings.t('emergency_not_set', localeCode),
+      ),
       trailing: const Icon(Icons.edit_outlined, size: 18),
       onTap: () => unawaited(
         _editText(
@@ -412,6 +444,7 @@ class _EmergencyForm extends ConsumerWidget {
           ref: ref,
           title: title,
           current: value,
+          multiline: multiline,
           apply: apply,
         ),
       ),
@@ -423,27 +456,28 @@ class _EmergencyForm extends ConsumerWidget {
     final phoneCtrl = TextEditingController(text: profile.contactPhone ?? '');
     final relCtrl =
         TextEditingController(text: profile.contactRelationship ?? '');
+    String t(String key) => FamilyUiStrings.t(key, localeCode);
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Emergency contact'),
+        title: Text(t('emergency_contact')),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: nameCtrl,
-                decoration: const InputDecoration(labelText: 'Name'),
+                decoration: InputDecoration(labelText: t('emergency_name')),
               ),
               TextField(
                 controller: phoneCtrl,
                 keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(labelText: 'Phone'),
+                decoration: InputDecoration(labelText: t('phone')),
               ),
               TextField(
                 controller: relCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Relationship',
+                decoration: InputDecoration(
+                  labelText: t('emergency_relationship'),
                 ),
               ),
             ],
@@ -452,11 +486,11 @@ class _EmergencyForm extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(t('cancel')),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Save'),
+            child: Text(t('save')),
           ),
         ],
       ),

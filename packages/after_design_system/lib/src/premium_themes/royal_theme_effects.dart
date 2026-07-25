@@ -1115,11 +1115,16 @@ class RoyalMembershipBadge extends StatelessWidget {
   const RoyalMembershipBadge({
     required this.tierLabel,
     this.showComingSoon = false,
+    this.comingSoonLabel,
     super.key,
   });
 
   final String tierLabel;
   final bool showComingSoon;
+
+  /// Localized "coming soon" label. When null, falls back to
+  /// [AfterMembershipBadge.comingSoon].
+  final String? comingSoonLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -1167,7 +1172,7 @@ class RoyalMembershipBadge extends StatelessWidget {
               color: SuperGarageColors.royalForeground.withValues(alpha: 0.35),
             ),
             Text(
-              AfterMembershipBadge.comingSoon,
+              comingSoonLabel ?? AfterMembershipBadge.comingSoon,
               style: TextStyle(
                 color: SuperGarageColors.royalForeground.withValues(
                   alpha: 0.88,

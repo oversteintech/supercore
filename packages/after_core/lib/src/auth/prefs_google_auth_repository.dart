@@ -57,15 +57,40 @@ class PrefsGoogleAuthRepository implements AfterAuthRepository {
   String get _nameKey => '$prefsKeyPrefix.auth.name';
   String get _providerKey => '$prefsKeyPrefix.auth.provider';
 
+  /// True when a prior sign-in left a restoreable session on disk.
+  static bool hasRememberedSession(
+    SharedPreferences prefs, {
+    required String prefsKeyPrefix,
+  }) {
+    final uid = prefs.getString('$prefsKeyPrefix.auth.uid');
+    return uid != null && uid.trim().isNotEmpty;
+  }
+
+  /// Reloads platform prefs then restores in-memory session (cold-start safe).
+  Future<AfterAuthSession> hydrateFromPrefs() async {
+    try {
+      await _prefs.reload();
+    } on Object {
+      // Some platforms do not support reload; continue with cached prefs.
+    }
+    restoreFromPrefs();
+    return _session;
+  }
+
   void restoreFromPrefs() {
     final storedUid = _prefs.getString(_uidKey);
     final storedEmail = _prefs.getString(_emailKey);
     final storedName = _prefs.getString(_nameKey);
-    if (storedUid == null) return;
+    if (storedUid == null || storedUid.trim().isEmpty) {
+      _session = const AfterAuthSession.unauthenticated();
+      return;
+    }
     final providerRaw = _prefs.getString(_providerKey);
     final provider = switch (providerRaw) {
       'google' => AfterAuthProvider.google,
       'apple' => AfterAuthProvider.apple,
+      'anonymous' => AfterAuthProvider.anonymous,
+      'magicLink' => AfterAuthProvider.magicLink,
       _ => AfterAuthProvider.emailPassword,
     };
     _session = AfterAuthSession(
@@ -73,7 +98,7 @@ class PrefsGoogleAuthRepository implements AfterAuthRepository {
       isLoading: false,
       user: AfterAuthUser(
         uid: storedUid,
-        isAnonymous: false,
+        isAnonymous: provider == AfterAuthProvider.anonymous,
         email: storedEmail,
         displayName: storedName ?? storedEmail?.split('@').first ?? 'Member',
         emailVerified: true,
@@ -153,6 +178,9 @@ class PrefsGoogleAuthRepository implements AfterAuthRepository {
 
   @override
   Stream<AfterAuthSession> watchAuthSession() async* {
+    // Cold start: re-read disk so relaunch never flashes Login when prefs
+    // already hold a signed-in uid (Garage-parity remember behavior).
+    await hydrateFromPrefs();
     yield _session;
     yield* _controller.stream;
   }

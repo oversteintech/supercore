@@ -7,13 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'family_chrome.dart';
-import 'family_cloud_sync.dart';
 import 'family_emergency_profile.dart';
 import 'family_membership_badge.dart';
 import 'family_membership_controller.dart';
 import 'family_plans_chrome.dart';
 import 'family_profile_identity.dart';
 import 'family_region_language_section.dart';
+import 'family_rich_document.dart';
 import 'family_settings_chrome.dart';
 import 'family_theme_controller.dart';
 import 'family_ui_strings.dart';
@@ -21,7 +21,7 @@ import 'family_ui_strings.dart';
 /// Garage-parity settings body used as the rightmost MainShell tab.
 ///
 /// Sections: Profile · Emergency · Region & language · Theme · App icon ·
-/// Subscription · Cloud sync · Privacy · Security · Early access · Help/FAQ ·
+/// Subscription · Privacy · Security · Early access · Help/FAQ ·
 /// App tour · About · Sign out · Delete account.
 class FamilySettingsScreen extends ConsumerWidget {
   const FamilySettingsScreen({
@@ -211,7 +211,7 @@ class FamilySettingsScreen extends ConsumerWidget {
           icon: Icons.health_and_safety_rounded,
           headerBackgroundColor: AfterSettingsSection.emergencyRed,
           headerTextColor: Colors.white,
-          child: const FamilyEmergencyProfileSection(),
+          child: FamilyEmergencyProfileSection(localeCode: locale),
         ),
         const AfterSettingsSectionGap(),
         AfterSettingsSection(
@@ -348,42 +348,6 @@ class FamilySettingsScreen extends ConsumerWidget {
         ),
         const AfterSettingsSectionGap(),
         AfterSettingsSection(
-          title: s('cloud_sync'),
-          subtitle: s('cloud_sync_sub'),
-          icon: Icons.cloud_sync_rounded,
-          child: Consumer(
-            builder: (context, ref, _) {
-              final sync = ref.watch(familyCloudSyncProvider);
-              final subtitle = switch (sync.status) {
-                FamilyCloudSyncStatus.syncing => s('syncing'),
-                FamilyCloudSyncStatus.error => sync.errorCode ?? s('sync_error'),
-                FamilyCloudSyncStatus.idle => sync.lastSyncedMillis == null
-                    ? s('not_synced')
-                    : s('last_sync_ok'),
-              };
-              return ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.cloud_sync_outlined),
-                title: Text(s('sync_now')),
-                subtitle: Text(subtitle),
-                trailing: sync.status == FamilyCloudSyncStatus.syncing
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.chevron_right_rounded),
-                onTap: sync.status == FamilyCloudSyncStatus.syncing
-                    ? null
-                    : () => unawaited(
-                          ref.read(familyCloudSyncProvider.notifier).syncNow(),
-                        ),
-              );
-            },
-          ),
-        ),
-        const AfterSettingsSectionGap(),
-        AfterSettingsSection(
           title: s('privacy'),
           subtitle: s('privacy_sub'),
           icon: Icons.privacy_tip_rounded,
@@ -401,11 +365,15 @@ class FamilySettingsScreen extends ConsumerWidget {
                     open();
                     return;
                   }
-                  _info(
+                  _openDocument(
                     context,
-                    s('permissions'),
-                    s('permissions_body'),
                     locale: locale,
+                    title: s('permissions'),
+                    intro: s('permissions_body', args: {'app': config.appName}),
+                    prefix: 'privacy_perm',
+                    count: 3,
+                    args: {'app': config.appName},
+                    icon: Icons.verified_user_rounded,
                   );
                 },
               ),
@@ -421,11 +389,24 @@ class FamilySettingsScreen extends ConsumerWidget {
                     open();
                     return;
                   }
-                  _info(
+                  _openDocument(
                     context,
-                    s('privacy_policy'),
-                    '${s('privacy_policy_body')}\n\n${s('support')}: ${config.supportEmail}',
                     locale: locale,
+                    title: s('privacy_policy'),
+                    intro: s(
+                      'privacy_policy_intro',
+                      args: {
+                        'app': config.appName,
+                        'email': config.supportEmail,
+                      },
+                    ),
+                    prefix: 'privacy',
+                    count: 8,
+                    args: {
+                      'app': config.appName,
+                      'email': config.supportEmail,
+                    },
+                    icon: Icons.privacy_tip_rounded,
                   );
                 },
               ),
@@ -441,11 +422,24 @@ class FamilySettingsScreen extends ConsumerWidget {
                     open();
                     return;
                   }
-                  _info(
+                  _openDocument(
                     context,
-                    s('terms'),
-                    '${s('terms_body', args: {'app': config.appName})}\n\n${s('support')}: ${config.supportEmail}',
                     locale: locale,
+                    title: s('terms'),
+                    intro: s(
+                      'terms_intro',
+                      args: {
+                        'app': config.appName,
+                        'email': config.supportEmail,
+                      },
+                    ),
+                    prefix: 'terms',
+                    count: 6,
+                    args: {
+                      'app': config.appName,
+                      'email': config.supportEmail,
+                    },
+                    icon: Icons.description_rounded,
                   );
                 },
               ),
@@ -489,9 +483,34 @@ class FamilySettingsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      s('security_body'),
-                      style: const TextStyle(height: 1.35),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          s('security_promise_title'),
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w900,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+                        FamilyRichBody(
+                          s('security_body', args: {'app': config.appName}),
+                        ),
+                        const SizedBox(height: 14),
+                        Text(
+                          s('security_protected_title'),
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+                        FamilyRichBody(
+                          [
+                            for (var i = 1; i <= 5; i++)
+                              '• ${s('security_item_$i')}',
+                          ].join('\n'),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -516,11 +535,24 @@ class FamilySettingsScreen extends ConsumerWidget {
                 leading: const Icon(Icons.security_rounded),
                 title: Text(s('your_rights')),
                 trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => _info(
+                onTap: () => _openDocument(
                   context,
-                  s('your_rights'),
-                  s('your_rights_body', args: {'email': config.supportEmail}),
                   locale: locale,
+                  title: s('your_rights'),
+                  intro: s(
+                    'your_rights_body',
+                    args: {
+                      'app': config.appName,
+                      'email': config.supportEmail,
+                    },
+                  ),
+                  prefix: 'rights',
+                  count: 3,
+                  args: {
+                    'app': config.appName,
+                    'email': config.supportEmail,
+                  },
+                  icon: Icons.gavel_rounded,
                 ),
               ),
               if (plugins.securityExtras != null) ...[
@@ -712,14 +744,14 @@ class FamilySettingsScreen extends ConsumerWidget {
         ExpansionTile(
           title: Text(
             faqs[i].$1,
-            style: const TextStyle(fontWeight: FontWeight.w700),
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5),
           ),
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+              padding: const EdgeInsets.fromLTRB(4, 0, 4, 14),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text(faqs[i].$2, style: const TextStyle(height: 1.4)),
+                child: FamilyRichBody(faqs[i].$2),
               ),
             ),
           ],
@@ -756,16 +788,56 @@ class FamilySettingsScreen extends ConsumerWidget {
     unawaited(
       showDialog<void>(
         context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(title),
-          content: SingleChildScrollView(child: Text(body)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(FamilyUiStrings.t('ok', locale)),
+        builder: (ctx) {
+          final theme = Theme.of(ctx);
+          return AlertDialog(
+            title: Text(
+              title,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w900,
+              ),
             ),
-          ],
-        ),
+            content: SingleChildScrollView(child: FamilyRichBody(body)),
+            actions: [
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(FamilyUiStrings.t('ok', locale)),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  static void _openDocument(
+    BuildContext context, {
+    required String locale,
+    required String title,
+    required String intro,
+    required String prefix,
+    required int count,
+    Map<String, String> args = const {},
+    IconData icon = Icons.article_outlined,
+  }) {
+    unawaited(
+      showFamilyDocumentSheet(
+        context: context,
+        title: title,
+        intro: intro,
+        icon: icon,
+        closeLabel: FamilyUiStrings.t('ok', locale),
+        sections: [
+          for (var i = 1; i <= count; i++)
+            FamilyDocSection(
+              title: FamilyUiStrings.t('${prefix}_s${i}_title', locale),
+              body: FamilyUiStrings.t(
+                '${prefix}_s${i}_body',
+                locale,
+                args: args,
+              ),
+            ),
+        ],
       ),
     );
   }

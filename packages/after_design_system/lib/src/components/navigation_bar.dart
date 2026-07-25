@@ -7,6 +7,8 @@ import '../foundations/radius.dart';
 import '../foundations/spacing.dart';
 import '../foundations/theme.dart';
 import '../foundations/typography.dart';
+import 'after_animated_ai_icon.dart';
+import 'after_animated_live_tab_icon.dart';
 
 class AfterNavDestination {
   const AfterNavDestination({
@@ -19,13 +21,45 @@ class AfterNavDestination {
           'Provide icon or iconBuilder',
         );
 
+  /// Family-standard colorful animated AI hub mark.
+  factory AfterNavDestination.ai({required String label}) {
+    return AfterNavDestination(
+      label: label,
+      iconBuilder: (_) => const AfterAnimatedAiIcon(size: 22),
+    );
+  }
+
+  /// Family-standard pulsing Live sensors mark.
+  factory AfterNavDestination.live({required String label}) {
+    return AfterNavDestination(
+      label: label,
+      iconBuilder: (selected) => AfterAnimatedLiveTabIcon(selected: selected),
+    );
+  }
+
   final IconData? icon;
   final IconData? selectedIcon;
   final Widget Function(bool selected)? iconBuilder;
   final String label;
+
+  static bool isAiIconData(IconData? icon) {
+    return icon == Icons.hub_outlined ||
+        icon == Icons.hub_rounded ||
+        icon == Icons.hub;
+  }
+
+  static bool isLiveIconData(IconData? icon) {
+    return icon == Icons.sensors_outlined ||
+        icon == Icons.sensors_rounded ||
+        icon == Icons.sensors;
+  }
 }
 
 /// Bottom navigation — compact, indicator soft-fill, ice accent when selected.
+///
+/// Plain `Icons.hub_*` / `Icons.sensors_*` destinations are auto-upgraded to
+/// [AfterAnimatedAiIcon] / [AfterAnimatedLiveTabIcon] so every Super App
+/// inherits Garage-parity motion without per-app wiring.
 class AfterNavigationBar extends StatelessWidget {
   const AfterNavigationBar({
     required this.destinations,
@@ -92,13 +126,34 @@ class _AfterNavItem extends StatelessWidget {
   final AfterColorScheme colors;
   final AfterTypography type;
 
-  @override
-  Widget build(BuildContext context) {
-    final color = selected ? colors.accent : colors.muted;
-    final customIcon = destination.iconBuilder?.call(selected);
+  Widget _resolveIcon() {
+    final custom = destination.iconBuilder?.call(selected);
+    if (custom != null) return custom;
+
     final iconData = selected
         ? (destination.selectedIcon ?? destination.icon)
         : destination.icon;
+    if (AfterNavDestination.isAiIconData(destination.icon) ||
+        AfterNavDestination.isAiIconData(destination.selectedIcon) ||
+        AfterNavDestination.isAiIconData(iconData)) {
+      return const AfterAnimatedAiIcon(size: 22);
+    }
+    if (AfterNavDestination.isLiveIconData(destination.icon) ||
+        AfterNavDestination.isLiveIconData(destination.selectedIcon) ||
+        AfterNavDestination.isLiveIconData(iconData)) {
+      return AfterAnimatedLiveTabIcon(selected: selected);
+    }
+
+    return Icon(
+      iconData,
+      size: AfterIconSpec.sizeLg - 2,
+      color: selected ? colors.accent : colors.muted,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = selected ? colors.accent : colors.muted;
 
     return InkWell(
       onTap: onTap,
@@ -113,12 +168,7 @@ class _AfterNavItem extends StatelessWidget {
               color: selected ? colors.accentSoft : Colors.transparent,
               borderRadius: AfterRadius.fullAll,
             ),
-            child: customIcon ??
-                Icon(
-                  iconData,
-                  size: AfterIconSpec.sizeLg - 2,
-                  color: color,
-                ),
+            child: _resolveIcon(),
           ),
           const SizedBox(height: 2),
           Text(
@@ -136,7 +186,7 @@ class _AfterNavItem extends StatelessWidget {
   }
 }
 
-/// Top app bar with optional AI / notification trailing actions.
+/// Top app bar with optional trailing actions.
 class AfterAppBar extends StatelessWidget implements PreferredSizeWidget {
   const AfterAppBar({
     required this.title,

@@ -1,9 +1,13 @@
 import 'package:after_core/after_core.dart';
 
+import 'family_rich_doc_strings.dart';
+
 /// Localized chrome for [FamilySettingsScreen] + shared shell nav labels.
 ///
 /// Storage / keys stay English; UI shows the active locale (Garage-parity).
 abstract final class FamilyUiStrings {
+  static final _stubPrefix = RegExp(r'^\[[a-z]{2}\]\s');
+
   static String t(
     String key,
     String languageCode, {
@@ -16,11 +20,20 @@ abstract final class FamilyUiStrings {
         : AfterSupportedLocales.fallbackLanguage;
     final table = _tables[code] ?? _tables['en']!;
     final en = _tables['en']!;
-    var value = table[key] ?? en[key] ?? key;
+    final rich = familyRichDocTables[code];
+    var value =
+        _pick(rich?[key]) ?? _pick(table[key]) ?? _pick(en[key]) ?? key;
     for (final e in args.entries) {
       value = value.replaceAll('{${e.key}}', e.value);
     }
     return value;
+  }
+
+  /// Treats legacy `[xx] …` placeholders as missing so English / helper overlay wins.
+  static String? _pick(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    if (_stubPrefix.hasMatch(raw)) return null;
+    return raw;
   }
 
   static const _tables = <String, Map<String, String>>{
@@ -64,6 +77,25 @@ const _en = <String, String>{
   'membership': 'Membership',
   'emergency': 'Emergency profile',
   'emergency_sub': 'Blood type, contacts and medical notes for ICE',
+  'emergency_privacy_title': 'Emergency profile privacy',
+  'emergency_privacy_body':
+      'Blood type, contacts, and medical notes stay on this device '
+      'unless you later enable cloud sync. Share them only with '
+      'people you trust in an emergency.',
+  'emergency_consent_cta': 'I understand — set up profile',
+  'emergency_load_error': 'Could not load emergency profile',
+  'emergency_blood_type': 'Blood type',
+  'emergency_blood_unknown': 'Unknown',
+  'emergency_not_set': 'Not set',
+  'emergency_contact': 'Emergency contact',
+  'emergency_contact_add': 'Add a primary contact',
+  'emergency_allergies': 'Allergies',
+  'emergency_conditions': 'Medical conditions',
+  'emergency_medications': 'Medications',
+  'emergency_notes': 'Emergency notes',
+  'emergency_name': 'Name',
+  'emergency_relationship': 'Relationship',
+  'save': 'Save',
   'region_language': 'Region & language',
   'region_language_sub': 'App language and country / region',
   'language': 'Language',
@@ -130,36 +162,139 @@ const _en = <String, String>{
   'last_sync_ok': 'Last sync OK',
   'privacy': 'Privacy',
   'permissions': 'Permissions',
-  'permissions_sub': 'Location, notifications, and camera are requested only when needed.',
-  'permissions_body': 'This Super App asks for sensitive permissions only when you use a feature that needs them. You can revoke access in system settings anytime.',
+  'permissions_sub': 'Location, notifications, camera and related access',
+  'permissions_body':
+      'Last updated: 20 July 2026\n\n{app} requests sensitive permissions only when you use a feature that needs them. You can revoke access anytime in system settings.',
+  'privacy_perm_s1_title': '1. When we ask',
+  'privacy_perm_s1_body':
+      'Camera / photos — profile, attachments and product media\nLocation — nearby search, maps and regional content\nNotifications — reminders you enable\nMicrophone — voice notes or sound analysis when you start them\nBluetooth — paired accessories for the feature you open',
+  'privacy_perm_s2_title': '2. What we never do',
+  'privacy_perm_s2_body':
+      '• We do not sell your personal data\n• Permissions are not used for silent background tracking\n• Optional cloud sync and sharing stay off until you turn them on',
+  'privacy_perm_s3_title': '3. How to revoke',
+  'privacy_perm_s3_body':
+      'Open your device Settings → Apps → {app} → Permissions.\n\nRelated features may stop until you grant access again.',
   'privacy_policy': 'Privacy policy',
-  'privacy_policy_body': 'Your data stays under your control. Cloud sync and sharing run only when you enable those features.',
+  'privacy_policy_hint': 'KVKK / GDPR aligned policy for {app}',
+  'privacy_policy_body':
+      'Your data stays under your control. Cloud sync and sharing run only when you enable those features.',
+  'privacy_policy_intro':
+      'Last updated: 20 July 2026\n\n{app} is an AfterArtificial Super App from OVERSTEIN Labs (“we”, “data controller”). This policy follows the Turkish Personal Data Protection Law (KVKK) and the EU GDPR.\n\nOn first launch you accept this Privacy Policy and our Terms of Use. Device permissions are requested separately only when you use the related feature.\n\nContact: {email}',
+  'privacy_s1_title': '1. Data controller & contact',
+  'privacy_s1_body':
+      'Data controller: OVERSTEIN Labs\nProduct family: AfterArtificial Super Apps ({app})\nSupport: {email}\n\nFor access, correction, deletion or objection requests, email us from your registered account. We respond within 30 days where required by law.',
+  'privacy_s2_title': '2. Scope & consent',
+  'privacy_s2_body':
+      'This policy covers the {app} mobile app and related services. Creating an account or continuing after this notice is shown counts as consent to the processing described here. You may withdraw consent by deleting your account, uninstalling the app, or contacting support. Withdrawal does not affect earlier lawful processing.',
+  'privacy_s3_title': '3. Personal data we collect',
+  'privacy_s3_body':
+      'Depending on use we may process:\n• Account: name, email, sign-in method, optional phone and birth date\n• Profile: avatar, photos, display name, username\n• Product domain data you enter (records, files, preferences)\n• Regional settings: country, currency, language\n• Location only when you request nearby or map features\n• Diagnostics: crash and performance signals from the OS / Firebase Crashlytics when enabled',
+  'privacy_s4_title': '4. How we use data',
+  'privacy_s4_body':
+      'We process data to provide {app}, authenticate you, send optional reminders, apply regional settings, run AI features you start, sync across devices when cloud sync is on, and improve reliability. We do not sell personal garage or profile data to advertisers.',
+  'privacy_s5_title': '5. Legal basis',
+  'privacy_s5_body':
+      'Contract performance, explicit consent for optional features, legitimate interests (security and service integrity), and legal obligations where applicable.',
+  'privacy_s6_title': '6. Storage & retention',
+  'privacy_s6_body':
+      'Primary storage is on your device. Cloud storage (when enabled) may use Firebase Auth, Firestore and Storage. Retention lasts while your account is active; you can export or delete local data from Settings. Cloud data is removed when you delete the account or after a verified request, subject to legal retention.',
+  'privacy_s7_title': '7. Third parties',
+  'privacy_s7_body':
+      'Integrations run only for features you use: Google Firebase / Sign-In, app stores for billing, map or places providers for nearby search, and AI providers when you supply your own API key. Those providers process data under their own policies.',
+  'privacy_s8_title': '8. Your rights',
+  'privacy_s8_body':
+      'You may access, correct, export, restrict or delete your data, and object to certain processing. Email {email}. You may also lodge a complaint with your local supervisory authority (e.g. KVKK in Türkiye).',
   'terms': 'Terms of use',
-  'terms_body': 'By using {app} you agree to Overstein Labs terms for AfterArtificial Super Apps.',
+  'terms_hint': 'Rules for using {app}',
+  'terms_body':
+      'By using {app} you agree to Overstein Labs terms for AfterArtificial Super Apps.',
+  'terms_intro':
+      'Last updated: 20 July 2026\n\nThese Terms govern your use of {app}, an AfterArtificial Super App built by OVERSTEIN Labs. By creating an account or using the app you agree to these Terms and our Privacy Policy.\n\nSupport: {email}',
+  'terms_s1_title': '1. The service',
+  'terms_s1_body':
+      '{app} provides consumer productivity features on After Framework. Features, plans and availability may change. Some capabilities require a paid plan or third-party keys.',
+  'terms_s2_title': '2. Accounts',
+  'terms_s2_body':
+      'You are responsible for account credentials and for activity under your account. Keep sign-in methods secure. Do not share accounts that unlock paid features.',
+  'terms_s3_title': '3. Acceptable use',
+  'terms_s3_body':
+      'Do not misuse the service, attempt unauthorized access, abuse community surfaces, or upload unlawful content. We may suspend accounts that violate these Terms.',
+  'terms_s4_title': '4. Subscriptions & purchases',
+  'terms_s4_body':
+      'Paid plans and one-time purchases are billed by Apple App Store or Google Play under their terms. Manage, cancel or request refunds through the store that charged you.',
+  'terms_s5_title': '5. Disclaimer',
+  'terms_s5_body':
+      '{app} is provided “as is”. AI suggestions, live feeds and estimates are informational and do not replace professional advice. We are not liable for decisions made solely on app output.',
+  'terms_s6_title': '6. Changes & contact',
+  'terms_s6_body':
+      'We may update these Terms; material changes are highlighted in-app or by notice. Questions: {email}.',
   'export_data': 'Export data',
   'export_sub': 'Download a local copy of your data',
-  'export_soon': 'Export will be available with cloud sync',
+  'export_soon': 'Export opens when your product enables local backup',
   'security': 'Security',
-  'security_body': 'Your account and on-device data are protected. Sign-in tokens never leave secure storage.',
+  'security_promise_title': 'Your data security is our priority',
+  'security_body':
+      '{app} keeps your data on-device first. Cloud sync, sharing and optional sensors stay off until you enable them. Sign-in tokens remain in secure storage.',
+  'security_protected_title': 'What we protect',
+  'security_item_1': 'Account credentials and session tokens',
+  'security_item_2': 'Profile and personal details you store in Settings',
+  'security_item_3': 'Local product records and attachments on this device',
+  'security_item_4': 'Optional cloud backups (only when sync is enabled)',
+  'security_item_5': 'Community and sharing actions you explicitly start',
   'change_password': 'Change password',
   'change_password_sub': 'Managed by your sign-in provider',
-  'change_password_body': 'Password changes are handled by your Google / email provider. Use the provider account settings to update credentials.',
+  'change_password_body':
+      'Password changes are handled by your sign-in provider.\n\n'
+      '• Google / Apple / email — open that provider’s account settings\n'
+      '• Local demo accounts — reset from the sign-in screen when available',
   'your_rights': 'Your rights',
-  'your_rights_body': 'You can export, correct, or delete your data. Email {email} for KVKK/GDPR requests.',
+  'your_rights_hint': 'KVKK / GDPR access, correction and deletion',
+  'your_rights_body':
+      'You can export, correct or delete your {app} data.\n\n'
+      'For KVKK / GDPR requests, email **{email}** from your registered address.',
+  'rights_s1_title': '1. Access & correction',
+  'rights_s1_body':
+      '• Review profile fields in Settings → Profile\n'
+      '• Ask support to confirm what is stored in cloud sync if enabled',
+  'rights_s2_title': '2. Export & portability',
+  'rights_s2_body':
+      '• Use Settings → Privacy → Export data when available\n'
+      '• Or request an export from {email}',
+  'rights_s3_title': '3. Deletion',
+  'rights_s3_body':
+      '• Settings → Delete account removes local identity and triggers product wipe flows\n'
+      '• Cloud copies are deleted subject to legal retention',
   'early_user': 'Early user program',
   'early_access': 'Early access',
   'early_access_admin': 'Admin: manage early-user tiers from the backend console.',
   'early_access_user': 'Founders and pioneers get beta features and launch perks.',
   'join_inquire': 'Join / inquire',
-  'early_user_body': 'Write to {email} with your account email to join the early user program for {app}.',
+  'early_user_body':
+      'Write to **{email}** with your account email to join the early user program for {app}.\n\n'
+      '• Mention your account email\n'
+      '• Include device model if reporting a beta issue',
   'help_faq': 'Help / FAQ',
   'contact_support': 'Contact support',
+  'contact_support_body':
+      'Email **{email}** with:\n\n'
+      '• Your {app} account email\n'
+      '• Device model\n'
+      '• A short description of the issue\n\n'
+      'We reply as soon as we can.',
   'app_tour': 'App tour',
   'replay_tour': 'Replay app tour',
-  'replay_tour_sub': 'Quick walkthrough of the main tabs',
+  'replay_tour_sub': 'Walk through Home, Live, AI, Features and Settings',
   'about': 'About',
   'version': 'Version {version}',
   'built_by': 'Built by Overstein Labs · AfterArtificial Super Apps',
+  'about_company': 'OVERSTEIN Labs',
+  'about_company_sub': 'Product studio behind AfterArtificial Super Apps',
+  'about_ecosystem': 'AfterArtificial',
+  'about_ecosystem_sub':
+      '{app} is part of the AfterArtificial Super App family — Garage is the flagship.',
+  'about_framework': 'After Framework',
+  'about_framework_sub':
+      'Shared architecture, design system and membership chrome across every Super App',
   'sign_out': 'Sign out',
   'sign_out_q': 'Sign out?',
   'sign_out_body': 'You can sign back in anytime.',
@@ -177,21 +312,50 @@ const _en = <String, String>{
   'nav_features': 'Features',
   'nav_settings': 'Settings',
   'faq1_q': 'What plans are available?',
-  'faq1_a': 'Free, Silver, Gold, and Business. Manage them under Subscription.',
+  'faq1_a':
+      'Free, Silver (Premium), Gold and Business. Manage them under Settings → Subscription. Some apps also offer trial or ad-reward upgrades where available.',
   'faq2_q': 'How does cloud sync work?',
-  'faq2_a': 'Cloud sync uploads your data when you tap Sync now and you are signed in.',
+  'faq2_a':
+      'Cloud sync uploads when you tap Sync now and you are signed in. Local data stays on device until you enable sync. Family or share features are always optional.',
   'faq3_q': 'How do I change the app icon?',
-  'faq3_a': 'Open Settings → App icon and choose black or white background.',
+  'faq3_a':
+      'Open Settings → App icon and choose black or white launcher background. Rebuild may be required on some devices before aliases appear.',
   'faq4_q': 'How do I contact support?',
-  'faq4_a': 'Use Help / FAQ or email the support address shown in About for {app}.',
+  'faq4_a':
+      'Use Help / FAQ → Contact support or email the address shown in About for {app}.',
+  'faq5_q': 'Where is the AI assistant?',
+  'faq5_a':
+      'Open the AI tab in the bottom navigation. The colorful hub icon marks AI. Your profile avatar in the top bar opens Settings → Profile.',
+  'faq6_q': 'What is the Live tab?',
+  'faq6_a':
+      'Live shows real-time or refreshed signals for this Super App. Pull down to refresh. Plan entitlements may unlock the full live panel.',
+  'faq7_q': 'How do themes work?',
+  'faq7_a':
+      'Settings → Theme: system, light or dark. Premium plans unlock animated accent packs. Some Super themes are separate store purchases.',
+  'faq8_q': 'Who owns my data?',
+  'faq8_a':
+      'You do. Export, edit or delete from Settings. Cloud, sharing and community posts run only when you use those features. Support: see About in {app}.',
+  'faq9_q': 'Why does the app ask for permissions?',
+  'faq9_a':
+      'Only for features you open — photos, location, notifications, microphone or Bluetooth. Review details under Settings → Privacy → Permissions.',
+  'faq10_q': 'How do I replay the app tour?',
+  'faq10_a':
+      'Settings → App tour → Replay. It covers the main shell tabs for {app}.',
   'tour_welcome_title': 'Welcome to {app}',
-  'tour_welcome_body': 'Your AfterArtificial Super App — same family chrome as Garage.',
-  'tour_home_title': 'Home & Live',
-  'tour_home_body': 'Track your day from Home and watch live signals on Live.',
+  'tour_welcome_body':
+      'Your AfterArtificial Super App — same family chrome as Garage, the flagship.',
+  'tour_home_title': 'Home',
+  'tour_home_body':
+      'Start here for today’s overview, shortcuts and domain highlights.',
+  'tour_live_title': 'Live',
+  'tour_live_body':
+      'Watch live signals and pull down to refresh. The Live tab icon pulses so you always know it is active.',
   'tour_ai_title': 'AI assistant',
-  'tour_ai_body': 'Ask the AI tab for help, or tap the sparkle in the top bar.',
+  'tour_ai_body':
+      'Open the AI tab for help. The top bar shows your profile avatar — tap it to open Settings → Profile.',
   'tour_settings_title': 'Settings',
-  'tour_settings_body': 'Profile, subscription, privacy, security, and more live on the Settings tab.',
+  'tour_settings_body':
+      'Profile, region & language, subscription, privacy, security, help and about all live on the Settings tab.',
   'tour_next': 'Next',
   'tour_done': 'Done',
   'support': 'Support',
@@ -203,14 +367,33 @@ const _en = <String, String>{
   'early_user_sub': 'Founders, pioneers and launch perks',
   'help_faq_sub': 'Common questions and support',
   'app_tour_sub': 'Replay the product walkthrough',
-  'about_sub': 'Version, support and Overstein Labs',};
+  'about_sub': 'Version, OVERSTEIN Labs and AfterArtificial',
+};
 
 const _zh = <String, String>{
   'settings': '设置',
   'profile': '个人资料',
   'profile_sub': '[zh] Account, photo and personal details',
   'emergency': '紧急',
-  'emergency_sub': '[zh] Blood type, contacts and medical notes for ICE',
+  'emergency_sub': '血型、联系人及 ICE 医疗备注',
+  'emergency_privacy_title': '紧急资料隐私',
+  'emergency_privacy_body':
+      '血型、联系人和医疗备注仅保存在本设备上，'
+      '除非您之后启用云同步。仅在紧急情况下与您信任的人分享。',
+  'emergency_consent_cta': '我了解 — 设置资料',
+  'emergency_load_error': '无法加载紧急资料',
+  'emergency_blood_type': '血型',
+  'emergency_blood_unknown': '未知',
+  'emergency_not_set': '未设置',
+  'emergency_contact': '紧急联系人',
+  'emergency_contact_add': '添加主要联系人',
+  'emergency_allergies': '过敏',
+  'emergency_conditions': '疾病状况',
+  'emergency_medications': '药物',
+  'emergency_notes': '紧急备注',
+  'emergency_name': '姓名',
+  'emergency_relationship': '关系',
+  'save': '保存',
   'language': '语言',
   'language_sub': '[zh] App language for labels and AI replies',
   'theme': '主题',
@@ -323,7 +506,26 @@ const _hi = <String, String>{
   'profile': 'प्रोफ़ाइल',
   'profile_sub': '[hi] Account, photo and personal details',
   'emergency': 'आपातकाल',
-  'emergency_sub': '[hi] Blood type, contacts and medical notes for ICE',
+  'emergency_sub': 'रक्त समूह, संपर्क और ICE चिकित्सा नोट्स',
+  'emergency_privacy_title': 'आपातकालीन प्रोफ़ाइल गोपनीयता',
+  'emergency_privacy_body':
+      'रक्त समूह, संपर्क और चिकित्सा नोट्स इस डिवाइस पर रहते हैं '
+      'जब तक आप बाद में क्लाउड सिंक सक्षम न करें। इन्हें केवल आपातकाल में '
+      'उन लोगों के साथ साझा करें जिन पर आप भरोसा करते हैं।',
+  'emergency_consent_cta': 'मैं समझ गया — प्रोफ़ाइल सेट करें',
+  'emergency_load_error': 'आपातकालीन प्रोफ़ाइल लोड नहीं हो सकी',
+  'emergency_blood_type': 'रक्त समूह',
+  'emergency_blood_unknown': 'अज्ञात',
+  'emergency_not_set': 'सेट नहीं',
+  'emergency_contact': 'आपातकालीन संपर्क',
+  'emergency_contact_add': 'प्राथमिक संपर्क जोड़ें',
+  'emergency_allergies': 'एलर्जी',
+  'emergency_conditions': 'चिकित्सा स्थितियाँ',
+  'emergency_medications': 'दवाएँ',
+  'emergency_notes': 'आपातकालीन नोट्स',
+  'emergency_name': 'नाम',
+  'emergency_relationship': 'रिश्ता',
+  'save': 'सहेजें',
   'language': 'भाषा',
   'language_sub': '[hi] App language for labels and AI replies',
   'theme': 'थीम',
@@ -437,6 +639,25 @@ const _es = <String, String>{
   'profile_sub': 'Cuenta, foto y datos personales',
   'emergency': 'Perfil de emergencia',
   'emergency_sub': 'Grupo sanguíneo, contactos y notas médicas ICE',
+  'emergency_privacy_title': 'Privacidad del perfil de emergencia',
+  'emergency_privacy_body':
+      'El grupo sanguíneo, los contactos y las notas médicas permanecen '
+      'en este dispositivo a menos que active la sincronización en la '
+      'nube. Compártalos solo con personas de confianza en una emergencia.',
+  'emergency_consent_cta': 'Entiendo — configurar perfil',
+  'emergency_load_error': 'No se pudo cargar el perfil de emergencia',
+  'emergency_blood_type': 'Grupo sanguíneo',
+  'emergency_blood_unknown': 'Desconocido',
+  'emergency_not_set': 'Sin definir',
+  'emergency_contact': 'Contacto de emergencia',
+  'emergency_contact_add': 'Añadir un contacto principal',
+  'emergency_allergies': 'Alergias',
+  'emergency_conditions': 'Condiciones médicas',
+  'emergency_medications': 'Medicamentos',
+  'emergency_notes': 'Notas de emergencia',
+  'emergency_name': 'Nombre',
+  'emergency_relationship': 'Relación',
+  'save': 'Guardar',
   'language': 'Idioma',
   'language_sub': 'Idioma de la app para etiquetas y respuestas de IA',
   'theme': 'Tema',
@@ -550,6 +771,26 @@ const _fr = <String, String>{
   'profile_sub': 'Compte, photo et infos personnelles',
   'emergency': 'Profil d’urgence',
   'emergency_sub': 'Groupe sanguin, contacts et notes médicales ICE',
+  'emergency_privacy_title': 'Confidentialité du profil d’urgence',
+  'emergency_privacy_body':
+      'Le groupe sanguin, les contacts et les notes médicales restent '
+      'sur cet appareil sauf si vous activez plus tard la synchronisation '
+      'cloud. Ne les partagez qu’avec des personnes de confiance en cas '
+      'd’urgence.',
+  'emergency_consent_cta': 'J’ai compris — configurer le profil',
+  'emergency_load_error': 'Impossible de charger le profil d’urgence',
+  'emergency_blood_type': 'Groupe sanguin',
+  'emergency_blood_unknown': 'Inconnu',
+  'emergency_not_set': 'Non défini',
+  'emergency_contact': 'Contact d’urgence',
+  'emergency_contact_add': 'Ajouter un contact principal',
+  'emergency_allergies': 'Allergies',
+  'emergency_conditions': 'Conditions médicales',
+  'emergency_medications': 'Médicaments',
+  'emergency_notes': 'Notes d’urgence',
+  'emergency_name': 'Nom',
+  'emergency_relationship': 'Lien',
+  'save': 'Enregistrer',
   'language': 'Langue',
   'language_sub': 'Langue de l’app pour libellés et réponses IA',
   'theme': 'Thème',
@@ -662,7 +903,26 @@ const _ar = <String, String>{
   'profile': 'الملف الشخصي',
   'profile_sub': '[ar] Account, photo and personal details',
   'emergency': 'طوارئ',
-  'emergency_sub': '[ar] Blood type, contacts and medical notes for ICE',
+  'emergency_sub': 'فصيلة الدم وجهات الاتصال والملاحظات الطبية لـ ICE',
+  'emergency_privacy_title': 'خصوصية ملف الطوارئ',
+  'emergency_privacy_body':
+      'تبقى فصيلة الدم وجهات الاتصال والملاحظات الطبية على هذا الجهاز '
+      'ما لم تفعّل مزامنة السحابة لاحقًا. شاركها فقط مع من تثق بهم '
+      'في حالة الطوارئ.',
+  'emergency_consent_cta': 'فهمت — إعداد الملف',
+  'emergency_load_error': 'تعذر تحميل ملف الطوارئ',
+  'emergency_blood_type': 'فصيلة الدم',
+  'emergency_blood_unknown': 'غير معروف',
+  'emergency_not_set': 'غير محدد',
+  'emergency_contact': 'جهة اتصال الطوارئ',
+  'emergency_contact_add': 'إضافة جهة اتصال أساسية',
+  'emergency_allergies': 'الحساسية',
+  'emergency_conditions': 'الحالات الطبية',
+  'emergency_medications': 'الأدوية',
+  'emergency_notes': 'ملاحظات الطوارئ',
+  'emergency_name': 'الاسم',
+  'emergency_relationship': 'صلة القرابة',
+  'save': 'حفظ',
   'language': 'اللغة',
   'language_sub': '[ar] App language for labels and AI replies',
   'theme': 'المظهر',
@@ -775,7 +1035,26 @@ const _bn = <String, String>{
   'profile': 'প্রোফাইল',
   'profile_sub': '[bn] Account, photo and personal details',
   'emergency': 'জরুরি',
-  'emergency_sub': '[bn] Blood type, contacts and medical notes for ICE',
+  'emergency_sub': 'রক্তের গ্রুপ, যোগাযোগ ও ICE চিকিৎসা নোট',
+  'emergency_privacy_title': 'জরুরি প্রোফাইলের গোপনীয়তা',
+  'emergency_privacy_body':
+      'রক্তের গ্রুপ, যোগাযোগ ও চিকিৎসা নোট এই ডিভাইসে থাকে যতক্ষণ না '
+      'আপনি পরে ক্লাউড সিঙ্ক চালু করেন। জরুরি অবস্থায় শুধুমাত্র '
+      'বিশ্বস্ত ব্যক্তিদের সাথে শেয়ার করুন।',
+  'emergency_consent_cta': 'আমি বুঝেছি — প্রোফাইল সেট আপ করুন',
+  'emergency_load_error': 'জরুরি প্রোফাইল লোড করা যায়নি',
+  'emergency_blood_type': 'রক্তের গ্রুপ',
+  'emergency_blood_unknown': 'অজানা',
+  'emergency_not_set': 'সেট করা নেই',
+  'emergency_contact': 'জরুরি যোগাযোগ',
+  'emergency_contact_add': 'প্রাথমিক যোগাযোগ যোগ করুন',
+  'emergency_allergies': 'অ্যালার্জি',
+  'emergency_conditions': 'চিকিৎসা অবস্থা',
+  'emergency_medications': 'ওষুধ',
+  'emergency_notes': 'জরুরি নোট',
+  'emergency_name': 'নাম',
+  'emergency_relationship': 'সম্পর্ক',
+  'save': 'সংরক্ষণ',
   'language': 'ভাষা',
   'language_sub': '[bn] App language for labels and AI replies',
   'theme': 'থিম',
@@ -888,7 +1167,27 @@ const _pt = <String, String>{
   'profile': 'Perfil',
   'profile_sub': '[pt] Account, photo and personal details',
   'emergency': 'Emergência',
-  'emergency_sub': '[pt] Blood type, contacts and medical notes for ICE',
+  'emergency_sub': 'Tipo sanguíneo, contatos e notas médicas ICE',
+  'emergency_privacy_title': 'Privacidade do perfil de emergência',
+  'emergency_privacy_body':
+      'O tipo sanguíneo, os contatos e as notas médicas permanecem neste '
+      'dispositivo a menos que você ative a sincronização na nuvem mais '
+      'tarde. Compartilhe-os apenas com pessoas de confiança em uma '
+      'emergência.',
+  'emergency_consent_cta': 'Compreendi — configurar perfil',
+  'emergency_load_error': 'Não foi possível carregar o perfil de emergência',
+  'emergency_blood_type': 'Tipo sanguíneo',
+  'emergency_blood_unknown': 'Desconhecido',
+  'emergency_not_set': 'Não definido',
+  'emergency_contact': 'Contato de emergência',
+  'emergency_contact_add': 'Adicionar um contato principal',
+  'emergency_allergies': 'Alergias',
+  'emergency_conditions': 'Condições médicas',
+  'emergency_medications': 'Medicamentos',
+  'emergency_notes': 'Notas de emergência',
+  'emergency_name': 'Nome',
+  'emergency_relationship': 'Relação',
+  'save': 'Salvar',
   'language': 'Idioma',
   'language_sub': '[pt] App language for labels and AI replies',
   'theme': 'Tema',
@@ -1001,7 +1300,26 @@ const _ru = <String, String>{
   'profile': 'Профиль',
   'profile_sub': '[ru] Account, photo and personal details',
   'emergency': 'Экстренный',
-  'emergency_sub': '[ru] Blood type, contacts and medical notes for ICE',
+  'emergency_sub': 'Группа крови, контакты и медицинские заметки ICE',
+  'emergency_privacy_title': 'Конфиденциальность экстренного профиля',
+  'emergency_privacy_body':
+      'Группа крови, контакты и медицинские заметки остаются на этом '
+      'устройстве, пока вы не включите облачную синхронизацию. Делитесь '
+      'ими только с теми, кому доверяете в чрезвычайной ситуации.',
+  'emergency_consent_cta': 'Понятно — настроить профиль',
+  'emergency_load_error': 'Не удалось загрузить экстренный профиль',
+  'emergency_blood_type': 'Группа крови',
+  'emergency_blood_unknown': 'Неизвестно',
+  'emergency_not_set': 'Не указано',
+  'emergency_contact': 'Экстренный контакт',
+  'emergency_contact_add': 'Добавить основной контакт',
+  'emergency_allergies': 'Аллергии',
+  'emergency_conditions': 'Заболевания',
+  'emergency_medications': 'Лекарства',
+  'emergency_notes': 'Экстренные заметки',
+  'emergency_name': 'Имя',
+  'emergency_relationship': 'Родство',
+  'save': 'Сохранить',
   'language': 'Язык',
   'language_sub': '[ru] App language for labels and AI replies',
   'theme': 'Тема',
@@ -1114,7 +1432,26 @@ const _ur = <String, String>{
   'profile': 'پروفائل',
   'profile_sub': '[ur] Account, photo and personal details',
   'emergency': 'ایمرجنسی',
-  'emergency_sub': '[ur] Blood type, contacts and medical notes for ICE',
+  'emergency_sub': 'بلڈ گروپ، رابطے اور ICE طبی نوٹس',
+  'emergency_privacy_title': 'ایمرجنسی پروفائل کی رازداری',
+  'emergency_privacy_body':
+      'بلڈ گروپ، رابطے اور طبی نوٹس اس ڈیوائس پر رہتے ہیں جب تک آپ '
+      'بعد میں کلاؤڈ سنک فعال نہ کریں۔ انہیں صرف ایمرجنسی میں قابل '
+      'اعتماد لوگوں کے ساتھ شیئر کریں۔',
+  'emergency_consent_cta': 'میں سمجھ گیا — پروفائل سیٹ اپ کریں',
+  'emergency_load_error': 'ایمرجنسی پروفائل لوڈ نہیں ہو سکا',
+  'emergency_blood_type': 'بلڈ گروپ',
+  'emergency_blood_unknown': 'نامعلوم',
+  'emergency_not_set': 'سیٹ نہیں',
+  'emergency_contact': 'ایمرجنسی رابطہ',
+  'emergency_contact_add': 'بنیادی رابطہ شامل کریں',
+  'emergency_allergies': 'الرجیز',
+  'emergency_conditions': 'طبی حالات',
+  'emergency_medications': 'ادویات',
+  'emergency_notes': 'ایمرجنسی نوٹس',
+  'emergency_name': 'نام',
+  'emergency_relationship': 'رشتہ',
+  'save': 'محفوظ کریں',
   'language': 'زبان',
   'language_sub': '[ur] App language for labels and AI replies',
   'theme': 'تھیم',
@@ -1227,7 +1564,26 @@ const _id = <String, String>{
   'profile': 'Profil',
   'profile_sub': '[id] Account, photo and personal details',
   'emergency': 'Darurat',
-  'emergency_sub': '[id] Blood type, contacts and medical notes for ICE',
+  'emergency_sub': 'Golongan darah, kontak, dan catatan medis ICE',
+  'emergency_privacy_title': 'Privasi profil darurat',
+  'emergency_privacy_body':
+      'Golongan darah, kontak, dan catatan medis tetap di perangkat ini '
+      'kecuali Anda mengaktifkan sinkronisasi cloud nanti. Bagikan hanya '
+      'kepada orang yang Anda percaya dalam keadaan darurat.',
+  'emergency_consent_cta': 'Saya mengerti — atur profil',
+  'emergency_load_error': 'Tidak dapat memuat profil darurat',
+  'emergency_blood_type': 'Golongan darah',
+  'emergency_blood_unknown': 'Tidak diketahui',
+  'emergency_not_set': 'Belum diatur',
+  'emergency_contact': 'Kontak darurat',
+  'emergency_contact_add': 'Tambah kontak utama',
+  'emergency_allergies': 'Alergi',
+  'emergency_conditions': 'Kondisi medis',
+  'emergency_medications': 'Obat-obatan',
+  'emergency_notes': 'Catatan darurat',
+  'emergency_name': 'Nama',
+  'emergency_relationship': 'Hubungan',
+  'save': 'Simpan',
   'language': 'Bahasa',
   'language_sub': '[id] App language for labels and AI replies',
   'theme': 'Tema',
@@ -1341,6 +1697,26 @@ const _de = <String, String>{
   'profile_sub': 'Konto, Foto und persönliche Daten',
   'emergency': 'Notfallprofil',
   'emergency_sub': 'Blutgruppe, Kontakte und medizinische Notizen für ICE',
+  'emergency_privacy_title': 'Datenschutz des Notfallprofils',
+  'emergency_privacy_body':
+      'Blutgruppe, Kontakte und medizinische Notizen bleiben auf diesem '
+      'Gerät, sofern Sie die Cloud-Synchronisierung nicht später '
+      'aktivieren. Teilen Sie sie nur mit Personen, denen Sie im Notfall '
+      'vertrauen.',
+  'emergency_consent_cta': 'Verstanden — Profil einrichten',
+  'emergency_load_error': 'Notfallprofil konnte nicht geladen werden',
+  'emergency_blood_type': 'Blutgruppe',
+  'emergency_blood_unknown': 'Unbekannt',
+  'emergency_not_set': 'Nicht festgelegt',
+  'emergency_contact': 'Notfallkontakt',
+  'emergency_contact_add': 'Primären Kontakt hinzufügen',
+  'emergency_allergies': 'Allergien',
+  'emergency_conditions': 'Medizinische Bedingungen',
+  'emergency_medications': 'Medikamente',
+  'emergency_notes': 'Notfallnotizen',
+  'emergency_name': 'Name',
+  'emergency_relationship': 'Beziehung',
+  'save': 'Speichern',
   'language': 'Sprache',
   'language_sub': 'App-Sprache für Beschriftungen und KI-Antworten',
   'theme': 'Design',
@@ -1453,7 +1829,26 @@ const _ja = <String, String>{
   'profile': 'プロフィール',
   'profile_sub': '[ja] Account, photo and personal details',
   'emergency': '緊急',
-  'emergency_sub': '[ja] Blood type, contacts and medical notes for ICE',
+  'emergency_sub': '血液型、連絡先、ICE医療メモ',
+  'emergency_privacy_title': '緊急プロフィールのプライバシー',
+  'emergency_privacy_body':
+      '血液型、連絡先、医療メモはこの端末に保存されます。後でクラウド同期を'
+      '有効にしない限り、端末外には出ません。緊急時に信頼できる人とのみ'
+      '共有してください。',
+  'emergency_consent_cta': '理解しました — プロフィールを設定',
+  'emergency_load_error': '緊急プロフィールを読み込めませんでした',
+  'emergency_blood_type': '血液型',
+  'emergency_blood_unknown': '不明',
+  'emergency_not_set': '未設定',
+  'emergency_contact': '緊急連絡先',
+  'emergency_contact_add': '主な連絡先を追加',
+  'emergency_allergies': 'アレルギー',
+  'emergency_conditions': '既往症・持病',
+  'emergency_medications': '服用薬',
+  'emergency_notes': '緊急メモ',
+  'emergency_name': '氏名',
+  'emergency_relationship': '続柄',
+  'save': '保存',
   'language': '言語',
   'language_sub': '[ja] App language for labels and AI replies',
   'theme': 'テーマ',
@@ -1566,7 +1961,26 @@ const _sw = <String, String>{
   'profile': 'Wasifu',
   'profile_sub': '[sw] Account, photo and personal details',
   'emergency': 'Dharura',
-  'emergency_sub': '[sw] Blood type, contacts and medical notes for ICE',
+  'emergency_sub': 'Aina ya damu, anwani na maelezo ya matibabu ya ICE',
+  'emergency_privacy_title': 'Faragha ya wasifu wa dharura',
+  'emergency_privacy_body':
+      'Aina ya damu, anwani, na maelezo ya matibabu yanabaki kwenye kifaa '
+      'hiki isipokuwa uwashe usawazishaji wa wingu baadaye. Shiriki tu na '
+      'watu unaowaamini wakati wa dharura.',
+  'emergency_consent_cta': 'Nimeelewa — weka wasifu',
+  'emergency_load_error': 'Imeshindwa kupakia wasifu wa dharura',
+  'emergency_blood_type': 'Aina ya damu',
+  'emergency_blood_unknown': 'Haijulikani',
+  'emergency_not_set': 'Haijawekwa',
+  'emergency_contact': 'Anwani ya dharura',
+  'emergency_contact_add': 'Ongeza anwani kuu',
+  'emergency_allergies': 'Mizio',
+  'emergency_conditions': 'Hali za kiafya',
+  'emergency_medications': 'Dawa',
+  'emergency_notes': 'Maelezo ya dharura',
+  'emergency_name': 'Jina',
+  'emergency_relationship': 'Uhusiano',
+  'save': 'Hifadhi',
   'language': 'Lugha',
   'language_sub': '[sw] App language for labels and AI replies',
   'theme': 'Mandhari',
@@ -1679,7 +2093,26 @@ const _mr = <String, String>{
   'profile': 'प्रोफाइल',
   'profile_sub': '[mr] Account, photo and personal details',
   'emergency': 'आपत्कालीन',
-  'emergency_sub': '[mr] Blood type, contacts and medical notes for ICE',
+  'emergency_sub': 'रक्तगट, संपर्क आणि ICE वैद्यकीय नोट्स',
+  'emergency_privacy_title': 'आपत्कालीन प्रोफाइल गोपनीयता',
+  'emergency_privacy_body':
+      'रक्तगट, संपर्क आणि वैद्यकीय नोट्स या डिव्हाइसवर राहतात जोपर्यंत '
+      'तुम्ही नंतर क्लाउड सिंक सक्षम करत नाही. आपत्कालीन परिस्थितीत '
+      'फक्त विश्वासू लोकांसोबतच शेअर करा.',
+  'emergency_consent_cta': 'मी समजलो — प्रोफाइल सेट करा',
+  'emergency_load_error': 'आपत्कालीन प्रोफाइल लोड करता आले नाही',
+  'emergency_blood_type': 'रक्तगट',
+  'emergency_blood_unknown': 'अज्ञात',
+  'emergency_not_set': 'सेट केलेले नाही',
+  'emergency_contact': 'आपत्कालीन संपर्क',
+  'emergency_contact_add': 'प्राथमिक संपर्क जोडा',
+  'emergency_allergies': 'अॅलर्जी',
+  'emergency_conditions': 'वैद्यकीय स्थिती',
+  'emergency_medications': 'औषधे',
+  'emergency_notes': 'आपत्कालीन नोट्स',
+  'emergency_name': 'नाव',
+  'emergency_relationship': 'नाते',
+  'save': 'जतन करा',
   'language': 'भाषा',
   'language_sub': '[mr] App language for labels and AI replies',
   'theme': 'थीम',
@@ -1792,7 +2225,26 @@ const _te = <String, String>{
   'profile': 'ప్రొఫైల్',
   'profile_sub': '[te] Account, photo and personal details',
   'emergency': 'అత్యవసర',
-  'emergency_sub': '[te] Blood type, contacts and medical notes for ICE',
+  'emergency_sub': 'రక్త వర్గం, పరిచయాలు మరియు ICE వైద్య నోట్లు',
+  'emergency_privacy_title': 'అత్యవసర ప్రొఫైల్ గోప్యత',
+  'emergency_privacy_body':
+      'రక్త వర్గం, పరిచయాలు మరియు వైద్య నోట్లు ఈ పరికరంలోనే ఉంటాయి, '
+      'మీరు తర్వాత క్లౌడ్ సింక్ ప్రారంభించినంత వరకు. అత్యవసర సమయంలో '
+      'మీరు నమ్మే వ్యక్తులతో మాత్రమే పంచుకోండి.',
+  'emergency_consent_cta': 'నాకు అర్థమైంది — ప్రొఫైల్ సెటప్ చేయండి',
+  'emergency_load_error': 'అత్యవసర ప్రొఫైల్ లోడ్ చేయలేకపోయాం',
+  'emergency_blood_type': 'రక్త వర్గం',
+  'emergency_blood_unknown': 'తెలియదు',
+  'emergency_not_set': 'సెట్ చేయలేదు',
+  'emergency_contact': 'అత్యవసర సంప్రదింపు',
+  'emergency_contact_add': 'ప్రాథమిక సంప్రదింపు జోడించండి',
+  'emergency_allergies': 'అలెర్జీలు',
+  'emergency_conditions': 'వైద్య పరిస్థితులు',
+  'emergency_medications': 'మందులు',
+  'emergency_notes': 'అత్యవసర నోట్లు',
+  'emergency_name': 'పేరు',
+  'emergency_relationship': 'సంబంధం',
+  'save': 'సేవ్ చేయి',
   'language': 'భాష',
   'language_sub': '[te] App language for labels and AI replies',
   'theme': 'థీమ్',
@@ -1916,6 +2368,25 @@ const _tr = <String, String>{
   'membership': 'Üyelik',
   'emergency': 'Acil profil',
   'emergency_sub': 'Kan grubu, kişiler ve ICE tıbbi notları',
+  'emergency_privacy_title': 'Acil profil gizliliği',
+  'emergency_privacy_body':
+      'Kan grubu, kişiler ve tıbbi notlar, bulut senkronunu açmadığınız '
+      'sürece bu cihazda kalır. Bunları yalnızca acil durumda güvendiğiniz '
+      'kişilerle paylaşın.',
+  'emergency_consent_cta': 'Anladım — profili oluştur',
+  'emergency_load_error': 'Acil profil yüklenemedi',
+  'emergency_blood_type': 'Kan grubu',
+  'emergency_blood_unknown': 'Bilinmiyor',
+  'emergency_not_set': 'Belirtilmedi',
+  'emergency_contact': 'Acil iletişim',
+  'emergency_contact_add': 'Birincil kişi ekle',
+  'emergency_allergies': 'Alerjiler',
+  'emergency_conditions': 'Tıbbi durumlar',
+  'emergency_medications': 'İlaçlar',
+  'emergency_notes': 'Acil notlar',
+  'emergency_name': 'Ad',
+  'emergency_relationship': 'Yakınlık',
+  'save': 'Kaydet',
   'region_language': 'Bölge ve dil',
   'region_language_sub': 'Uygulama dili ve ülke / bölge',
   'language': 'Dil',
@@ -1979,36 +2450,139 @@ const _tr = <String, String>{
   'last_sync_ok': 'Son senkron tamam',
   'privacy': 'Gizlilik',
   'permissions': 'İzinler',
-  'permissions_sub': 'Konum, bildirimler ve kamera yalnızca gerektiğinde istenir.',
-  'permissions_body': 'Bu Super App hassas izinleri yalnızca ilgili özelliği kullandığınızda ister. Sistem ayarlarından istediğiniz zaman iptal edebilirsiniz.',
+  'permissions_sub': 'Konum, bildirimler, kamera ve ilgili erişimler',
+  'permissions_body':
+      'Son güncelleme: 20 Temmuz 2026\n\n{app} hassas izinleri yalnızca ilgili özelliği kullandığınızda ister. Sistem ayarlarından istediğiniz zaman iptal edebilirsiniz.',
+  'privacy_perm_s1_title': '1. Ne zaman isteriz',
+  'privacy_perm_s1_body':
+      'Kamera / fotoğraf — profil, ekler ve ürün medyası\nKonum — yakındaki arama, harita ve bölgesel içerik\nBildirimler — açtığınız hatırlatmalar\nMikrofon — sesli not veya ses analizi başlattığınızda\nBluetooth — açtığınız özellik için eşleşen aksesuarlar',
+  'privacy_perm_s2_title': '2. Asla yapmadıklarımız',
+  'privacy_perm_s2_body':
+      '• Kişisel verilerinizi satmayız\n• İzinler sessiz arka plan takibi için kullanılmaz\n• İsteğe bağlı bulut senkronu ve paylaşım siz açana kadar kapalıdır',
+  'privacy_perm_s3_title': '3. Nasıl geri alınır',
+  'privacy_perm_s3_body':
+      'Cihaz Ayarları → Uygulamalar → {app} → İzinler.\n\nErişimi tekrar vermeden ilgili özellikler çalışmayabilir.',
   'privacy_policy': 'Gizlilik politikası',
-  'privacy_policy_body': 'Verileriniz kontrolünüzdedir. Bulut senkronu ve paylaşım yalnızca siz açtığınızda çalışır.',
+  'privacy_policy_hint': '{app} için KVKK / GDPR uyumlu politika',
+  'privacy_policy_body':
+      'Verileriniz kontrolünüzdedir. Bulut senkronu ve paylaşım yalnızca siz açtığınızda çalışır.',
+  'privacy_policy_intro':
+      'Son güncelleme: 20 Temmuz 2026\n\n{app}, OVERSTEIN Labs’ın AfterArtificial Super App’idir (“biz”, “veri sorumlusu”). Bu politika KVKK ve AB GDPR ile uyumludur.\n\nİlk açılışta bu Gizlilik Politikası ile Kullanım Koşullarını kabul edersiniz. Cihaz izinleri yalnızca ilgili özelliği kullanırken ayrıca istenir.\n\nİletişim: {email}',
+  'privacy_s1_title': '1. Veri sorumlusu ve iletişim',
+  'privacy_s1_body':
+      'Veri sorumlusu: OVERSTEIN Labs\nÜrün ailesi: AfterArtificial Super Apps ({app})\nDestek: {email}\n\nErişim, düzeltme, silme veya itiraz için kayıtlı hesabınızdan e-posta gönderin. Yasal sürelerde (genelde 30 gün) yanıtlanır.',
+  'privacy_s2_title': '2. Kapsam ve onay',
+  'privacy_s2_body':
+      'Bu politika {app} mobil uygulamasını ve ilgili hizmetleri kapsar. Hesap oluşturmak veya bu bildirimi gördükten sonra devam etmek onay sayılır. Onayı hesap silme, uygulamayı kaldırma veya destekle geri çekebilirsiniz.',
+  'privacy_s3_title': '3. Topladığımız kişisel veriler',
+  'privacy_s3_body':
+      'Kullanıma göre işleyebiliriz:\n• Hesap: ad, e-posta, giriş yöntemi, isteğe bağlı telefon ve doğum tarihi\n• Profil: avatar, fotoğraflar, görünen ad, kullanıcı adı\n• Girdiğiniz ürün alanı verileri (kayıtlar, dosyalar, tercihler)\n• Bölgesel ayarlar: ülke, para birimi, dil\n• Konum yalnızca yakındaki / harita özelliklerini istediğinizde\n• Tanılama: etkinse OS / Firebase Crashlytics sinyalleri',
+  'privacy_s4_title': '4. Veriyi nasıl kullanırız',
+  'privacy_s4_body':
+      '{app} hizmetini sunmak, sizi doğrulamak, isteğe bağlı hatırlatmalar, bölgesel ayarlar, başlattığınız AI özellikleri, bulut senkronu açıksa cihazlar arası yedekleme ve güvenilirlik iyileştirmesi için işleriz. Kişisel profil veya garaj verilerini reklamcılara satmayız.',
+  'privacy_s5_title': '5. Hukuki sebep',
+  'privacy_s5_body':
+      'Sözleşmenin ifası, isteğe bağlı özellikler için açık rıza, meşru menfaat (güvenlik ve bütünlük) ve gerektiğinde yasal yükümlülük.',
+  'privacy_s6_title': '6. Saklama ve süre',
+  'privacy_s6_body':
+      'Birincil depolama cihazınızdadır. Bulut (açıksa) Firebase Auth, Firestore ve Storage kullanabilir. Hesap aktifken saklanır; Ayarlar’dan dışa aktarabilir veya silebilirsiniz. Hesap silinince bulut kopyaları yasal saklama saklı kalmak üzere silinir.',
+  'privacy_s7_title': '7. Üçüncü taraflar',
+  'privacy_s7_body':
+      'Entegrasyonlar yalnızca kullandığınız özellikler içindir: Google Firebase / Sign-In, faturalama için mağazalar, yakındaki arama için harita sağlayıcıları ve kendi API anahtarınızı verdiğinizde AI sağlayıcıları.',
+  'privacy_s8_title': '8. Haklarınız',
+  'privacy_s8_body':
+      'Verilerinize erişebilir, düzeltebilir, dışa aktarabilir, sınırlandırabilir veya silebilirsiniz. {email} adresine yazın. Ayrıca yerel denetim otoritesine (Türkiye’de KVKK) şikayette bulunabilirsiniz.',
   'terms': 'Kullanım koşulları',
-  'terms_body': '{app} kullanarak AfterArtificial Super Apps için Overstein Labs koşullarını kabul edersiniz.',
+  'terms_hint': '{app} kullanım kuralları',
+  'terms_body':
+      '{app} kullanarak AfterArtificial Super Apps için Overstein Labs koşullarını kabul edersiniz.',
+  'terms_intro':
+      'Son güncelleme: 20 Temmuz 2026\n\nBu Koşullar, OVERSTEIN Labs tarafından üretilen AfterArtificial Super App {app} kullanımını yönetir. Hesap oluşturarak veya uygulamayı kullanarak bu Koşulları ve Gizlilik Politikasını kabul edersiniz.\n\nDestek: {email}',
+  'terms_s1_title': '1. Hizmet',
+  'terms_s1_body':
+      '{app}, After Framework üzerinde tüketici üretkenlik özellikleri sunar. Özellikler, planlar ve erişilebilirlik değişebilir. Bazı yetenekler ücretli plan veya üçüncü taraf anahtar gerektirir.',
+  'terms_s2_title': '2. Hesaplar',
+  'terms_s2_body':
+      'Hesap kimlik bilgilerinden ve hesabınızdaki etkinlikten siz sorumlusunuz. Giriş yöntemlerini güvende tutun. Ücretli özellikleri açan hesapları paylaşmayın.',
+  'terms_s3_title': '3. Kabul edilebilir kullanım',
+  'terms_s3_body':
+      'Hizmeti kötüye kullanmayın, yetkisiz erişim denemeyin, topluluk alanlarını istismar etmeyin veya yasa dışı içerik yüklemeyin. İhlalde hesaplar askıya alınabilir.',
+  'terms_s4_title': '4. Abonelik ve satın alımlar',
+  'terms_s4_body':
+      'Ücretli planlar ve tek seferlik satın alımlar Apple App Store veya Google Play üzerinden faturalanır. İptal ve iade için sizi ücretlendiren mağazayı kullanın.',
+  'terms_s5_title': '5. Sorumluluk reddi',
+  'terms_s5_body':
+      '{app} “olduğu gibi” sunulur. AI önerileri, canlı akışlar ve tahminler bilgilendirme amaçlıdır; profesyonel tavsiyenin yerine geçmez.',
+  'terms_s6_title': '6. Değişiklikler ve iletişim',
+  'terms_s6_body':
+      'Koşulları güncelleyebiliriz; önemli değişiklikler uygulamada veya bildirimle gösterilir. Sorular: {email}.',
   'export_data': 'Veriyi dışa aktar',
   'export_sub': 'Verilerinizin yerel bir kopyasını indirin',
-  'export_soon': 'Dışa aktarma bulut senkronu ile gelecek',
+  'export_soon': 'Ürününüz yerel yedeklemeyi etkinleştirdiğinde dışa aktarma açılır',
   'security': 'Güvenlik',
-  'security_body': 'Hesabınız ve cihazdaki verileriniz korunur. Oturum açma belirteçleri güvenli depolamadan çıkmaz.',
+  'security_promise_title': 'Veri güvenliğiniz önceliğimizdir',
+  'security_body':
+      '{app} verilerinizi önce cihazda tutar. Bulut senkronu, paylaşım ve isteğe bağlı sensörler siz açana kadar kapalıdır. Oturum belirteçleri güvenli depolamada kalır.',
+  'security_protected_title': 'Neleri koruyoruz',
+  'security_item_1': 'Hesap kimlik bilgileri ve oturum belirteçleri',
+  'security_item_2': 'Ayarlar’da sakladığınız profil ve kişisel bilgiler',
+  'security_item_3': 'Bu cihazdaki yerel ürün kayıtları ve ekler',
+  'security_item_4': 'İsteğe bağlı bulut yedekleri (yalnızca senkron açıkken)',
+  'security_item_5': 'Açıkça başlattığınız topluluk ve paylaşım işlemleri',
   'change_password': 'Şifreyi değiştir',
   'change_password_sub': 'Giriş sağlayıcınız tarafından yönetilir',
-  'change_password_body': 'Şifre değişiklikleri Google / e-posta sağlayıcınız üzerinden yapılır. Kimlik bilgilerini güncellemek için sağlayıcı hesap ayarlarını kullanın.',
+  'change_password_body':
+      'Şifre değişiklikleri giriş sağlayıcınız üzerinden yapılır.\n\n'
+      '• Google / Apple / e-posta — sağlayıcı hesap ayarlarını açın\n'
+      '• Yerel demo hesaplar — mümkünse giriş ekranından sıfırlayın',
   'your_rights': 'Haklarınız',
-  'your_rights_body': 'Verilerinizi dışa aktarabilir, düzeltebilir veya silebilirsiniz. KVKK/GDPR için {email} adresine yazın.',
+  'your_rights_hint': 'KVKK / GDPR erişim, düzeltme ve silme',
+  'your_rights_body':
+      '{app} verilerinizi dışa aktarabilir, düzeltebilir veya silebilirsiniz.\n\n'
+      'KVKK / GDPR talepleri için kayıtlı adresinizden **{email}** yazın.',
+  'rights_s1_title': '1. Erişim ve düzeltme',
+  'rights_s1_body':
+      '• Ayarlar → Profil’den alanları gözden geçirin\n'
+      '• Bulut senkronu açıksa neyin saklandığını destekten doğrulatın',
+  'rights_s2_title': '2. Dışa aktarma',
+  'rights_s2_body':
+      '• Mümkünse Ayarlar → Gizlilik → Veriyi dışa aktar’ı kullanın\n'
+      '• Veya {email} üzerinden talep edin',
+  'rights_s3_title': '3. Silme',
+  'rights_s3_body':
+      '• Ayarlar → Hesabı sil yerel kimliği kaldırır ve ürün silme akışlarını başlatır\n'
+      '• Bulut kopyaları yasal saklama saklı kalmak üzere silinir',
   'early_user': 'Erken kullanıcı programı',
   'early_access': 'Erken erişim',
   'early_access_admin': 'Yönetici: erken kullanıcı katmanlarını arka uç konsolundan yönetin.',
   'early_access_user': 'Kurucular ve öncüler beta özellikler ve lansman ayrıcalıkları alır.',
   'join_inquire': 'Katıl / sor',
-  'early_user_body': '{app} erken kullanıcı programına katılmak için hesap e-postanızla {email} adresine yazın.',
+  'early_user_body':
+      '{app} erken kullanıcı programına katılmak için **{email}** adresine hesap e-postanızla yazın.\n\n'
+      '• Hesap e-postanızı belirtin\n'
+      '• Beta sorunu bildiriyorsanız cihaz modelini ekleyin',
   'help_faq': 'Yardım / SSS',
   'contact_support': 'Destekle iletişim',
+  'contact_support_body':
+      '**{email}** adresine şunlarla yazın:\n\n'
+      '• {app} hesap e-postanız\n'
+      '• Cihaz modeli\n'
+      '• Kısa bir açıklama\n\n'
+      'En kısa sürede dönüş yaparız.',
   'app_tour': 'Uygulama turu',
   'replay_tour': 'Uygulama turunu yeniden oynat',
-  'replay_tour_sub': 'Ana sekmelerin kısa özeti',
+  'replay_tour_sub': 'Ana sayfa, Canlı, AI, Özellikler ve Ayarlar turu',
   'about': 'Hakkında',
   'version': 'Sürüm {version}',
   'built_by': 'Overstein Labs · AfterArtificial Super Apps',
+  'about_company': 'OVERSTEIN Labs',
+  'about_company_sub': 'AfterArtificial Super Apps’in arkasındaki ürün stüdyosu',
+  'about_ecosystem': 'AfterArtificial',
+  'about_ecosystem_sub':
+      '{app}, AfterArtificial Super App ailesinin parçasıdır — amiral gemi Garage’dır.',
+  'about_framework': 'After Framework',
+  'about_framework_sub':
+      'Tüm Super App’lerde ortak mimari, tasarım sistemi ve üyelik arayüzü',
   'sign_out': 'Çıkış yap',
   'sign_out_q': 'Çıkış yapılsın mı?',
   'sign_out_body': 'İstediğiniz zaman tekrar giriş yapabilirsiniz.',
@@ -2026,21 +2600,50 @@ const _tr = <String, String>{
   'nav_features': 'Özellikler',
   'nav_settings': 'Ayarlar',
   'faq1_q': 'Hangi planlar var?',
-  'faq1_a': 'Ücretsiz, Gümüş, Altın ve İş. Abonelik altında yönetin.',
+  'faq1_a':
+      'Ücretsiz, Gümüş (Premium), Altın ve İş. Ayarlar → Abonelik altında yönetin. Bazı uygulamalarda deneme veya reklam ödülü yükseltmesi olabilir.',
   'faq2_q': 'Bulut senkronu nasıl çalışır?',
-  'faq2_a': 'Giriş yaptıktan sonra Şimdi senkronize et’e dokunduğunuzda verileriniz yüklenir.',
+  'faq2_a':
+      'Giriş yaptıktan sonra Şimdi senkronize et’e dokunduğunuzda yüklenir. Senkronu açana kadar veri cihazda kalır. Aile / paylaşım her zaman isteğe bağlıdır.',
   'faq3_q': 'Uygulama simgesini nasıl değiştiririm?',
-  'faq3_a': 'Ayarlar → Uygulama simgesi’nden siyah veya beyaz arka plan seçin.',
+  'faq3_a':
+      'Ayarlar → Uygulama simgesi’nden siyah veya beyaz arka plan seçin. Bazı cihazlarda takma adlar için yeniden derleme gerekebilir.',
   'faq4_q': 'Destekle nasıl iletişime geçerim?',
-  'faq4_a': 'Yardım / SSS kullanın veya Hakkında’daki {app} destek adresine yazın.',
+  'faq4_a':
+      'Yardım / SSS → Destekle iletişim veya Hakkında’daki {app} destek adresine yazın.',
+  'faq5_q': 'AI asistanı nerede?',
+  'faq5_a':
+      'Alt gezinmede AI sekmesini açın. Renkli hub ikonu AI’yı işaret eder. Üst çubuktaki profil avatarı Ayarlar → Profil’i açar.',
+  'faq6_q': 'Canlı sekmesi nedir?',
+  'faq6_a':
+      'Canlı, bu Super App için gerçek zamanlı veya yenilenen sinyalleri gösterir. Yenilemek için aşağı çekin. Tam panel plan hakkına bağlı olabilir.',
+  'faq7_q': 'Temalar nasıl çalışır?',
+  'faq7_a':
+      'Ayarlar → Tema: sistem, açık veya koyu. Premium planlar animasyonlu vurgu paketlerini açar. Bazı Super temalar ayrı mağaza satın alımıdır.',
+  'faq8_q': 'Verilerimin sahibi kim?',
+  'faq8_a':
+      'Sizsiniz. Ayarlar’dan dışa aktarın, düzenleyin veya silin. Bulut, paylaşım ve topluluk yalnızca kullandığınızda çalışır. Destek: {app} Hakkında.',
+  'faq9_q': 'Uygulama neden izin istiyor?',
+  'faq9_a':
+      'Yalnızca açtığınız özellikler için — fotoğraf, konum, bildirim, mikrofon veya Bluetooth. Ayrıntılar: Ayarlar → Gizlilik → İzinler.',
+  'faq10_q': 'Uygulama turunu nasıl yeniden oynatırım?',
+  'faq10_a':
+      'Ayarlar → Uygulama turu → Yeniden oynat. {app} ana kabuk sekmelerini kapsar.',
   'tour_welcome_title': '{app} uygulamasına hoş geldiniz',
-  'tour_welcome_body': 'AfterArtificial Super App’iniz — Garage ile aynı aile arayüzü.',
-  'tour_home_title': 'Ana sayfa ve Canlı',
-  'tour_home_body': 'Gününüzü Ana sayfadan takip edin, Canlı’da sinyalleri izleyin.',
-  'tour_ai_title': 'YZ asistanı',
-  'tour_ai_body': 'YZ sekmesinden yardım isteyin veya üst çubuktaki ışıltıya dokunun.',
+  'tour_welcome_body':
+      'AfterArtificial Super App’iniz — amiral gemi Garage ile aynı aile arayüzü.',
+  'tour_home_title': 'Ana sayfa',
+  'tour_home_body':
+      'Günün özeti, kısayollar ve alan vurguları için buradan başlayın.',
+  'tour_live_title': 'Canlı',
+  'tour_live_body':
+      'Canlı sinyalleri izleyin; yenilemek için aşağı çekin. Canlı sekme ikonu nabız atarak aktif olduğunu gösterir.',
+  'tour_ai_title': 'AI asistanı',
+  'tour_ai_body':
+      'Yardım için AI sekmesini açın. Üst çubukta profil avatarınız görünür — Ayarlar → Profil için dokunun.',
   'tour_settings_title': 'Ayarlar',
-  'tour_settings_body': 'Profil, abonelik, gizlilik, güvenlik ve daha fazlası Ayarlar sekmesinde.',
+  'tour_settings_body':
+      'Profil, bölge ve dil, abonelik, gizlilik, güvenlik, yardım ve hakkında Ayarlar sekmesindedir.',
   'tour_next': 'İleri',
   'tour_done': 'Bitti',
   'support': 'Destek',
@@ -2052,14 +2655,34 @@ const _tr = <String, String>{
   'early_user_sub': 'Kurucular, öncüler ve lansman ayrıcalıkları',
   'help_faq_sub': 'Sık sorulanlar ve destek',
   'app_tour_sub': 'Ürün turunu yeniden oynat',
-  'about_sub': 'Sürüm, destek ve Overstein Labs',};
+  'about_sub': 'Sürüm, OVERSTEIN Labs ve AfterArtificial',
+};
 
 const _ta = <String, String>{
   'settings': 'அமைப்புகள்',
   'profile': 'சுயவிவரம்',
   'profile_sub': '[ta] Account, photo and personal details',
   'emergency': 'அவசர',
-  'emergency_sub': '[ta] Blood type, contacts and medical notes for ICE',
+  'emergency_sub': 'இரத்த வகை, தொடர்புகள் மற்றும் ICE மருத்துவ குறிப்புகள்',
+  'emergency_privacy_title': 'அவசர சுயவிவர தனியுரிமை',
+  'emergency_privacy_body':
+      'இரத்த வகை, தொடர்புகள் மற்றும் மருத்துவ குறிப்புகள் இந்த சாதனத்திலேயே '
+      'இருக்கும், நீங்கள் பின்னர் கிளவுட் ஒத்திசைவை இயக்காத வரை. அவசரத்தில் '
+      'நீங்கள் நம்பும் நபர்களுடன் மட்டும் பகிரவும்.',
+  'emergency_consent_cta': 'புரிந்தது — சுயவிவரம் அமைக்க',
+  'emergency_load_error': 'அவசர சுயவிவரம் ஏற்ற முடியவில்லை',
+  'emergency_blood_type': 'இரத்த வகை',
+  'emergency_blood_unknown': 'தெரியாது',
+  'emergency_not_set': 'அமைக்கப்படவில்லை',
+  'emergency_contact': 'அவசர தொடர்பு',
+  'emergency_contact_add': 'முதன்மை தொடர்பைச் சேர்',
+  'emergency_allergies': 'ஒவ்வாமைகள்',
+  'emergency_conditions': 'மருத்துவ நிலைகள்',
+  'emergency_medications': 'மருந்துகள்',
+  'emergency_notes': 'அவசர குறிப்புகள்',
+  'emergency_name': 'பெயர்',
+  'emergency_relationship': 'உறவு',
+  'save': 'சேமி',
   'language': 'மொழி',
   'language_sub': '[ta] App language for labels and AI replies',
   'theme': 'தீம்',
@@ -2172,7 +2795,26 @@ const _vi = <String, String>{
   'profile': 'Hồ sơ',
   'profile_sub': '[vi] Account, photo and personal details',
   'emergency': 'Khẩn cấp',
-  'emergency_sub': '[vi] Blood type, contacts and medical notes for ICE',
+  'emergency_sub': 'Nhóm máu, liên hệ và ghi chú y tế ICE',
+  'emergency_privacy_title': 'Quyền riêng tư hồ sơ khẩn cấp',
+  'emergency_privacy_body':
+      'Nhóm máu, liên hệ và ghi chú y tế được lưu trên thiết bị này trừ khi '
+      'bạn bật đồng bộ đám mây sau. Chỉ chia sẻ với người bạn tin tưởng '
+      'trong trường hợp khẩn cấp.',
+  'emergency_consent_cta': 'Tôi hiểu — thiết lập hồ sơ',
+  'emergency_load_error': 'Không thể tải hồ sơ khẩn cấp',
+  'emergency_blood_type': 'Nhóm máu',
+  'emergency_blood_unknown': 'Không rõ',
+  'emergency_not_set': 'Chưa đặt',
+  'emergency_contact': 'Liên hệ khẩn cấp',
+  'emergency_contact_add': 'Thêm liên hệ chính',
+  'emergency_allergies': 'Dị ứng',
+  'emergency_conditions': 'Tình trạng bệnh lý',
+  'emergency_medications': 'Thuốc',
+  'emergency_notes': 'Ghi chú khẩn cấp',
+  'emergency_name': 'Tên',
+  'emergency_relationship': 'Mối quan hệ',
+  'save': 'Lưu',
   'language': 'Ngôn ngữ',
   'language_sub': '[vi] App language for labels and AI replies',
   'theme': 'Giao diện',
@@ -2285,7 +2927,25 @@ const _ko = <String, String>{
   'profile': '프로필',
   'profile_sub': '[ko] Account, photo and personal details',
   'emergency': '응급',
-  'emergency_sub': '[ko] Blood type, contacts and medical notes for ICE',
+  'emergency_sub': '혈액형, 연락처 및 ICE 의료 메모',
+  'emergency_privacy_title': '응급 프로필 개인정보',
+  'emergency_privacy_body':
+      '혈액형, 연락처, 의료 메모는 나중에 클라우드 동기화를 켜지 않는 한 '
+      '이 기기에만 보관됩니다. 응급 시 신뢰하는 사람과만 공유하세요.',
+  'emergency_consent_cta': '이해했습니다 — 프로필 설정',
+  'emergency_load_error': '응급 프로필을 불러올 수 없습니다',
+  'emergency_blood_type': '혈액형',
+  'emergency_blood_unknown': '알 수 없음',
+  'emergency_not_set': '설정되지 않음',
+  'emergency_contact': '응급 연락처',
+  'emergency_contact_add': '기본 연락처 추가',
+  'emergency_allergies': '알레르기',
+  'emergency_conditions': '의학적 상태',
+  'emergency_medications': '복용 약물',
+  'emergency_notes': '응급 메모',
+  'emergency_name': '이름',
+  'emergency_relationship': '관계',
+  'save': '저장',
   'language': '언어',
   'language_sub': '[ko] App language for labels and AI replies',
   'theme': '테마',

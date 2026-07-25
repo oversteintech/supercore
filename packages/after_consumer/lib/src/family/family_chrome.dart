@@ -395,12 +395,18 @@ class FamilyLiveScaffold extends StatelessWidget {
     required this.title,
     required this.child,
     this.subtitle,
+    this.onRefresh,
+    this.refreshTooltip,
     super.key,
   });
 
   final String title;
   final String? subtitle;
   final Widget child;
+
+  /// When set, shows [AfterAnimatedRefreshIconButton] beside the title.
+  final Future<void> Function()? onRefresh;
+  final String? refreshTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -412,7 +418,21 @@ class FamilyLiveScaffold extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: Theme.of(context).textTheme.titleLarge),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                  if (onRefresh != null)
+                    AfterAnimatedRefreshIconButton(
+                      tooltip: refreshTooltip,
+                      onPressed: onRefresh!,
+                    ),
+                ],
+              ),
               if (subtitle != null) ...[
                 const SizedBox(height: 4),
                 Text(

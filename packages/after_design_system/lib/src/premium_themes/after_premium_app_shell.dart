@@ -45,8 +45,17 @@ abstract final class AfterPremiumAppShell {
           const RoyalAnimatedBackground(),
           const <Widget>[],
         ),
-      _ => (
-          Colors.transparent,
+      // Solid fills: transparent shells reveal the Android window (black) behind
+      // Scaffold(transparent) — light must be white, dark must be graphite.
+      AfterThemeStyle.dark || AfterThemeStyle.racingRed => (
+          SuperGarageColors.darkBackground,
+          const SizedBox.shrink(),
+          const <Widget>[],
+        ),
+      AfterThemeStyle.racingBlue ||
+      AfterThemeStyle.system ||
+      AfterThemeStyle.light => (
+          SuperGarageColors.lightBackground,
           const SizedBox.shrink(),
           const <Widget>[],
         ),

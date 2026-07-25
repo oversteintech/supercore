@@ -5,27 +5,44 @@ import '../membership/consumer_membership.dart';
 
 /// Prefs-backed plan controller shared by consumer Super Apps.
 class FamilyMembershipState {
-  const FamilyMembershipState({this.plan = AfterUserPlan.free});
+  const FamilyMembershipState({
+    this.plan = AfterUserPlan.free,
+    this.isOversteinMembership = false,
+  });
 
   final AfterUserPlan plan;
+
+  /// True when Gold was granted via Overstein Membership (cross-app).
+  final bool isOversteinMembership;
 
   AfterEntitlement get entitlement => AfterEntitlement(
         effectivePlan: plan,
         storedPlan: plan,
       );
 
-  ConsumerMembership get membership =>
-      ConsumerMembership(entitlement: entitlement);
+  ConsumerMembership get membership => ConsumerMembership(
+        entitlement: entitlement,
+        familyPlanId: isOversteinMembership ? 'overstein' : null,
+      );
 
-  String get badge => AfterMembershipBadge.forPlan(plan);
+  String get badge => isOversteinMembership
+      ? 'OVERSTEIN'
+      : AfterMembershipBadge.forPlan(plan);
 
   bool get isSuperAdmin => plan == AfterUserPlan.superadmin;
 
   bool has(AfterPlanFeature feature) =>
       AfterDefaultPlanMatrix.hasFeature(plan, feature);
 
-  FamilyMembershipState copyWith({AfterUserPlan? plan}) =>
-      FamilyMembershipState(plan: plan ?? this.plan);
+  FamilyMembershipState copyWith({
+    AfterUserPlan? plan,
+    bool? isOversteinMembership,
+  }) =>
+      FamilyMembershipState(
+        plan: plan ?? this.plan,
+        isOversteinMembership:
+            isOversteinMembership ?? this.isOversteinMembership,
+      );
 }
 
 /// Create per-app: `NotifierProvider(() => FamilyMembershipController('app.plan'))`.

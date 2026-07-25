@@ -46,6 +46,7 @@ Hub widgets. SuperAI is Hub AI branding, not a peer entry app.
 | Enterprise Product Runtime | `after_enterprise` | `EnterpriseProductRuntime`, `AfterEnterpriseAuthGate`, `AfterEnterpriseMainShell` — thin products mount these; see [PLATFORM_DOCTRINE.md](PLATFORM_DOCTRINE.md) | shipping |
 | Shared Search Engine | `after_core` | `AfterSearchPort`, `SearchQuery`, `SearchHit`, `SearchIndex`, `InMemoryAfterSearch`, `InMemorySearchIndex`, `afterSearchPortProvider` | shipping |
 | Shared Settings Engine | `after_core` | `AfterSettingsStore`, `AfterSettingsKeys`, `AfterThemeModeValue`, `PrefsAfterSettingsStore`, `afterSettingsStoreProvider` | shipping |
+| Shared Community Feed | `after_core` | `AfterCommunityPost`, `AfterCommunityComment`, `AfterCommunityInteractions`, `AfterCommunityModeration`, `AfterRoomInviteStore`, `AfterCommunityRoomScope` | shipping |
 | Shared Notification Engine | `after_core` + `after_enterprise` | `AfterLocalNotifications`, `AfterRemotePush`, `EnterpriseNotificationDispatcher` | shipping |
 | Shared Analytics | `after_core` + `after_enterprise` | `AfterAnalytics`, `EnterpriseAnalytics` | shipping |
 | Shared AI Modules | `after_core` + `after_enterprise` | `AfterAiCredentialVault`, `SimpleAfterAiOrchestrator`, `EnterpriseAiAssistant` | shipping |

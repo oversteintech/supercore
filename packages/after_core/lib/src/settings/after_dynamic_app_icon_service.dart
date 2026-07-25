@@ -28,6 +28,7 @@ abstract final class AfterDynamicAppIconService {
   static var _flushQueued = false;
   static var _queuedRestartAfterApply = false;
   static var _initialized = false;
+  static Completer<bool>? _flushCompleter;
   static _AfterDynamicAppIconLifecycleObserver? _lifecycleObserver;
 
   static bool get _enabled =>
@@ -127,10 +128,11 @@ abstract final class AfterDynamicAppIconService {
     }
   }
 
-  /// Applies [whiteBackground] without killing the process.
+  /// Applies [whiteBackground] immediately (user-initiated from Settings).
   ///
-  /// Android launcher aliases update in-place; forcing a relaunch previously
-  /// cold-started the app and looked like a sign-out to users.
+  /// On Android, relaunches after the alias swap so OEM launchers (Huawei,
+  /// Honor, Xiaomi, …) refresh the home-screen icon. Deferred lifecycle sync
+  /// still uses [scheduleBackgroundSync] without relaunch.
   static Future<bool> applyBackgroundAndRestart({
     required bool whiteBackground,
   }) async {
@@ -138,7 +140,7 @@ abstract final class AfterDynamicAppIconService {
     if (platformApplyOverride != null) {
       _initialized = true;
       _pendingWhiteBackground = whiteBackground;
-      return _flushPendingSync(restartAfterApply: false);
+      return _flushPendingSync(restartAfterApply: true);
     }
 
     if (!_enabled) {
@@ -151,7 +153,7 @@ abstract final class AfterDynamicAppIconService {
     }
 
     _pendingWhiteBackground = whiteBackground;
-    return _flushPendingSync(restartAfterApply: false);
+    return _flushPendingSync(restartAfterApply: _isAndroid);
   }
 
   static void scheduleBackgroundSync({required bool whiteBackground}) {
@@ -191,6 +193,7 @@ abstract final class AfterDynamicAppIconService {
     _flushQueued = false;
     _queuedRestartAfterApply = false;
     _initialized = false;
+    _flushCompleter = null;
     platformApplyOverride = null;
     _lifecycleObserver?.unregister();
     _lifecycleObserver = null;
@@ -210,43 +213,82 @@ abstract final class AfterDynamicAppIconService {
     return alias;
   }
 
+  /// Flushes the pending icon preference.
+  ///
+  /// Concurrent callers (e.g. Settings apply + lifecycle `inactive`) must not
+  /// return `false` — that previously caused Settings to revert a successful
+  /// preference write and made icon changes look broken.
   static Future<bool> _flushPendingSync({
     required bool restartAfterApply,
   }) async {
     if (_flushInFlight) {
       _flushQueued = true;
-      _queuedRestartAfterApply = _queuedRestartAfterApply || restartAfterApply;
+      _queuedRestartAfterApply =
+          _queuedRestartAfterApply || restartAfterApply;
+      final inFlight = _flushCompleter;
+      if (inFlight != null) {
+        final first = await inFlight.future;
+        // A newer preference may still be pending after the first flush.
+        if (_pendingWhiteBackground != null) {
+          return _flushPendingSync(restartAfterApply: restartAfterApply);
+        }
+        return first;
+      }
       return false;
     }
+
     final whiteBackground = _pendingWhiteBackground;
     if (whiteBackground == null) {
       return false;
     }
 
+    final completer = Completer<bool>();
+    _flushCompleter = completer;
     _flushInFlight = true;
     var applied = false;
-    bool? queuedRestartAfterApply;
+    var queuedRestart = false;
+    var hadQueue = false;
     try {
       applied = await syncBackground(
         whiteBackground: whiteBackground,
         relaunchAfterApply: restartAfterApply,
       );
     } finally {
-      _flushInFlight = false;
       if (applied && _pendingWhiteBackground == whiteBackground) {
         _pendingWhiteBackground = null;
       }
 
+      hadQueue = _flushQueued;
       if (_flushQueued) {
         _flushQueued = false;
-        queuedRestartAfterApply = _queuedRestartAfterApply;
+        queuedRestart = _queuedRestartAfterApply;
         _queuedRestartAfterApply = false;
       }
+      _flushInFlight = false;
     }
-    if (queuedRestartAfterApply != null) {
-      return _flushPendingSync(restartAfterApply: queuedRestartAfterApply);
+
+    try {
+      if (hadQueue && _pendingWhiteBackground != null) {
+        final queued = await _flushPendingSync(
+          restartAfterApply: queuedRestart || restartAfterApply,
+        );
+        completer.complete(queued);
+        return queued;
+      }
+      // Spurious lifecycle queue after a successful apply must not flip
+      // success → false (Family/Garage Settings would revert the toggle).
+      completer.complete(applied);
+      return applied;
+    } on Object catch (error, stackTrace) {
+      if (!completer.isCompleted) {
+        completer.completeError(error, stackTrace);
+      }
+      rethrow;
+    } finally {
+      if (identical(_flushCompleter, completer)) {
+        _flushCompleter = null;
+      }
     }
-    return applied;
   }
 
   static Future<bool> syncBackground({

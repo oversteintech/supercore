@@ -1,7 +1,7 @@
 name: after_firebase
 description: >
-  Firebase Auth + Firestore blob adapters for AfterArtificial Super Apps.
-  Composition-root only — domain layers depend on after_core ports.
+  Firebase Auth + Firestore blob + Storage media adapters for AfterArtificial
+  Super Apps. Composition-root only — domain layers depend on after_core ports.
 version: 1.0.0
 publish_to: 'none'
 repository: https://github.com/oversteintech/supercore
@@ -16,6 +16,7 @@ dependencies:
   cloud_firestore: ^6.1.2
   firebase_auth: ^6.5.4
   firebase_core: ^4.11.0
+  firebase_storage: ^13.0.0
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.3.2

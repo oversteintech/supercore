@@ -7,6 +7,7 @@ import 'racing_theme_effects.dart';
 import 'safari_savanna.dart';
 import 'blossom_pink.dart';
 import 'silver_grey.dart';
+import 'forest_woodland.dart';
 import 'theme_contrast.dart';
 
 export 'premium_theme_shell.dart';
@@ -21,6 +22,7 @@ export 'forest_woodland.dart';
 export 'blossom_pink.dart';
 export 'silver_grey.dart';
 export 'dark_night_theme.dart';
+export 'premium_animated_photo_frame.dart';
 
 /// Shared Super Garage brand colors used across light/dark themes and dashboard.
 abstract final class SuperGarageColors {
@@ -112,60 +114,63 @@ abstract final class SuperGarageColors {
   static const safariMuted = Color(0xFFE6CBA8);
   static const safariBorder = Color(0xFFFFAB40);
 
-  // Wild primal forest â€” deep canopy, moss, mist & fireflies (Premium).
-  static const forestBackground = Color(0xFF060A06);
-  static const forestSurface = Color(0xCC101810);
-  static const forestSurfaceHigh = Color(0xD9182418);
-  static const forestSurfaceHighest = Color(0xE3223020);
-  static const forestGreen = Color(0xFF2D5030);
-  static const forestGreenBright = Color(0xFF5A9E52);
-  static const forestMoss = Color(0xFF6B8F58);
-  static const forestSunlight = Color(0xFF7A9480);
-  static const forestSunlightBright = Color(0xFF9CB8A0);
-  static const forestBark = Color(0xFF2A1F14);
-  static const forestBarkDeep = Color(0xFF120C08);
-  static const forestForeground = Color(0xFFE6EDE0);
-  static const forestMuted = Color(0xFFA8B8A0);
-  static const forestBorder = Color(0xFF3D5A3A);
+  // Wild forest — fresher canopy greens, mist & fireflies (Premium).
+  static const forestBackground = Color(0xFF0C1810);
+  static const forestSurface = Color(0xCC162418);
+  static const forestSurfaceHigh = Color(0xD91E3020);
+  static const forestSurfaceHighest = Color(0xE3283C2A);
+  static const forestGreen = Color(0xFF3D6B40);
+  static const forestGreenBright = Color(0xFF6BB86A);
+  static const forestMoss = Color(0xFF7EAE6E);
+  static const forestSunlight = Color(0xFF9BC4A0);
+  static const forestSunlightBright = Color(0xFFC5E0C8);
+  static const forestBark = Color(0xFF3A2A1C);
+  static const forestBarkDeep = Color(0xFF1C140C);
+  static const forestForeground = Color(0xFFEEF5EA);
+  static const forestMuted = Color(0xFFB4C8B0);
+  static const forestBorder = Color(0xFF4A7A48);
 
-  // Silver grey â€” light brushed aluminium, chrome highlights & cool steel (Premium).
-  static const silverGreyBackground = Color(0xFFD4DAE2);
-  static const silverGreySurface = Color(0xFFDBE1E8);
-  static const silverGreySurfaceHigh = Color(0xFFD0D7E0);
-  static const silverGreySurfaceHighest = Color(0xFFC2CAD4);
-  static const silverGreySteel = Color(0xFF9CA3AF);
-  static const silverGreyBright = Color(0xFF6B7280);
-  static const silverGreyChrome = Color(0xFF4B5563);
-  static const silverGreyAccent = Color(0xFF8B9AAB);
-  static const silverGreyAccentBright = Color(0xFF64748B);
-  static const silverGreyForeground = Color(0xFF111827);
-  static const silverGreyMuted = Color(0xFF4B5563);
-  static const silverGreyBorder = Color(0xFFD1D5DB);
+  // Silver grey — true chrome silver (membership Premium silver).
+  static const silverGreyBackground = Color(0xFFF5F5F5);
+  static const silverGreySurface = Color(0xFFFFFFFF);
+  static const silverGreySurfaceHigh = Color(0xFFE8E8EA);
+  static const silverGreySurfaceHighest = Color(0xFFD8D8DC);
+  static const silverGreySteel = Color(0xFFC0C0C0);
+  static const silverGreyBright = Color(0xFFA8A8AD);
+  static const silverGreyChrome = Color(0xFF6E6E73);
+  static const silverGreyAccent = Color(0xFFC0C0C0);
+  static const silverGreyAccentBright = Color(0xFFE0E0E0);
+  static const silverGreyForeground = Color(0xFF1F2937);
+  static const silverGreyMuted = Color(0xFF6E6E73);
+  static const silverGreyBorder = Color(0xFFC0C0C0);
 
-  // Bright gold â€” ultra-premium saturated gold yellow royal IAP theme.
-  static const goldBackground = Color(0xFFFFF3C4);
-  static const goldSurface = Color(0xFFFFFBEB);
-  static const goldSurfaceHigh = Color(0xFFFFE082);
-  static const goldSurfaceHighest = Color(0xFFFFD54F);
-  static const goldBright = Color(0xFFFFC400);
-  static const goldShine = Color(0xFFFFEA00);
-  static const goldDeep = Color(0xFFB8860B);
-  static const goldForeground = Color(0xFF2A1F00);
-  static const goldMuted = Color(0xFF6B4F12);
-  static const goldBorder = Color(0xFFD4A017);
+  // Bright gold — warm champagne parchment (membership Super gold).
+  static const goldBackground = Color(0xFFF3E6C8);
+  static const goldSurface = Color(0xFFF8EFDA);
+  static const goldSurfaceHigh = Color(0xFFEED9AD);
+  static const goldSurfaceHighest = Color(0xFFE2C88C);
+  static const goldBright = Color(0xFFFFD700);
+  static const goldShine = Color(0xFFFFEC8B);
+  static const goldDeep = Color(0xFF8B6914);
+  static const goldForeground = Color(0xFF1A1200);
+  static const goldMuted = Color(0xFF7A5A00);
+  static const goldBorder = Color(0xFFD4AF37);
 
-  // Diamond â€” crystalline sparkle royal membership IAP theme.
-  static const diamondBackground = Color(0xFF050D18);
-  static const diamondSurface = Color(0xFF142538);
-  static const diamondSurfaceHigh = Color(0xFF1C3050);
-  static const diamondSurfaceHighest = Color(0xFF243C60);
-  static const diamondIce = Color(0xFFE1F5FE);
-  static const diamondBright = Color(0xFF81D4FA);
+  // Diamond — black-velvet jewelry case, colorless brilliance, prismatic fire.
+  static const diamondBackground = Color(0xFF070709);
+  static const diamondSurface = Color(0xFF141418);
+  static const diamondSurfaceHigh = Color(0xFF1C1C22);
+  static const diamondSurfaceHighest = Color(0xFF26262E);
+  static const diamondIce = Color(0xFFF4F7FB);
+  static const diamondBright = Color(0xFFE8EEF5);
   static const diamondSparkle = Color(0xFFFFFFFF);
-  static const diamondAccent = Color(0xFF4FC3F7);
-  static const diamondForeground = Color(0xFFF5FBFF);
-  static const diamondMuted = Color(0xFFB3E5FC);
-  static const diamondBorder = Color(0xFF64B5F6);
+  static const diamondAccent = Color(0xFFD7DEE8);
+  static const diamondChrome = Color(0xFF2A2C34);
+  static const diamondPlatinum = Color(0xFFC5CDD8);
+  static const diamondFire = Color(0xFFE8D5FF);
+  static const diamondForeground = Color(0xFFF7F8FA);
+  static const diamondMuted = Color(0xFFB4B8C2);
+  static const diamondBorder = Color(0xFF9AA3B0);
 
   // Royal (Super membership flagship) â€” supersonic midnight, cyan & afterburner orange.
   static const royalBackground = Color(0xFF020814);
@@ -306,7 +311,7 @@ class SuperGarageTheme {
     scheme: _royalScheme,
     background: Colors.transparent,
     brightness: Brightness.dark,
-    variant: _ThemeVariant.racing,
+    variant: _ThemeVariant.royal,
   );
 
   static const ColorScheme _lightScheme = ColorScheme(
@@ -322,7 +327,7 @@ class SuperGarageTheme {
     error: Color(0xFFB3261E),
     onError: Color(0xFFFFFFFF),
     surface: Color(0xFFFFFFFF),
-    onSurface: Color(0xFF111111),
+    onSurface: Colors.black,
     onSurfaceVariant: Color(0xFF525252),
     outline: Color(0xFFD1D5DB),
     outlineVariant: Color(0xFFE5E7EB),
@@ -582,10 +587,10 @@ class SuperGarageTheme {
   static const ColorScheme _brightGoldScheme = ColorScheme(
     brightness: Brightness.light,
     primary: SuperGarageColors.goldDeep,
-    onPrimary: Colors.white,
-    primaryContainer: SuperGarageColors.goldBright,
+    onPrimary: SuperGarageColors.goldShine,
+    primaryContainer: SuperGarageColors.goldSurfaceHigh,
     onPrimaryContainer: SuperGarageColors.goldForeground,
-    secondary: SuperGarageColors.goldShine,
+    secondary: SuperGarageColors.goldMuted,
     onSecondary: SuperGarageColors.goldForeground,
     tertiary: SuperGarageColors.goldMuted,
     onTertiary: Colors.white,
@@ -595,7 +600,7 @@ class SuperGarageTheme {
     onSurface: SuperGarageColors.goldForeground,
     onSurfaceVariant: SuperGarageColors.goldMuted,
     outline: SuperGarageColors.goldBorder,
-    outlineVariant: Color(0xFFE6B800),
+    outlineVariant: Color(0xFFD4AF37),
     shadow: Color(0xFF000000),
     scrim: Color(0xFF000000),
     inverseSurface: SuperGarageColors.goldForeground,
@@ -606,16 +611,16 @@ class SuperGarageTheme {
     surfaceContainerLow: SuperGarageColors.goldSurface,
     surfaceContainer: SuperGarageColors.goldSurfaceHigh,
     surfaceContainerHigh: SuperGarageColors.goldSurfaceHighest,
-    surfaceContainerHighest: Color(0xFFFFC107),
+    surfaceContainerHighest: SuperGarageColors.goldSurfaceHighest,
   );
 
   static const ColorScheme _diamondScheme = ColorScheme(
     brightness: Brightness.dark,
-    primary: SuperGarageColors.diamondIce,
-    onPrimary: SuperGarageColors.diamondBackground,
-    primaryContainer: SuperGarageColors.diamondAccent,
-    onPrimaryContainer: SuperGarageColors.diamondForeground,
-    secondary: SuperGarageColors.diamondBright,
+    primary: SuperGarageColors.diamondChrome,
+    onPrimary: SuperGarageColors.diamondIce,
+    primaryContainer: SuperGarageColors.diamondSurface,
+    onPrimaryContainer: SuperGarageColors.diamondIce,
+    secondary: SuperGarageColors.diamondPlatinum,
     onSecondary: SuperGarageColors.diamondBackground,
     secondaryContainer: SuperGarageColors.diamondSurfaceHigh,
     onSecondaryContainer: SuperGarageColors.diamondIce,
@@ -627,14 +632,14 @@ class SuperGarageTheme {
     onSurface: SuperGarageColors.diamondForeground,
     onSurfaceVariant: SuperGarageColors.diamondMuted,
     outline: SuperGarageColors.diamondBorder,
-    outlineVariant: Color(0xFF2A4560),
+    outlineVariant: Color(0xFF2A2A32),
     shadow: Color(0xFF000000),
     scrim: Color(0xFF000000),
     inverseSurface: SuperGarageColors.diamondForeground,
     onInverseSurface: SuperGarageColors.diamondBackground,
     inversePrimary: SuperGarageColors.diamondAccent,
     surfaceTint: SuperGarageColors.diamondBackground,
-    surfaceContainerLowest: Color(0xFF060E18),
+    surfaceContainerLowest: Color(0xFF050506),
     surfaceContainerLow: SuperGarageColors.diamondBackground,
     surfaceContainer: SuperGarageColors.diamondSurface,
     surfaceContainerHigh: SuperGarageColors.diamondSurfaceHigh,
@@ -687,7 +692,8 @@ class SuperGarageTheme {
     final isDarkNight = variant == _ThemeVariant.darkNight;
     final isSafari = variant == _ThemeVariant.safari;
     final isBlossom = variant == _ThemeVariant.blossom;
-    final isPremiumIap = isDiamond || isBrightGold;
+    final isRoyal = variant == _ThemeVariant.royal;
+    final isPremiumIap = isDiamond || isBrightGold || isRoyal;
     final isAnimatedAccent =
         isRacing ||
         isSilverGrey ||
@@ -695,6 +701,7 @@ class SuperGarageTheme {
         isDarkNight ||
         isSafari ||
         isBlossom ||
+        isRoyal ||
         isPremiumIap;
     final resolvedScheme = scheme.copyWith(surfaceTint: Colors.transparent);
     final themeScheme = isBrightGold
@@ -924,22 +931,18 @@ class SuperGarageTheme {
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: isDiamond
-            ? SuperGarageColors.diamondIce
+            ? SuperGarageColors.diamondChrome
             : isBrightGold
-            ? SuperGarageColors.goldBright
+            ? SuperGarageColors.goldDeep
             : isSilverGrey
-            ? Color.lerp(
-                SuperGarageColors.silverGreySurface,
-                SuperGarageColors.silverGreySurfaceHighest,
-                0.5,
-              )
+            ? SuperGarageColors.silverGreyChrome
             : isBlossom
             ? SuperGarageColors.blossomPinkBright
             : resolvedScheme.primaryContainer,
         foregroundColor: isDiamond
-            ? SuperGarageColors.diamondBackground
+            ? SuperGarageColors.diamondIce
             : isBrightGold
-            ? SuperGarageColors.goldBackground
+            ? SuperGarageColors.goldShine
             : isSilverGrey
             ? SuperGarageColors.silverGreyForeground
             : isBlossom
@@ -1022,20 +1025,16 @@ class SuperGarageTheme {
           backgroundColor: isBrightGold
               ? SuperGarageColors.goldDeep
               : isDiamond
-              ? SuperGarageColors.diamondIce
+              ? SuperGarageColors.diamondChrome
               : isSilverGrey
-              ? Color.lerp(
-                  SuperGarageColors.silverGreySurfaceHighest,
-                  SuperGarageColors.silverGreySteel,
-                  0.125,
-                )
+              ? SuperGarageColors.silverGreyChrome
               : isBlossom
               ? SuperGarageColors.blossomPink
               : resolvedScheme.primary,
           foregroundColor: isBrightGold
-              ? Colors.white
+              ? SuperGarageColors.goldShine
               : isDiamond
-              ? SuperGarageColors.diamondBackground
+              ? SuperGarageColors.diamondIce
               : isSilverGrey
               ? SuperGarageColors.silverGreyForeground
               : resolvedScheme.onPrimary,
@@ -1067,16 +1066,25 @@ class SuperGarageTheme {
               : null,
           minimumSize: buttonMinimumSize,
           padding: buttonPadding,
-          shape: isSilverGrey
+          shape: isBrightGold
               ? RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(controlRadius),
-                  side: BorderSide(
-                    color: Color.lerp(
-                      SuperGarageColors.silverGreyBorder,
-                      SuperGarageColors.silverGreyChrome,
-                      0.5,
-                    )!,
-                    width: 1.8,
+                  side: const BorderSide(
+                    color: SuperGarageColors.goldBorder,
+                  ),
+                )
+              : isDiamond
+              ? RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(controlRadius),
+                  side: const BorderSide(
+                    color: SuperGarageColors.diamondPlatinum,
+                  ),
+                )
+              : isSilverGrey
+              ? RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(controlRadius),
+                  side: const BorderSide(
+                    color: SuperGarageColors.silverGreyBright,
                   ),
                 )
               : isBlossom
@@ -1276,6 +1284,8 @@ class SuperGarageTheme {
         if (isSafari) const SafariSavannaThemeEffects(enabled: true),
         if (isBlossom) const BlossomPinkThemeEffects(enabled: true),
         if (isSilverGrey) const SilverGreyThemeEffects(enabled: true),
+        if (isWoodland) const ForestWoodlandThemeEffects(enabled: true),
+        if (isRoyal) const RoyalThemeEffects(enabled: true),
         if (racingRedFrame || racingBlueFrame)
           RacingThemeEffects(red: racingRedFrame, blue: racingBlueFrame),
       ],
@@ -1293,6 +1303,7 @@ enum _ThemeVariant {
   blossom,
   diamond,
   brightGold,
+  royal,
 }
 
 /// Theme extension â€” only attached to the Bright Gold theme.
@@ -1344,6 +1355,33 @@ class DiamondThemeEffects extends ThemeExtension<DiamondThemeEffects> {
   DiamondThemeEffects lerp(DiamondThemeEffects? other, double t) {
     if (other == null) return this;
     return DiamondThemeEffects(
+      enabled: t < 0.5 ? enabled : other.enabled,
+    );
+  }
+}
+
+/// Theme extension — only attached to the Royal (Super) theme.
+@immutable
+class RoyalThemeEffects extends ThemeExtension<RoyalThemeEffects> {
+  const RoyalThemeEffects({this.enabled = false});
+
+  final bool enabled;
+
+  static RoyalThemeEffects? of(BuildContext context) {
+    return Theme.of(context).extension<RoyalThemeEffects>();
+  }
+
+  static bool isActive(BuildContext context) => of(context)?.enabled ?? false;
+
+  @override
+  RoyalThemeEffects copyWith({bool? enabled}) {
+    return RoyalThemeEffects(enabled: enabled ?? this.enabled);
+  }
+
+  @override
+  RoyalThemeEffects lerp(RoyalThemeEffects? other, double t) {
+    if (other == null) return this;
+    return RoyalThemeEffects(
       enabled: t < 0.5 ? enabled : other.enabled,
     );
   }

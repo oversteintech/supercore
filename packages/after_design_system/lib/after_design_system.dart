@@ -31,12 +31,14 @@ export 'src/components/after_animated_refresh_icon_button.dart';
 export 'src/components/shell_top_bar.dart';
 export 'src/components/settings_section.dart';
 export 'src/components/premium_themes_accordion.dart';
+export 'src/components/after_accordion.dart';
 
 // Premium themes (Garage flagship pack — shared across Super Apps)
 export 'src/premium_themes/theme.dart';
 export 'src/premium_themes/after_theme_style.dart';
 export 'src/premium_themes/after_framework_theme.dart';
 export 'src/premium_themes/after_premium_app_shell.dart';
+export 'src/premium_themes/premium_animated_photo_frame.dart';
 export 'src/premium_themes/premium_theme_shell.dart';
 export 'src/premium_themes/overstein_brand_colors.dart';
 
@@ -49,6 +51,7 @@ export 'src/branding/overstein_company_splash.dart'
         OversteinCompanySplashStore,
         OversteinCompanySplashTiming;
 export 'src/branding/after_product_icons.dart';
+export 'src/branding/super_app_family_icons.dart';
 
 // Membership chrome (Garage-parity header colors)
 export 'src/membership/after_user_plan_colors.dart';

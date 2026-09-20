@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:after_firebase/src/after_firebase_cloud_availability.dart';
 import 'package:after_firebase/src/firebase_after_auth_repository.dart';
+import 'package:after_firebase/src/firebase_after_user_media_sync.dart';
 import 'package:after_firebase/src/firestore_after_user_blob_sync.dart';
 
 /// Initializes Firebase once and builds Riverpod overrides for auth + sync.
@@ -53,7 +54,7 @@ abstract final class AfterFirebaseBootstrap {
     return _ready;
   }
 
-  /// Auth + blob sync overrides for a Super App composition root.
+  /// Auth + blob + media sync overrides for a Super App composition root.
   static List<Override> overrides({
     required SharedPreferences preferences,
     required String appId,
@@ -73,11 +74,13 @@ abstract final class AfterFirebaseBootstrap {
         afterUserBlobSyncPortProvider.overrideWithValue(
           FirestoreAfterUserBlobSync(),
         ),
+        afterUserMediaSyncPortProvider.overrideWithValue(
+          FirebaseAfterUserMediaSync(),
+        ),
       ];
     }
 
-    // Placeholder / init-failed path: one auth override only. Soft Google
-    // avoids clientConfigurationError until real OAuth clients exist.
+    // Placeholder / init-failed path: soft Google + prefs blob + in-memory media.
     return [
       afterAuthRepositoryProvider.overrideWithValue(
         PrefsGoogleAuthRepository(
@@ -91,6 +94,9 @@ abstract final class AfterFirebaseBootstrap {
       ),
       afterUserBlobSyncPortProvider.overrideWithValue(
         PrefsAfterUserBlobSync(preferences),
+      ),
+      afterUserMediaSyncPortProvider.overrideWithValue(
+        InMemoryAfterUserMediaSync(),
       ),
     ];
   }

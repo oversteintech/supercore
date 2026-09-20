@@ -1,7 +1,7 @@
 import 'package:after_core/after_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Shared country / region — one prefs key for every Super App settings menu.
+/// Shared country / region, one prefs key for every Super App settings menu.
 final afterCountryCodeProvider =
     NotifierProvider<AfterCountryCodeController, String?>(
   AfterCountryCodeController.new,

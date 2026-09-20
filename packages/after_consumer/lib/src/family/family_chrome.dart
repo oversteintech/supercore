@@ -222,7 +222,7 @@ class FamilyAboutScreen extends StatelessWidget {
   }
 }
 
-/// Garage-parity AI chat shell — hub header, feature chips, message list,
+/// Garage-parity AI chat shell, hub header, feature chips, message list,
 /// and Mate-style composer (+ / field / send↑·mic). Apps inject [onSend].
 class FamilyAiChatScreen extends StatefulWidget {
   const FamilyAiChatScreen({
@@ -389,7 +389,7 @@ class _FamilyAiChatScreenState extends State<FamilyAiChatScreen> {
   }
 }
 
-/// Live tab scaffold — apps supply body (mock streams, tickers, etc.).
+/// Live tab scaffold, apps supply body (mock streams, tickers, etc.).
 class FamilyLiveScaffold extends StatelessWidget {
   const FamilyLiveScaffold({
     required this.title,

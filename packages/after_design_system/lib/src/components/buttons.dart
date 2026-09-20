@@ -64,6 +64,14 @@ class AfterButton extends StatelessWidget {
       AfterButtonSize.lg => typography.titleSmall,
     };
 
+    final labelText = Text(
+      label,
+      style: textStyle.copyWith(color: fg),
+      maxLines: expand ? 2 : 1,
+      overflow: TextOverflow.ellipsis,
+      textAlign: TextAlign.center,
+    );
+
     final child = Row(
       mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -81,8 +89,7 @@ class AfterButton extends StatelessWidget {
           Icon(icon, size: size == AfterButtonSize.sm ? 16 : 18, color: fg),
           const SizedBox(width: AfterSpacing.sm),
         ],
-        if (!loading)
-          Text(label, style: textStyle.copyWith(color: fg)),
+        if (!loading) expand ? Flexible(child: labelText) : labelText,
       ],
     );
 

@@ -8,7 +8,7 @@ import 'family_chrome.dart';
 import 'family_membership_badge.dart';
 import 'family_membership_controller.dart';
 
-/// Canonical consumer ladder — same across every Super App
+/// Canonical consumer ladder, same across every Super App
 /// (Free / Silver / Gold / Business) plus optional Overstein Membership.
 abstract final class FamilyPlanCatalog {
   static const List<AfterUserPlan> selectable = [
@@ -31,13 +31,13 @@ abstract final class FamilyPlanCatalog {
 
   static String summary(AfterUserPlan plan) => switch (plan) {
         AfterUserPlan.free =>
-          'Essential access — core features for getting started.',
+          'Essential access, core features for getting started.',
         AfterUserPlan.premium =>
-          'Silver — premium themes & comfort extras in this app. Prices from your store.',
+          'Silver, premium themes & comfort extras in this app. Prices from your store.',
         AfterUserPlan.superPlan =>
-          'Gold — AI, live data, community & advanced tools in this app. 1 month free for new members.',
+          'Gold, AI, live data, community & advanced tools in this app. 1 month free for new members.',
         AfterUserPlan.business =>
-          'Business — fleets, teams & org tools in this app.',
+          'Business, fleets, teams & org tools in this app.',
         AfterUserPlan.superadmin => 'Full platform access.',
       };
 
@@ -50,8 +50,8 @@ abstract final class FamilyPlanCatalog {
   static const oversteinTitle = 'Overstein Membership';
   static const oversteinBadge = 'OVERSTEIN';
   static const oversteinSummary =
-      'Gold in every consumer Super App (~8–10 apps) under your Overstein account. '
-      'One membership — familiar Gold everywhere.';
+      'Gold in every consumer Super App (~8-10 apps) under your Overstein account. '
+      'One membership, familiar Gold everywhere.';
   static const oversteinHighlight = 'Gold across ~10 apps';
   static const oversteinPriceTryHint = '₺199,99/mo';
 }
@@ -175,7 +175,7 @@ class FamilyPlansSheet extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 ladderSubtitle ??
-                    '${config.appName} — Free, Silver, Gold & Business\n'
+                    '${config.appName}, Free, Silver, Gold & Business\n'
                         'Same ladder in every Super App · Overstein Membership unlocks Gold family-wide',
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -239,7 +239,7 @@ class FamilyPlansSheet extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    'Admin plan is active — tier selection is locked.',
+                    'Admin plan is active, tier selection is locked.',
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: config.accent,
@@ -319,7 +319,13 @@ class FamilyOversteinMembershipTile extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              // Badge + price must wrap on narrow screens (e.g. 320px): a
+              // Spacer Row overflows when both intrinsic widths exceed the tile.
+              Wrap(
+                spacing: 10,
+                runSpacing: 6,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                alignment: WrapAlignment.spaceBetween,
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -332,6 +338,7 @@ class FamilyOversteinMembershipTile extends StatelessWidget {
                     ),
                     child: Text(
                       FamilyPlanCatalog.oversteinBadge,
+                      softWrap: true,
                       style: const TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 11,
@@ -340,9 +347,10 @@ class FamilyOversteinMembershipTile extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const Spacer(),
                   Text(
                     priceLabel,
+                    softWrap: true,
+                    textAlign: TextAlign.end,
                     style: const TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 14,
@@ -353,6 +361,7 @@ class FamilyOversteinMembershipTile extends StatelessWidget {
               const SizedBox(height: 10),
               Text(
                 title,
+                softWrap: true,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w900,
                     ),
@@ -360,6 +369,7 @@ class FamilyOversteinMembershipTile extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 summary,
+                softWrap: true,
                 style: TextStyle(
                   height: 1.35,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -368,6 +378,7 @@ class FamilyOversteinMembershipTile extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 highlight,
+                softWrap: true,
                 style: const TextStyle(
                   fontWeight: FontWeight.w800,
                   color: accent,
@@ -377,6 +388,7 @@ class FamilyOversteinMembershipTile extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   activeLabel,
+                  softWrap: true,
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
                     color: Theme.of(context).colorScheme.primary,

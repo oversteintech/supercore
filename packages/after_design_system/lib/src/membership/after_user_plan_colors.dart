@@ -35,6 +35,10 @@ abstract final class AfterUserPlanColors {
   static const businessNavy = Color(0xFF022C22);
   static const businessEmerald = Color(0xFF047857);
   static const businessEmeraldDark = Color(0xFF064E3B);
+  static const businessBlue = Color(0xFF1D4ED8);
+  static const businessBlueDark = Color(0xFF1E3A8A);
+  static const businessNavyBlue = Color(0xFF1E3A5F);
+  static const businessNavyBlueDeep = Color(0xFF0F2744);
 
   /// Super / Gold — gerçek altın.
   static const superGoldBright = Color(0xFFFFD700);
@@ -109,7 +113,7 @@ abstract final class AfterUserPlanColors {
       AfterUserPlan.premium => premiumSilverMid,
       AfterUserPlan.superPlan => superGoldBright,
       AfterUserPlan.superadmin => adminPurple,
-      AfterUserPlan.business => businessEmeraldDark,
+      AfterUserPlan.business => businessBlue,
     };
   }
 
@@ -222,10 +226,10 @@ abstract final class AfterUserPlanColors {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            businessEmerald,
-            businessEmeraldDark,
-            businessTeal,
-            businessNavy,
+            businessBlue,
+            businessBlueDark,
+            businessNavyBlue,
+            businessNavyBlueDeep,
           ],
           stops: [0.0, 0.4, 0.75, 1.0],
         ),

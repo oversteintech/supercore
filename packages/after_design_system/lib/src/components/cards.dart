@@ -153,12 +153,16 @@ class AfterSectionHeader extends StatelessWidget {
               children: [
                 Text(
                   title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: type.titleSmall.copyWith(color: colors.foreground),
                 ),
                 if (subtitle != null) ...[
                   const SizedBox(height: 2),
                   Text(
                     subtitle!,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: type.bodySmall.copyWith(color: colors.muted),
                   ),
                 ],

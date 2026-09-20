@@ -1,6 +1,11 @@
 import 'package:flutter/widgets.dart';
 
-/// Built-in EN/TR copy for first-launch legal + permission screens.
+import 'after_launch_consent_catalog.dart';
+
+/// First-launch Legal + Permission copy for every Super App.
+///
+/// Sourced from [AfterLaunchConsentCatalog] (all 20 [AfterSupportedLocales]).
+/// Placeholders `{app}` are replaced with [appName].
 class AfterLaunchConsentStrings {
   const AfterLaunchConsentStrings({
     required this.appName,
@@ -66,122 +71,75 @@ class AfterLaunchConsentStrings {
   final String permissionCamera;
   final String permissionCameraBody;
 
+  /// Resolve copy for [locale] (falls back to English).
   factory AfterLaunchConsentStrings.forLocale({
     required String appName,
     Locale? locale,
   }) {
     final language = (locale?.languageCode ?? 'en').toLowerCase();
-    if (language == 'tr') {
-      return AfterLaunchConsentStrings.tr(appName);
-    }
-    return AfterLaunchConsentStrings.en(appName);
-  }
-
-  factory AfterLaunchConsentStrings.en(String appName) {
-    return AfterLaunchConsentStrings(
+    return AfterLaunchConsentStrings.fromCatalog(
       appName: appName,
-      legalTitle: 'Privacy & terms',
-      legalSubtitle:
-          'Before you continue, please read our Privacy Policy and Terms of Use. '
-          'By accepting, you consent to data processing under KVKK and GDPR as described there.',
-      legalCheckbox:
-          'I have read and accept the Privacy Policy and Terms of Use.',
-      legalAccept: 'Accept & continue',
-      legalDecline: 'Decline',
-      legalRequiredTitle: 'Consent required',
-      legalRequiredBody:
-          '$appName cannot be used without accepting the Privacy Policy and Terms of Use. '
-          'You may exit the app or go back to review the documents.',
-      legalExitApp: 'Exit app',
-      privacyPolicy: 'Privacy Policy',
-      privacyPolicyHint: 'How we collect and use your data',
-      termsOfUse: 'Terms of Use',
-      termsOfUseHint: 'Rules for using $appName',
-      privacyIntro:
-          'We process account, device, and usage data to operate $appName, '
-          'personalize features, and improve reliability. Location is used only '
-          'for features you explicitly start (nearby search, regional setup). '
-          'You can review the full Privacy Policy and Terms below.',
-      cancel: 'Cancel',
-      permissionTitle: 'App permissions',
-      permissionSubtitle:
-          '$appName starts with no permissions granted. We only ask when you '
-          'use a feature that needs them.',
-      permissionCheckbox:
-          'I understand — ask me before any permission is requested.',
-      permissionAccept: 'Continue',
-      permissionFooter:
-          'You can review or change permissions anytime in system Settings.',
-      permissionRequiredTitle: 'Permission notice required',
-      permissionRequiredBody:
-          'Please confirm the permission notice to use $appName.',
-      permissionLocation: 'Location',
-      permissionLocationBody:
-          'Nearby services and regional setup — only when you tap find nearby '
-          'or detect country.',
-      permissionNotifications: 'Notifications',
-      permissionNotificationsBody:
-          'Reminders and alerts — only when you turn on push notifications.',
-      permissionPhotos: 'Photos',
-      permissionPhotosBody:
-          'Profile and document photos — only when you pick from gallery.',
-      permissionCamera: 'Camera',
-      permissionCameraBody:
-          'Taking photos in the app — only when you open the camera.',
+      languageCode: language,
     );
   }
 
-  factory AfterLaunchConsentStrings.tr(String appName) {
+  factory AfterLaunchConsentStrings.fromCatalog({
+    required String appName,
+    required String languageCode,
+  }) {
+    final table = AfterLaunchConsentCatalog.forLanguage(languageCode);
+    String t(String key) => _fill(table[key] ?? '', appName);
     return AfterLaunchConsentStrings(
       appName: appName,
-      legalTitle: 'Gizlilik ve koşullar',
-      legalSubtitle:
-          'Devam etmeden önce Gizlilik Politikası ve Kullanım Koşullarını okuyun. '
-          'Kabul ederek KVKK ve GDPR kapsamında açıklanan veri işlemeye onay verirsiniz.',
-      legalCheckbox:
-          'Gizlilik Politikası ve Kullanım Koşullarını okudum ve kabul ediyorum.',
-      legalAccept: 'Kabul et ve devam et',
-      legalDecline: 'Reddet',
-      legalRequiredTitle: 'Onay gerekli',
-      legalRequiredBody:
-          '$appName, Gizlilik Politikası ve Kullanım Koşulları kabul edilmeden kullanılamaz. '
-          'Uygulamadan çıkabilir veya belgelere geri dönebilirsiniz.',
-      legalExitApp: 'Uygulamadan çık',
-      privacyPolicy: 'Gizlilik Politikası',
-      privacyPolicyHint: 'Verilerinizi nasıl topluyor ve kullanıyoruz',
-      termsOfUse: 'Kullanım Koşulları',
-      termsOfUseHint: '$appName kullanım kuralları',
-      privacyIntro:
-          '$appName’i işletmek, özellikleri kişiselleştirmek ve güvenilirliği artırmak '
-          'için hesap, cihaz ve kullanım verilerini işleriz. Konum yalnızca sizin '
-          'başlattığınız özellikler için kullanılır (yakındaki yerler, bölgesel kurulum). '
-          'Tam metinleri aşağıdan inceleyebilirsiniz.',
-      cancel: 'İptal',
-      permissionTitle: 'Uygulama izinleri',
-      permissionSubtitle:
-          '$appName hiçbir izin verilmeden başlar. Yalnızca ihtiyaç duyan bir '
-          'özelliği kullandığınızda sorarız.',
-      permissionCheckbox:
-          'Anladım — herhangi bir izin istenmeden önce bana sorulsun.',
-      permissionAccept: 'Devam',
-      permissionFooter:
-          'İzinleri istediğiniz zaman sistem Ayarları’ndan değiştirebilirsiniz.',
-      permissionRequiredTitle: 'İzin bildirimi gerekli',
-      permissionRequiredBody:
-          '$appName’i kullanmak için izin bildirimini onaylayın.',
-      permissionLocation: 'Konum',
-      permissionLocationBody:
-          'Yakındaki hizmetler ve bölgesel kurulum — yalnızca yakındakileri bul '
-          'veya ülke algıla’ya dokunduğunuzda.',
-      permissionNotifications: 'Bildirimler',
-      permissionNotificationsBody:
-          'Hatırlatmalar ve uyarılar — yalnızca anlık bildirimleri açtığınızda.',
-      permissionPhotos: 'Fotoğraflar',
-      permissionPhotosBody:
-          'Profil ve belge fotoğrafları — yalnızca galeriden seçtiğinizde.',
-      permissionCamera: 'Kamera',
-      permissionCameraBody:
-          'Uygulama içi fotoğraf — yalnızca kamerayı açtığınızda.',
+      legalTitle: t('legalTitle'),
+      legalSubtitle: t('legalSubtitle'),
+      legalCheckbox: t('legalCheckbox'),
+      legalAccept: t('legalAccept'),
+      legalDecline: t('legalDecline'),
+      legalRequiredTitle: t('legalRequiredTitle'),
+      legalRequiredBody: t('legalRequiredBody'),
+      legalExitApp: t('legalExitApp'),
+      privacyPolicy: t('privacyPolicy'),
+      privacyPolicyHint: t('privacyPolicyHint'),
+      termsOfUse: t('termsOfUse'),
+      termsOfUseHint: t('termsOfUseHint'),
+      privacyIntro: t('privacyIntro'),
+      cancel: t('cancel'),
+      permissionTitle: t('permissionTitle'),
+      permissionSubtitle: t('permissionSubtitle'),
+      permissionCheckbox: t('permissionCheckbox'),
+      permissionAccept: t('permissionAccept'),
+      permissionFooter: t('permissionFooter'),
+      permissionRequiredTitle: t('permissionRequiredTitle'),
+      permissionRequiredBody: t('permissionRequiredBody'),
+      permissionLocation: t('permissionLocation'),
+      permissionLocationBody: t('permissionLocationBody'),
+      permissionNotifications: t('permissionNotifications'),
+      permissionNotificationsBody: t('permissionNotificationsBody'),
+      permissionPhotos: t('permissionPhotos'),
+      permissionPhotosBody: t('permissionPhotosBody'),
+      permissionCamera: t('permissionCamera'),
+      permissionCameraBody: t('permissionCameraBody'),
     );
+  }
+
+  /// Back-compat: English table.
+  factory AfterLaunchConsentStrings.en(String appName) =>
+      AfterLaunchConsentStrings.fromCatalog(
+        appName: appName,
+        languageCode: 'en',
+      );
+
+  /// Back-compat: Turkish table.
+  factory AfterLaunchConsentStrings.tr(String appName) =>
+      AfterLaunchConsentStrings.fromCatalog(
+        appName: appName,
+        languageCode: 'tr',
+      );
+
+  static String _fill(String template, String appName) {
+    return template
+        .replaceAll('{app}', appName)
+        .replaceAll('{appName}', appName);
   }
 }

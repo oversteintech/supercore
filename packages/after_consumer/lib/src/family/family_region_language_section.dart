@@ -1,19 +1,26 @@
 import 'package:after_core/after_core.dart';
+import 'package:after_design_system/after_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 
+import '../launch/after_location_permission.dart';
+import '../location/after_current_locality.dart';
+import '../location/after_regional_location.dart';
+import '../location/after_regional_location_apply.dart';
 import 'family_ui_strings.dart';
 
 /// Language + country controls for [FamilySettingsScreen].
 ///
-/// Country catalog and prefs live in after_core
-/// ([AfterSupportedCountries], [AfterCountryPrefs]).
+/// Includes shared “Use my location” and optional “match language to country”
+/// — every Super App gets the same UX from SuperCore (not Garage-only).
 class FamilyRegionLanguageSection extends ConsumerStatefulWidget {
   const FamilyRegionLanguageSection({
     required this.localeCode,
     this.onLocale,
     this.countryCode,
     this.onCountry,
+    this.showLocationButton = true,
     this.extras = const <Widget>[],
     super.key,
   });
@@ -22,6 +29,9 @@ class FamilyRegionLanguageSection extends ConsumerStatefulWidget {
   final ValueChanged<String?>? onLocale;
   final String? countryCode;
   final ValueChanged<String?>? onCountry;
+
+  /// GPS → country (+ optional language). Off for first-install compact gates.
+  final bool showLocationButton;
   final List<Widget> extras;
 
   @override
@@ -32,6 +42,9 @@ class FamilyRegionLanguageSection extends ConsumerStatefulWidget {
 class _FamilyRegionLanguageSectionState
     extends ConsumerState<FamilyRegionLanguageSection> {
   String? _localCountry;
+  bool _detecting = false;
+  String? _statusMessage;
+  bool _statusIsError = false;
 
   @override
   void initState() {
@@ -67,11 +80,105 @@ class _FamilyRegionLanguageSectionState
     }
   }
 
+  Future<void> _setMatchLanguage(bool value) async {
+    final prefs = ref.read(afterSharedPreferencesProvider);
+    await AfterRegionalLocationApply.writeMatchLanguage(prefs, value);
+    if (!value) {
+      if (mounted) setState(() {});
+      return;
+    }
+
+    final country = _resolvedCountry;
+    if (country == null || widget.onLocale == null) {
+      if (mounted) setState(() {});
+      return;
+    }
+    final language = AfterRegionalPreferences.languageForCountry(country);
+    widget.onLocale!(language);
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _detectLocation() async {
+    final locale = widget.localeCode;
+    String s(String key) => FamilyUiStrings.t(key, locale);
+
+    setState(() {
+      _detecting = true;
+      _statusMessage = null;
+    });
+
+    try {
+      final status = await AfterLocationPermission.requestIfConsented();
+      if (!mounted) return;
+      if (!status.isGranted && !status.isLimited) {
+        setState(() {
+          _statusMessage = s('location_unavailable');
+          _statusIsError = true;
+        });
+        return;
+      }
+
+      final detected =
+          await AfterRegionalLocationService.detectRegionalLocation();
+      if (!mounted) return;
+      if (detected == null) {
+        setState(() {
+          _statusMessage = s('location_unavailable');
+          _statusIsError = true;
+        });
+        return;
+      }
+
+      final prefs = ref.read(afterSharedPreferencesProvider);
+      final matchLanguage =
+          AfterRegionalLocationApply.readMatchLanguage(prefs);
+      final applied = await AfterRegionalLocationApply.applyDetection(
+        prefs: prefs,
+        detected: detected,
+        matchLanguageToCountry: matchLanguage,
+      );
+
+      await _setCountry(applied.countryCode);
+      if (applied.languageCode != null && widget.onLocale != null) {
+        widget.onLocale!(applied.languageCode);
+      }
+
+      ref.invalidate(afterCurrentLocalityProvider);
+
+      final countryName =
+          AfterSupportedCountries.displayNameFor(applied.countryCode);
+      final city = applied.cityName?.trim();
+      setState(() {
+        _statusMessage = (city == null || city.isEmpty)
+            ? FamilyUiStrings.t('location_country_detected', locale)
+                .replaceAll('{country}', countryName)
+            : FamilyUiStrings.t('location_detected', locale)
+                .replaceAll('{country}', countryName)
+                .replaceAll('{city}', city);
+        _statusIsError = false;
+      });
+    } on Object catch (error) {
+      debugPrint('Family regional location failed: $error');
+      if (mounted) {
+        setState(() {
+          _statusMessage = s('location_unavailable');
+          _statusIsError = true;
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _detecting = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final locale = widget.localeCode;
     String s(String key) => FamilyUiStrings.t(key, locale);
     final country = _resolvedCountry;
+    final prefs = ref.watch(afterSharedPreferencesProvider);
+    final matchLanguage =
+        AfterRegionalLocationApply.readMatchLanguage(prefs);
+    final scheme = Theme.of(context).colorScheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -145,6 +252,43 @@ class _FamilyRegionLanguageSectionState
           ],
           onChanged: _setCountry,
         ),
+        const SizedBox(height: 8),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(s('match_language_to_country')),
+          subtitle: Text(s('match_language_to_country_sub')),
+          value: matchLanguage,
+          onChanged: widget.onLocale == null ? null : _setMatchLanguage,
+        ),
+        if (widget.showLocationButton) ...[
+          const SizedBox(height: 4),
+          OutlinedButton.icon(
+            onPressed: _detecting ? null : _detectLocation,
+            icon: _detecting
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.my_location_rounded),
+            label: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Text(s('use_my_location')),
+            ),
+          ),
+          if (_statusMessage != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _statusMessage!,
+              style: TextStyle(
+                color: _statusIsError
+                    ? scheme.error
+                    : scheme.onSurfaceVariant,
+                height: 1.35,
+              ),
+            ),
+          ],
+        ],
         if (widget.extras.isNotEmpty) ...[
           const SizedBox(height: 16),
           ...widget.extras,

@@ -30,6 +30,7 @@ class AfterCommunityPost {
     this.imageLocalNames = const [],
     this.audioUrl,
     this.audioLocalName,
+    this.publicId,
   }) : publishedAtMillis = publishedAtMillis ?? createdAtMillis;
 
   factory AfterCommunityPost.fromJson(Map<String, dynamic> json) {
@@ -98,6 +99,7 @@ class AfterCommunityPost {
       imageLocalNames: afterCommunityReadJsonStringList(json['imageLocalNames']),
       audioUrl: json['audioUrl']?.toString(),
       audioLocalName: json['audioLocalName']?.toString(),
+      publicId: json['publicId']?.toString(),
     );
   }
 
@@ -122,6 +124,7 @@ class AfterCommunityPost {
   final List<String> imageLocalNames;
   final String? audioUrl;
   final String? audioLocalName;
+  final String? publicId;
 
   /// Garage / legacy alias for [roomKey].
   String get vehicleKey => roomKey;
@@ -169,6 +172,7 @@ class AfterCommunityPost {
     List<String>? imageLocalNames,
     String? audioUrl,
     String? audioLocalName,
+    String? publicId,
   }) {
     return AfterCommunityPost(
       id: id,
@@ -192,6 +196,7 @@ class AfterCommunityPost {
       imageLocalNames: imageLocalNames ?? this.imageLocalNames,
       audioUrl: audioUrl ?? this.audioUrl,
       audioLocalName: audioLocalName ?? this.audioLocalName,
+      publicId: publicId ?? this.publicId,
     );
   }
 
@@ -225,5 +230,6 @@ class AfterCommunityPost {
         if (audioUrl != null && audioUrl!.isNotEmpty) 'audioUrl': audioUrl,
         if (audioLocalName != null && audioLocalName!.isNotEmpty)
           'audioLocalName': audioLocalName,
+        if (publicId != null && publicId!.isNotEmpty) 'publicId': publicId,
       };
 }

@@ -36,7 +36,12 @@ modules:
       - AfterSecureStorage
       - AfterSubscriptionVerifier
       - AppPlatformManifest
-    description: Kernel — logging, DI, storage, network, auth, notifications, AI credentials, entitlements.
+      - AfterMoney
+      - AfterPriceBreakdown
+      - AfterOfferSource
+      - AfterDataFreshness
+      - AfterCommercialDisclosure
+    description: Kernel — logging, DI, storage, network, auth, notifications, AI credentials, entitlements, money, offer provenance.
 
   - id: design_system
     name: Shared Design System

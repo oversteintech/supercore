@@ -136,6 +136,8 @@ class AfterInlineBanner extends StatelessWidget {
           Expanded(
             child: Text(
               message,
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
               style: type.bodySmall.copyWith(color: colors.foreground),
             ),
           ),

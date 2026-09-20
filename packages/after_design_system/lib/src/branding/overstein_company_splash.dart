@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,7 +8,8 @@ import 'overstein_logo.dart';
 
 /// Fixed OVERSTEIN company intro — slow premium illuminate, then hold.
 ///
-/// Shared across every Super App — black screen, OS mark, no product branding.
+/// Shared across every Super App — black screen, OS mark only (no wordmark,
+/// mission line, or product branding).
 ///
 /// **First install only:** after the intro completes once, [OversteinCompanySplashStore]
 /// marks it seen and subsequent launches (app kill, phone reboot, etc.) skip
@@ -52,27 +52,7 @@ abstract final class OversteinCompanySplashStore {
       prefs.remove(seenKey);
 }
 
-const _kSplashSilver = OversteinBrandColors.logoMetal;
-
-const _kWordmarkStyle = TextStyle(
-  color: _kSplashSilver,
-  fontSize: 15,
-  fontWeight: FontWeight.w500,
-  letterSpacing: 3.8,
-  height: 1.05,
-  decoration: TextDecoration.none,
-);
-
-const _kMissionStyle = TextStyle(
-  color: _kSplashSilver,
-  fontSize: 10,
-  fontWeight: FontWeight.w400,
-  letterSpacing: 0.15,
-  height: 1.35,
-  decoration: TextDecoration.none,
-);
-
-/// Black-screen company card: slow illuminate + mark / wordmark / mission.
+/// Black-screen company card: slow illuminate + OS mark only.
 ///
 /// Shows only on first install (until [OversteinCompanySplashStore] marks seen).
 class OversteinCompanySplash extends StatefulWidget {
@@ -222,48 +202,20 @@ class _StaticSplashBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final code = ui.PlatformDispatcher.instance.locale.languageCode;
-    final mission = switch (code) {
-      'tr' => 'Yarını inşa ediyoruz',
-      'de' => 'Wir bauen die Zukunft',
-      'pt' => 'Construímos o amanhã',
-      'fr' => 'Nous construisons demain',
-      'es' => 'Construimos el mañana',
-      'ar' => 'نبني الغد',
-      'ja' => '明日を築く',
-      'zh' => '我们建设明天',
-      'ko' => '내일을 만듭니다',
-      'ru' => 'Мы строим завтра',
-      'it' => 'Costruiamo il domani',
-      _ => 'We build tomorrow',
-    };
-
     return SafeArea(
       child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Image.asset(
-                AfterBrandingAssets.oversteinLogoMark,
-                package: AfterBrandingAssets.packageName,
-                width: 104,
-                height: 104,
-                fit: BoxFit.contain,
-                filterQuality: FilterQuality.high,
-                gaplessPlayback: true,
-                errorBuilder: (_, _, _) => const Icon(
-                  Icons.hexagon_outlined,
-                  size: 75,
-                  color: Colors.white70,
-                ),
-              ),
-              const SizedBox(height: 26),
-              const _SplashLabel('OVERSTEIN', style: _kWordmarkStyle),
-              const SizedBox(height: 12),
-              _SplashLabel(mission, style: _kMissionStyle),
-            ],
+        child: Image.asset(
+          AfterBrandingAssets.oversteinLogoMark,
+          package: AfterBrandingAssets.packageName,
+          width: 104,
+          height: 104,
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.high,
+          gaplessPlayback: true,
+          errorBuilder: (_, _, _) => const Icon(
+            Icons.hexagon_outlined,
+            size: 75,
+            color: Colors.white70,
           ),
         ),
       ),
@@ -307,59 +259,5 @@ class AfterLaunchShell extends StatelessWidget {
       },
       home: child,
     );
-  }
-}
-
-class _SplashLabel extends StatelessWidget {
-  const _SplashLabel(this.text, {required this.style});
-
-  final String text;
-  final TextStyle style;
-
-  @override
-  Widget build(BuildContext context) {
-    if (text.isEmpty) {
-      return const SizedBox(height: 18);
-    }
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final maxWidth = constraints.maxWidth.isFinite
-            ? constraints.maxWidth
-            : MediaQuery.sizeOf(context).width;
-        final painter = TextPainter(
-          text: TextSpan(text: text, style: style),
-          textAlign: TextAlign.center,
-          textDirection: TextDirection.ltr,
-          maxLines: 2,
-          ellipsis: '…',
-        )..layout(maxWidth: maxWidth);
-        return Semantics(
-          label: text,
-          child: SizedBox(
-            width: maxWidth,
-            height: painter.height,
-            child: CustomPaint(painter: _SplashLabelPainter(painter)),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _SplashLabelPainter extends CustomPainter {
-  const _SplashLabelPainter(this.painter);
-
-  final TextPainter painter;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final offset = Offset((size.width - painter.width) / 2, 0);
-    painter.paint(canvas, offset);
-  }
-
-  @override
-  bool shouldRepaint(covariant _SplashLabelPainter oldDelegate) {
-    return oldDelegate.painter.text != painter.text ||
-        oldDelegate.painter.width != painter.width;
   }
 }

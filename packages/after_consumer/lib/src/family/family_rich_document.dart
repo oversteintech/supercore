@@ -10,7 +10,7 @@ class FamilyDocSection {
 }
 
 /// Renders settings/legal copy with hierarchy: paragraphs, bullets, and
-/// `Label — detail` definition rows. Supports light `**bold**` markers.
+/// `Label, detail` definition rows. Supports light `**bold**` markers.
 class FamilyRichBody extends StatelessWidget {
   const FamilyRichBody(
     this.text, {
@@ -213,8 +213,8 @@ List<_DocBlock> _parseBlocks(String text) {
       continue;
     }
 
-    // "Camera — profile photos" / "Camera - profile photos" definition rows.
-    final emDash = RegExp(r'^(.{2,48}?)\s+[—–-]\s+(.+)$').firstMatch(trimmed);
+    // "Camera, profile photos" / "Camera - profile photos" definition rows.
+    final emDash = RegExp(r'^(.{2,48}?)\s+[, -]\s+(.+)$').firstMatch(trimmed);
     if (emDash != null && !trimmed.contains('. ')) {
       flushParagraph();
       flushBullets();

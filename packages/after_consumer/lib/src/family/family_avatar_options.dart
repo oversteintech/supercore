@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Preset avatar option — Garage-parity animated identity chip.
+/// Preset avatar option, Garage-parity animated identity chip.
 class FamilyAvatarOption {
   const FamilyAvatarOption(
     this.id,
@@ -14,7 +14,7 @@ class FamilyAvatarOption {
   final IconData icon;
   final Color color;
 
-  /// Rotating frame palette — falls back to [color]-derived tones.
+  /// Rotating frame palette, falls back to [color]-derived tones.
   final List<Color>? gradientColors;
 
   /// Orbit speed for this avatar's animated frame.

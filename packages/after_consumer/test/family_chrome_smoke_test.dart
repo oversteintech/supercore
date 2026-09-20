@@ -62,8 +62,13 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('Tema'), findsOneWidget);
-    expect(find.text('Dil'), findsWidgets);
     expect(find.text('Profil'), findsOneWidget);
     expect(find.text('Theme'), findsNothing);
+    expect(find.text('Diğer bilgiler'), findsOneWidget);
+    expect(find.text('Uygulama simgesi'), findsNothing);
+    // App tour is first-run only; must not appear in Settings chrome.
+    expect(find.text('Uygulama turu'), findsNothing);
+    expect(find.textContaining('turunu yeniden'), findsNothing);
+    expect(find.text('App tour'), findsNothing);
   });
 }

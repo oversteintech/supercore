@@ -49,7 +49,7 @@ void main() {
         appId: 'superhealth',
         mockGoogleEmailForTests: 'a@b.com',
       );
-      expect(overrides.length, 2);
+      expect(overrides.length, 3);
     });
 
     test('fallback sync port is PrefsAfterUserBlobSync', () async {

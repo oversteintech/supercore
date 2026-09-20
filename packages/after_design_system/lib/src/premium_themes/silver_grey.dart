@@ -4,31 +4,31 @@ import 'package:flutter/material.dart';
 
 import 'theme.dart';
 
-/// Polished light aluminium & chrome — cool silver, readable dark text.
+/// True chrome silver — light platinum surfaces, C0C0C0 metal, readable dark text.
 abstract final class SilverGreyColors {
-  static const background = Color(0xFFD4DAE2);
-  static const backgroundDeep = Color(0xFFC8D0DA);
-  static const surface = Color(0xFFDBE1E8);
-  static const surfaceHigh = Color(0xFFD0D7E0);
-  static const surfaceHighest = Color(0xFFC2CAD4);
-  static const steel = Color(0xFF9CA3AF);
-  static const silver = Color(0xFF6B7280);
-  static const silverBright = Color(0xFF4B5563);
-  static const chrome = Color(0xFF374151);
-  static const coolAccent = Color(0xFF8B9AAB);
-  static const coolAccentBright = Color(0xFF64748B);
-  static const foreground = Color(0xFF111827);
-  static const muted = Color(0xFF4B5563);
-  static const border = Color(0xFFD1D5DB);
+  static const background = Color(0xFFF5F5F5);
+  static const backgroundDeep = Color(0xFFE8E8EA);
+  static const surface = Color(0xFFFFFFFF);
+  static const surfaceHigh = Color(0xFFE0E0E0);
+  static const surfaceHighest = Color(0xFFC0C0C0);
+  static const steel = Color(0xFFC0C0C0);
+  static const silver = Color(0xFFC0C0C0);
+  static const silverBright = Color(0xFFE0E0E0);
+  static const chrome = Color(0xFF8E8E93);
+  static const coolAccent = Color(0xFFC0C0C0);
+  static const coolAccentBright = Color(0xFFF5F5F5);
+  static const foreground = Color(0xFF1F2937);
+  static const muted = Color(0xFF6E6E73);
+  static const border = Color(0xFFC0C0C0);
 
   static const frameGradient = <Color>[
     Color(0xFFFFFFFF),
-    Color(0xFFE5E7EB),
-    Color(0xFFB8BEC6),
-    Color(0xFF9CA3AF),
-    Color(0xFF6B7280),
-    Color(0xFF9CA3AF),
-    Color(0xFFE5E7EB),
+    Color(0xFFF5F5F5),
+    Color(0xFFE0E0E0),
+    Color(0xFFC0C0C0),
+    Color(0xFF8E8E93),
+    Color(0xFFC0C0C0),
+    Color(0xFFE0E0E0),
     Color(0xFFFFFFFF),
   ];
 }
@@ -248,9 +248,9 @@ class _SilverShowcaseFrameState extends State<SilverShowcaseFrame>
 
   Duration get _duration => Duration(
     milliseconds: widget.resolvedStyle.borderMs(
-      showcaseMs: 10000,
-      softMs: 14000,
-      menuMs: 18000,
+      showcaseMs: 28000,
+      softMs: 24000,
+      menuMs: 32000,
     ),
   );
 
@@ -296,8 +296,9 @@ class _SilverShowcaseFrameState extends State<SilverShowcaseFrame>
       builder: (context, child) {
         final pulse = (math.sin(_controller.value * math.pi * 2) + 1) / 2;
         final spin = _controller.value * 2 * math.pi;
-        final glow = (0.08 + pulse * 0.14) * scale;
-        final blur = (6.0 + pulse * 6) + style.padExtra * 6;
+        // Match gold premium feel — calm sweep, soft chrome glow.
+        final glow = (0.05 + pulse * 0.08) * scale;
+        final blur = (8.0 + pulse * 6) + style.padExtra * 6;
 
         return DecoratedBox(
           decoration: BoxDecoration(
@@ -311,14 +312,14 @@ class _SilverShowcaseFrameState extends State<SilverShowcaseFrame>
               BoxShadow(
                 color: SilverGreyColors.steel.withValues(alpha: glow),
                 blurRadius: blur,
-                spreadRadius: (0.12 + pulse * 0.18) * scale,
+                spreadRadius: (0.08 + pulse * 0.12) * scale,
               ),
               if (!style.isMenu)
                 BoxShadow(
                   color: SilverGreyColors.coolAccent.withValues(
-                    alpha: (0.04 + pulse * 0.06) * scale,
+                    alpha: (0.03 + pulse * 0.04) * scale,
                   ),
-                  blurRadius: 14 + pulse * 8,
+                  blurRadius: 12 + pulse * 6,
                 ),
             ],
           ),

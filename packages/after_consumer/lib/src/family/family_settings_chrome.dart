@@ -30,9 +30,15 @@ class FamilySettingsPlugins {
     this.onExportData,
     this.onContactSupport,
     this.faqItems,
+    this.privacyExtras,
     this.helpExtras,
     this.securityExtras,
     this.aboutExtras,
+    this.privacyBody,
+    this.securityBody,
+    this.helpBody,
+    this.aboutBody,
+    this.beforeAccountActions,
   });
 
   final List<Widget> Function(BuildContext context, WidgetRef ref)? aboveTheme;
@@ -40,7 +46,7 @@ class FamilySettingsPlugins {
 
   /// Widgets rendered **inside** the Profile accordion **after** the shared
   /// core field editors (Garage phone-verify, passport, …). Must not replace
-  /// the canonical profile rows — those always come from [FamilyProfileSection].
+  /// the canonical profile rows, those always come from [FamilyProfileSection].
   final List<Widget> Function(BuildContext context, WidgetRef ref)?
       insideProfile;
 
@@ -64,6 +70,10 @@ class FamilySettingsPlugins {
     WidgetRef ref,
   )? faqItems;
 
+  /// Extra tiles under the shared Privacy accordion (product privacy screens).
+  final List<Widget> Function(BuildContext context, WidgetRef ref)?
+      privacyExtras;
+
   /// Extra widgets under Help / FAQ (feedback form, …).
   final List<Widget> Function(BuildContext context, WidgetRef ref)? helpExtras;
 
@@ -73,9 +83,26 @@ class FamilySettingsPlugins {
 
   /// Extra widgets under About (wordmark, company lines, …).
   final List<Widget> Function(BuildContext context, WidgetRef ref)? aboutExtras;
+
+  /// When set, replaces the default Privacy accordion body.
+  final Widget Function(BuildContext context, WidgetRef ref)? privacyBody;
+
+  /// When set, replaces the default Security accordion body.
+  final Widget Function(BuildContext context, WidgetRef ref)? securityBody;
+
+  /// When set, replaces the default Help / FAQ accordion body.
+  final Widget Function(BuildContext context, WidgetRef ref)? helpBody;
+
+  /// When set, replaces the default About accordion body.
+  final Widget Function(BuildContext context, WidgetRef ref)? aboutBody;
+
+  /// Widgets rendered immediately above Sign out / Delete account.
+  /// Must not hide Core Privacy / Security / Help / About (those always render).
+  final List<Widget> Function(BuildContext context, WidgetRef ref)?
+      beforeAccountActions;
 }
 
-/// Shared profile card — Garage-parity account header + avatar + fields.
+/// Shared profile card, Garage-parity account header + avatar + fields.
 class FamilyProfileSection extends ConsumerWidget {
   const FamilyProfileSection({
     required this.config,
@@ -115,7 +142,7 @@ class FamilyProfileSection extends ConsumerWidget {
     );
     final email = identity.email?.trim().isNotEmpty == true
         ? identity.email!
-        : (user?.email ?? '—');
+        : (user?.email ?? ', ');
     final avatar = familyAvatarForId(identity.avatarId);
     final phone = identity.phoneNumber?.trim().isNotEmpty == true
         ? identity.phoneNumber!
@@ -210,7 +237,7 @@ class FamilyProfileSection extends ConsumerWidget {
           ],
           if (showFieldEditors) ...[
             const SizedBox(height: 12),
-            const Divider(height: 1),
+            AfterSettingsMenuMetrics.divider,
             _FamilyProfileFieldTile(
               icon: Icons.badge_outlined,
               title: s('full_name'),
@@ -219,7 +246,7 @@ class FamilyProfileSection extends ConsumerWidget {
                 editFamilyProfileDisplayName(context, ref, name),
               ),
             ),
-            const Divider(height: 1),
+            AfterSettingsMenuMetrics.divider,
             _FamilyProfileFieldTile(
               icon: Icons.phone_rounded,
               title: s('phone'),
@@ -232,7 +259,7 @@ class FamilyProfileSection extends ConsumerWidget {
                 ),
               ),
             ),
-            const Divider(height: 1),
+            AfterSettingsMenuMetrics.divider,
             _FamilyProfileFieldTile(
               icon: Icons.cake_outlined,
               title: s('birth_date'),
@@ -241,7 +268,7 @@ class FamilyProfileSection extends ConsumerWidget {
                 editFamilyProfileBirthDate(context, ref, identity.birthDate),
               ),
             ),
-            const Divider(height: 1),
+            AfterSettingsMenuMetrics.divider,
             _FamilyProfileFieldTile(
               icon: Icons.photo_library_outlined,
               title: s('profile_photos'),
@@ -252,7 +279,7 @@ class FamilyProfileSection extends ConsumerWidget {
               trailingIcon: Icons.chevron_right_rounded,
               onTap: () => unawaited(showFamilyAvatarPicker(context)),
             ),
-            const Divider(height: 1),
+            AfterSettingsMenuMetrics.divider,
             _FamilyProfileFieldTile(
               icon: Icons.email_rounded,
               title: s('email'),
@@ -261,7 +288,7 @@ class FamilyProfileSection extends ConsumerWidget {
                 editFamilyProfileEmail(context, ref, email),
               ),
             ),
-            const Divider(height: 1),
+            AfterSettingsMenuMetrics.divider,
             _FamilyProfileFieldTile(
               icon: Icons.alternate_email_rounded,
               title: s('username'),
@@ -279,7 +306,7 @@ class FamilyProfileSection extends ConsumerWidget {
               ),
             ),
             if (user?.uid != null) ...[
-              const Divider(height: 1),
+              AfterSettingsMenuMetrics.divider,
               _FamilyProfileFieldTile(
                 icon: Icons.fingerprint_rounded,
                 title: s('member_id'),
@@ -321,8 +348,9 @@ class _FamilyProfileFieldTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      dense: true,
-      contentPadding: EdgeInsets.zero,
+      contentPadding: AfterSettingsMenuMetrics.tilePadding,
+      minVerticalPadding: AfterSettingsMenuMetrics.minVerticalPadding,
+      visualDensity: VisualDensity.standard,
       leading: Icon(icon, size: 22),
       title: Text(
         title,
@@ -340,7 +368,7 @@ class _FamilyProfileFieldTile extends StatelessWidget {
   }
 }
 
-/// Legacy profile landing — prefer [FamilySettingsScreen] as the shell tab.
+/// Legacy profile landing, prefer [FamilySettingsScreen] as the shell tab.
 class FamilyProfileScreen extends ConsumerWidget {
   const FamilyProfileScreen({
     required this.config,

@@ -23,7 +23,7 @@ class AfterCurrentLocality {
   final String? district;
   final String? city;
 
-  /// Compact top-bar label — city only (Garage contract).
+  /// Compact top-bar label, city only (Garage contract).
   String? get label {
     final cityName = city?.trim();
     if (cityName == null || cityName.isEmpty) return null;
@@ -124,7 +124,7 @@ final afterCurrentLocalityProvider =
       AfterCurrentLocalityController.new,
     );
 
-/// Shared shell locality — every Super App header feeds from this.
+/// Shared shell locality, every Super App header feeds from this.
 class AfterCurrentLocalityController
     extends AsyncNotifier<AfterCurrentLocality?> {
   @override

@@ -228,6 +228,12 @@ class FamilyCloudSyncController extends Notifier<FamilyCloudSyncState> {
     await _prefs.setString(_localPayloadKey, jsonEncode(payload));
     scheduleSync();
   }
+
+  Future<void> clearLocalCache() async {
+    await _prefs.remove(_localStampKey);
+    await _prefs.remove(_localPayloadKey);
+    state = const FamilyCloudSyncState();
+  }
 }
 
 void scheduleFamilyCloudSync(WidgetRef ref) {

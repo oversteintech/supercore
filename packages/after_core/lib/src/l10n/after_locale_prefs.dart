@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../settings/after_settings.dart';
@@ -8,6 +9,12 @@ import 'after_supported_locales.dart';
 /// Prefer [AfterSettingsKeys.locale] so family chrome and product catalogs
 /// share one key. Apps may still migrate legacy `<appid>.locale` keys via
 /// [read] / [migrateLegacy].
+///
+/// Sticky language policy (all Super Apps):
+/// - First launch: seed from device language if supported, else English.
+/// - Later launches: never auto-follow device/GPS/SIM — only Settings.
+/// - Optional: user can apply country-default language via Settings
+///   (“match language to location”).
 abstract final class AfterLocalePrefs {
   /// Read persisted language code, or `null` when unset / unsupported.
   static String? read(
@@ -49,5 +56,34 @@ abstract final class AfterLocalePrefs {
     final legacy = prefs.getString(legacyKey);
     if (legacy == null || !AfterSupportedLocales.isSupported(legacy)) return;
     await prefs.setString(AfterSettingsKeys.locale, legacy);
+  }
+
+  /// Device language → supported code (never GPS / region / SIM).
+  static String resolveInitialLanguageCode([Locale? deviceLocale]) {
+    final device =
+        deviceLocale ?? WidgetsBinding.instance.platformDispatcher.locale;
+    return AfterSupportedLocales.resolve(
+      device,
+      AfterSupportedLocales.locales,
+    ).languageCode;
+  }
+
+  /// Seed sticky language once on cold start. No-ops when already set.
+  ///
+  /// Returns the language code every Super App should load for strings.
+  static Future<String> ensurePersisted(
+    SharedPreferences prefs, {
+    Locale? deviceLocale,
+    String? legacyKey,
+  }) async {
+    if (legacyKey != null) {
+      await migrateLegacy(prefs, legacyKey);
+    }
+    var code = read(prefs, legacyKey: legacyKey);
+    if (code == null) {
+      code = resolveInitialLanguageCode(deviceLocale);
+      await write(prefs, code, legacyKey: legacyKey);
+    }
+    return code;
   }
 }

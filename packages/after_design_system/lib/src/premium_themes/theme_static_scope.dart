@@ -37,6 +37,12 @@ ThemeExtension<dynamic> _disableDecorativeMotion(ThemeExtension<dynamic> ext) {
   if (ext is RacingThemeEffects) {
     return ext.copyWith(red: false, blue: false);
   }
+  if (ext is ForestWoodlandThemeEffects) {
+    return ext.copyWith(enabled: false);
+  }
+  if (ext is RoyalThemeEffects) {
+    return ext.copyWith(enabled: false);
+  }
   return ext;
 }
 

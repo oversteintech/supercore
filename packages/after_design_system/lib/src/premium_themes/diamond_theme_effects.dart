@@ -8,10 +8,12 @@ import 'blossom_pink.dart';
 import 'racing_theme_effects.dart';
 import 'safari_savanna.dart';
 import 'silver_grey.dart';
+import 'forest_woodland.dart';
 import 'theme.dart'
     show
         BrightGoldThemeEffects,
         DiamondThemeEffects,
+        RoyalThemeEffects,
         SuperGarageColors,
         SuperGarageTheme;
 import 'bright_gold_theme.dart' show BrightGoldPageChrome;
@@ -54,21 +56,21 @@ class _DiamondSparkleFrameState extends State<DiamondSparkleFrame>
   static const _gradient = [
     SuperGarageColors.diamondIce,
     SuperGarageColors.diamondSparkle,
-    SuperGarageColors.diamondBright,
+    SuperGarageColors.diamondPlatinum,
     SuperGarageColors.diamondAccent,
-    Color(0xFF81D4FA),
-    Color(0xFFB3E5FC),
+    SuperGarageColors.diamondFire,
+    SuperGarageColors.diamondBright,
     SuperGarageColors.diamondIce,
   ];
 
   static const _innerGradient = [
-    Color(0xFF4FC3F7),
+    SuperGarageColors.diamondPlatinum,
     SuperGarageColors.diamondIce,
     SuperGarageColors.diamondBright,
     SuperGarageColors.diamondSparkle,
-    Color(0xFF29B6F6),
+    SuperGarageColors.diamondFire,
     SuperGarageColors.diamondAccent,
-    Color(0xFF4FC3F7),
+    SuperGarageColors.diamondPlatinum,
   ];
 
   Duration get _borderDuration => Duration(
@@ -448,20 +450,35 @@ class SuperGarageScaffold extends StatelessWidget {
         !useStaticSurface && DiamondThemeEffects.isActive(context);
     final isBrightGold =
         !useStaticSurface && BrightGoldThemeEffects.isActive(context);
+    final isSilverGrey =
+        !useStaticSurface && SilverGreyThemeEffects.isActive(context);
     final isBlossom =
         !useStaticSurface && BlossomPinkThemeEffects.isActive(context);
     final isPremiumIap = isDiamond || isBrightGold;
     final scheme = Theme.of(context).colorScheme;
 
     final resolvedAppBar = isPremiumIap && appBar != null
-        ? _PremiumAppBarWithGlow(appBar: appBar!, goldPalette: isBrightGold)
+        ? _PremiumAppBarWithGlow(
+            appBar: appBar!,
+            palette: isBrightGold
+                ? _PremiumAppBarPalette.gold
+                : _PremiumAppBarPalette.diamond,
+          )
+        : isSilverGrey && appBar != null
+        ? _PremiumAppBarWithGlow(
+            appBar: appBar!,
+            palette: _PremiumAppBarPalette.silver,
+          )
         : isBlossom && appBar != null
         ? BlossomAppBarChrome(appBar: appBar!)
         : appBar;
 
     final resolvedBody = body;
 
-    return Scaffold(
+    // Premium IAP themes (Gold/Diamond) and Silver Grey keep app-bar chrome only.
+    // Never wrap the full page body — card frames use DashboardPremiumFrame /
+    // withPremiumThemeFrame instead.
+    final scaffold = Scaffold(
       key: key,
       appBar: resolvedAppBar,
       body: resolvedBody,
@@ -476,7 +493,8 @@ class SuperGarageScaffold extends StatelessWidget {
       onEndDrawerChanged: onEndDrawerChanged,
       bottomNavigationBar: bottomNavigationBar,
       bottomSheet: bottomSheet,
-      backgroundColor: useStaticSurface || !(isPremiumIap || isBlossom)
+      backgroundColor:
+          useStaticSurface || !(isPremiumIap || isBlossom || isSilverGrey)
           ? backgroundColor ?? scheme.surface
           : Colors.transparent,
       resizeToAvoidBottomInset: resizeToAvoidBottomInset ?? true,
@@ -485,18 +503,21 @@ class SuperGarageScaffold extends StatelessWidget {
       extendBodyBehindAppBar: extendBodyBehindAppBar,
       restorationId: restorationId,
     );
+    return scaffold;
   }
 }
+
+enum _PremiumAppBarPalette { gold, diamond, silver }
 
 class _PremiumAppBarWithGlow extends StatelessWidget
     implements PreferredSizeWidget {
   const _PremiumAppBarWithGlow({
     required this.appBar,
-    required this.goldPalette,
+    required this.palette,
   });
 
   final PreferredSizeWidget appBar;
-  final bool goldPalette;
+  final _PremiumAppBarPalette palette;
 
   static const _glowHeight = 2.0;
 
@@ -526,10 +547,10 @@ class _PremiumAppBarWithGlow extends StatelessWidget
             height: _glowHeight,
             child: _PremiumAppBarGlow(
               height: _glowHeight,
-              goldPalette: goldPalette,
+              palette: palette,
             ),
           ),
-          if (!goldPalette) ...[
+          if (palette == _PremiumAppBarPalette.diamond) ...[
             const Positioned(
               left: 12,
               bottom: -4,
@@ -550,11 +571,11 @@ class _PremiumAppBarWithGlow extends StatelessWidget
 class _PremiumAppBarGlow extends StatefulWidget {
   const _PremiumAppBarGlow({
     required this.height,
-    required this.goldPalette,
+    required this.palette,
   });
 
   final double height;
-  final bool goldPalette;
+  final _PremiumAppBarPalette palette;
 
   @override
   State<_PremiumAppBarGlow> createState() => _PremiumAppBarGlowState();
@@ -569,7 +590,13 @@ class _PremiumAppBarGlowState extends State<_PremiumAppBarGlow>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: widget.goldPalette ? 12000 : 14000),
+      duration: Duration(
+        milliseconds: switch (widget.palette) {
+          _PremiumAppBarPalette.gold => 12000,
+          _PremiumAppBarPalette.diamond => 14000,
+          _PremiumAppBarPalette.silver => 12000,
+        },
+      ),
     )..repeat();
   }
 
@@ -584,26 +611,36 @@ class _PremiumAppBarGlowState extends State<_PremiumAppBarGlow>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, _) {
-        final colors = widget.goldPalette
-            ? [
-                SuperGarageColors.goldDeep.withValues(alpha: 0.08),
-                SuperGarageColors.goldBright.withValues(alpha: 0.6),
-                SuperGarageColors.goldShine.withValues(alpha: 0.4),
-                SuperGarageColors.goldDeep.withValues(alpha: 0.08),
-              ]
-            : [
-                SuperGarageColors.diamondAccent.withValues(alpha: 0.05),
-                SuperGarageColors.diamondSparkle.withValues(alpha: 0.55),
-                SuperGarageColors.diamondBright.withValues(alpha: 0.35),
-                SuperGarageColors.diamondAccent.withValues(alpha: 0.05),
-              ];
+        final colors = switch (widget.palette) {
+          _PremiumAppBarPalette.gold => [
+            SuperGarageColors.goldDeep.withValues(alpha: 0.08),
+            SuperGarageColors.goldBright.withValues(alpha: 0.6),
+            SuperGarageColors.goldShine.withValues(alpha: 0.4),
+            SuperGarageColors.goldDeep.withValues(alpha: 0.08),
+          ],
+          _PremiumAppBarPalette.diamond => [
+            SuperGarageColors.diamondAccent.withValues(alpha: 0.05),
+            SuperGarageColors.diamondSparkle.withValues(alpha: 0.55),
+            SuperGarageColors.diamondBright.withValues(alpha: 0.35),
+            SuperGarageColors.diamondAccent.withValues(alpha: 0.05),
+          ],
+          _PremiumAppBarPalette.silver => [
+            SilverGreyColors.steel.withValues(alpha: 0.1),
+            SilverGreyColors.chrome.withValues(alpha: 0.55),
+            Colors.white.withValues(alpha: 0.72),
+            SilverGreyColors.coolAccentBright.withValues(alpha: 0.45),
+            SilverGreyColors.steel.withValues(alpha: 0.1),
+          ],
+        };
 
         return Container(
           height: widget.height,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: colors,
-              stops: const [0, 0.35, 0.65, 1],
+              stops: widget.palette == _PremiumAppBarPalette.silver
+                  ? const [0, 0.28, 0.5, 0.72, 1]
+                  : const [0, 0.35, 0.65, 1],
               transform: GradientRotation(_controller.value * 2 * math.pi),
             ),
           ),
@@ -1497,6 +1534,19 @@ extension DiamondPremiumFrameX on Widget {
     );
   }
 
+  Widget withPremiumThemeFrame({
+    BorderRadius borderRadius = const BorderRadius.all(
+      Radius.circular(SuperGarageTheme.cardRadius),
+    ),
+    bool prominent = false,
+    PremiumFrameStyle style = PremiumFrameStyle.soft,
+  }) {
+    return _wrapPremiumFrame(
+      borderRadius: borderRadius,
+      style: style,
+    );
+  }
+
   /// Slow, whisper-level frame for major menus / shell chrome only.
   Widget withPremiumMenuFrame({
     BorderRadius borderRadius = BorderRadius.zero,
@@ -1534,7 +1584,8 @@ extension DiamondPremiumFrameX on Widget {
             child: this,
           );
         }
-        if (BrightGoldThemeEffects.isActive(context)) {
+        if (BrightGoldThemeEffects.isActive(context) ||
+            RoyalThemeEffects.isActive(context)) {
           return RoyalShowcaseFrame(
             borderRadius: borderRadius,
             style: style,
@@ -1550,6 +1601,13 @@ extension DiamondPremiumFrameX on Widget {
         }
         if (SafariSavannaThemeEffects.isActive(context)) {
           return SafariShowcaseFrame(
+            borderRadius: borderRadius,
+            style: style,
+            child: this,
+          );
+        }
+        if (ForestWoodlandThemeEffects.isActive(context)) {
+          return ForestShowcaseFrame(
             borderRadius: borderRadius,
             style: style,
             child: this,

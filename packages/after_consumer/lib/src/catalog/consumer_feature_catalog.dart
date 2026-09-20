@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
 /// Shell-level consumer feature identity that every B2C Super App carries.
-/// Home / Explore / Assistant / Search / Profile — the SuperGarage family
+/// Home / Explore / Assistant / Search / Profile, the SuperGarage family
 /// contract. Product screens live in `lib/features/<vertical>/` and
 /// register with the product-specific feature catalog.
 enum ConsumerCoreFeatureId { home, explore, assistant, search, profile }

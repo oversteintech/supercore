@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'after_family_legal_urls.dart';
 import 'family_auth_chrome.dart';
 import 'family_chrome.dart';
+import 'family_legal_document.dart';
 import 'family_session_effects.dart';
 import '../launch/after_launch_consent_gate.dart';
 
-/// Back-compat aliases — auth gate logic lives in after_core.
+/// Back-compat aliases, auth gate logic lives in after_core.
 typedef FamilyAuthGateDestination = AfterAuthGateDestination;
 
 /// Feeds [resolveAfterAuthGateDestinationFromAsync] (after_core).
@@ -34,17 +36,27 @@ class FamilyAuthGate extends ConsumerStatefulWidget {
     required this.home,
     this.authConfig,
     this.onContinueAsGuest,
+    this.privacyPolicyUrl,
+    this.termsOfUseUrl,
+    this.onPrivacyPolicyTap,
+    this.onTermsOfUseTap,
+    this.requestLocationOnAccept = true,
     super.key,
   });
 
   final String appName;
 
-  /// Prefs key prefix — same as [AfterFirebaseBootstrap.overrides] `appId`.
+  /// Prefs key prefix, same as [AfterFirebaseBootstrap.overrides] `appId`.
   final String appId;
   final FamilyChromeConfig chrome;
   final FamilyAuthChromeConfig? authConfig;
   final Widget home;
   final Future<void> Function()? onContinueAsGuest;
+  final Uri? privacyPolicyUrl;
+  final Uri? termsOfUseUrl;
+  final VoidCallback? onPrivacyPolicyTap;
+  final VoidCallback? onTermsOfUseTap;
+  final bool requestLocationOnAccept;
 
   @override
   ConsumerState<FamilyAuthGate> createState() => _FamilyAuthGateState();
@@ -65,6 +77,9 @@ class _FamilyAuthGateState extends ConsumerState<FamilyAuthGate> {
     final sessionAsync = ref.watch(afterAuthSessionProvider);
     final prefs = ref.watch(afterSharedPreferencesProvider);
     final remembered = _hasRemembered(prefs);
+    final localeCode = AfterLocalePrefs.read(prefs) ??
+        Localizations.maybeLocaleOf(context)?.languageCode ??
+        AfterSupportedLocales.fallbackLanguage;
 
     final destination = resolveAfterAuthGateDestinationFromAsync(
       sessionAsync: sessionAsync,
@@ -77,6 +92,31 @@ class _FamilyAuthGateState extends ConsumerState<FamilyAuthGate> {
 
     return AfterLaunchConsentGate(
       appName: widget.appName,
+      privacyPolicyUrl: widget.privacyPolicyUrl ??
+          AfterFamilyLegalUrls.privacyPolicy(widget.appId),
+      termsOfUseUrl: widget.termsOfUseUrl ??
+          AfterFamilyLegalUrls.termsOfUse(widget.appId),
+      onPrivacyPolicyTap: widget.onPrivacyPolicyTap ??
+          () {
+            openFamilyLegalDocument(
+              context,
+              localeCode: localeCode,
+              appName: widget.appName,
+              supportEmail: widget.chrome.supportEmail,
+              kind: FamilyLegalDocumentKind.privacy,
+            );
+          },
+      onTermsOfUseTap: widget.onTermsOfUseTap ??
+          () {
+            openFamilyLegalDocument(
+              context,
+              localeCode: localeCode,
+              appName: widget.appName,
+              supportEmail: widget.chrome.supportEmail,
+              kind: FamilyLegalDocumentKind.terms,
+            );
+          },
+      requestLocationOnAccept: widget.requestLocationOnAccept,
       child: switch (destination) {
         AfterAuthGateDestination.loading => const Scaffold(
             body: Center(child: AfterLoading()),

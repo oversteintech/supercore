@@ -1,3 +1,4 @@
+import 'package:after_core/after_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,7 +10,8 @@ import 'after_permission_consent_screen.dart';
 /// Garage-parity first-launch gates: Legal → Permission (OS location) → [child].
 ///
 /// Wrap each Super App [AuthGate] body with this so splash is always followed
-/// by consent screens before login/shell.
+/// by consent screens before login/shell. Copy comes from SuperCore
+/// [AfterLaunchConsentStrings] (all 20 supported locales).
 class AfterLaunchConsentGate extends ConsumerStatefulWidget {
   const AfterLaunchConsentGate({
     required this.appName,
@@ -18,6 +20,9 @@ class AfterLaunchConsentGate extends ConsumerStatefulWidget {
     this.termsOfUseUrl,
     this.requestLocationOnAccept = true,
     this.onPermissionAccepted,
+    this.strings,
+    this.onPrivacyPolicyTap,
+    this.onTermsOfUseTap,
     super.key,
   });
 
@@ -28,6 +33,11 @@ class AfterLaunchConsentGate extends ConsumerStatefulWidget {
   final bool requestLocationOnAccept;
   final VoidCallback? onPermissionAccepted;
 
+  /// Optional override — prefer null so all apps use the shared 20-locale catalog.
+  final AfterLaunchConsentStrings? strings;
+  final VoidCallback? onPrivacyPolicyTap;
+  final VoidCallback? onTermsOfUseTap;
+
   @override
   ConsumerState<AfterLaunchConsentGate> createState() =>
       _AfterLaunchConsentGateState();
@@ -35,6 +45,19 @@ class AfterLaunchConsentGate extends ConsumerStatefulWidget {
 
 class _AfterLaunchConsentGateState
     extends ConsumerState<AfterLaunchConsentGate> {
+  AfterLaunchConsentStrings _resolveStrings(BuildContext context) {
+    if (widget.strings != null) return widget.strings!;
+    final prefs = ref.read(afterSharedPreferencesProvider);
+    final saved = AfterLocalePrefs.read(prefs);
+    final locale = saved != null
+        ? Locale(saved)
+        : Localizations.maybeLocaleOf(context);
+    return AfterLaunchConsentStrings.forLocale(
+      appName: widget.appName,
+      locale: locale,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final legal = ref.watch(afterLegalConsentProvider);
@@ -55,10 +78,7 @@ class _AfterLaunchConsentGateState
       },
     );
 
-    final strings = AfterLaunchConsentStrings.forLocale(
-      appName: widget.appName,
-      locale: Localizations.maybeLocaleOf(context),
-    );
+    final strings = _resolveStrings(context);
 
     if (legal.needsConsent) {
       return AfterLegalConsentScreen(
@@ -66,6 +86,8 @@ class _AfterLaunchConsentGateState
         strings: strings,
         privacyPolicyUrl: widget.privacyPolicyUrl,
         termsOfUseUrl: widget.termsOfUseUrl,
+        onPrivacyPolicyTap: widget.onPrivacyPolicyTap,
+        onTermsOfUseTap: widget.onTermsOfUseTap,
         onAccepted: () {
           if (mounted) setState(() {});
         },

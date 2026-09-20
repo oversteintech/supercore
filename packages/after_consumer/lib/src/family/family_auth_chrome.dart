@@ -67,7 +67,7 @@ abstract class FamilyRegistrationPlugin {
   String? validateIdentityExtras();
 }
 
-/// Auth chrome config — branding + optional registration plugin.
+/// Auth chrome config, branding + optional registration plugin.
 @immutable
 class FamilyAuthChromeConfig extends FamilyChromeConfig {
   const FamilyAuthChromeConfig({
@@ -85,6 +85,7 @@ class FamilyAuthChromeConfig extends FamilyChromeConfig {
     this.enableGoogle = true,
     this.enableApple = true,
     this.enableGuest = true,
+    this.googleButtonColors,
   });
 
   /// Optional product mark (defaults to Overstein wordmark block).
@@ -93,13 +94,14 @@ class FamilyAuthChromeConfig extends FamilyChromeConfig {
   final FamilyRegistrationPlugin? registrationPlugin;
   final bool enableGoogle;
 
-  /// Product wants Apple Sign-In. UI still shows it only on iOS — never on
+  /// Product wants Apple Sign-In. UI still shows it only on iOS, never on
   /// Android APKs (Google only there).
   final bool enableApple;
   final bool enableGuest;
+  final List<Color>? googleButtonColors;
 }
 
-/// Apple Sign-In is offered on iPhone/iPad only — not Android APKs or web.
+/// Apple Sign-In is offered on iPhone/iPad only, not Android APKs or web.
 bool familyAuthShowsAppleSignIn(bool enableApple) {
   return enableApple &&
       !kIsWeb &&
@@ -169,7 +171,7 @@ class FamilyAuthStatusBanner extends StatelessWidget {
   }
 }
 
-/// Premium auth chrome — matches SuperGarage [AuthExperienceShell].
+/// Premium auth chrome, matches SuperGarage [AuthExperienceShell].
 class FamilyAuthExperienceShell extends StatelessWidget {
   const FamilyAuthExperienceShell({
     required this.title,
@@ -347,6 +349,7 @@ class FamilyLoginScreen extends ConsumerStatefulWidget {
     this.authConfig,
     this.onRegistrationActive,
     this.onForgotPassword,
+    this.onUseDifferentGoogleAccount,
     super.key,
   });
 
@@ -377,6 +380,9 @@ class FamilyLoginScreen extends ConsumerStatefulWidget {
   /// Flagship apps may push a localized product screen instead.
   final void Function(BuildContext context, {String? initialEmail})?
       onForgotPassword;
+
+  /// Optional "use another Google account" action (Garage session reset).
+  final Future<void> Function()? onUseDifferentGoogleAccount;
 
   @override
   ConsumerState<FamilyLoginScreen> createState() => _FamilyLoginScreenState();
@@ -572,13 +578,39 @@ class _FamilyLoginScreenState extends ConsumerState<FamilyLoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (_auth.enableGoogle) ...[
-              FilledButton.tonalIcon(
-                onPressed: _busy ? null : _google,
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+              DecoratedBox(
+                key: const Key('family_google_sign_in_button'),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: _auth.googleButtonColors ??
+                        const [
+                          Color(0xFF4285F4),
+                          Color(0xFFEA4335),
+                          Color(0xFFFBBC05),
+                          Color(0xFF34A853),
+                        ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                icon: const Icon(Icons.g_mobiledata_rounded, size: 28),
-                label: const Text('Sign in with Google'),
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: InkWell(
+                    onTap: _busy ? null : _google,
+                    borderRadius: BorderRadius.circular(16),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 14),
+                      child: Center(
+                        child: Text(
+                          'Continue with Google',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 12),
             ],
@@ -654,7 +686,7 @@ class _FamilyLoginScreenState extends ConsumerState<FamilyLoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Create your ${_auth.appName} account in a few steps — '
+                      'Create your ${_auth.appName} account in a few steps, '
                       'region, identity, contact, and security.',
                       style: TextStyle(
                         color: muted,
@@ -757,7 +789,7 @@ class _FamilyLoginScreenState extends ConsumerState<FamilyLoginScreen> {
   }
 }
 
-/// Dedicated email-only password reset — feeds from [AfterForgotPasswordForm].
+/// Dedicated email-only password reset, feeds from [AfterForgotPasswordForm].
 class FamilyForgotPasswordScreen extends ConsumerWidget {
   const FamilyForgotPasswordScreen({
     required this.config,
@@ -992,7 +1024,7 @@ class _FamilyRegistrationWizardScreenState
                 ),
               );
 
-      // Best-effort profile index claim — must not fail the signup UX.
+      // Best-effort profile index claim, must not fail the signup UX.
       await _indexClient.claimUsername(
         uid: user.uid,
         username: _username.text,
@@ -1060,7 +1092,7 @@ class _FamilyRegistrationWizardScreenState
                 enableSuggestions: false,
                 decoration: InputDecoration(
                   labelText: 'Username',
-                  helperText: 'Letters, numbers, . and _ (3–30)',
+                  helperText: 'Letters, numbers, . and _ (3-30)',
                   prefixIcon: const Icon(Icons.alternate_email_rounded),
                   suffixIcon: _usernameSuffix(),
                 ),
@@ -1089,7 +1121,7 @@ class _FamilyRegistrationWizardScreenState
                       : '${_birthDate!.year}-${_birthDate!.month.toString().padLeft(2, '0')}-${_birthDate!.day.toString().padLeft(2, '0')}',
                 ),
                 subtitle: _birthDate == null
-                    ? const Text('Optional — you can skip this')
+                    ? const Text('Optional, you can skip this')
                     : null,
                 trailing: _birthDate == null
                     ? null
@@ -1191,7 +1223,7 @@ class _FamilyRegistrationWizardScreenState
             Text('Phone: ${_phone.text}'),
             if (plugin != null)
               ...plugin.collectIdentityExtras().entries.map(
-                    (e) => Text('${e.key}: ${e.value ?? '—'}'),
+                    (e) => Text('${e.key}: ${e.value ?? ', '}'),
                   ),
             const SizedBox(height: 12),
             Text(

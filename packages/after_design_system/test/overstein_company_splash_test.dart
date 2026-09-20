@@ -46,7 +46,7 @@ void main() {
       expect(find.byType(Image), findsNothing);
     });
 
-    testWidgets('first install holds full cinematic then marks seen', (
+    testWidgets('first install shows mark only — no wordmark or mission copy', (
       tester,
     ) async {
       SharedPreferences.setMockInitialValues({});
@@ -66,6 +66,13 @@ void main() {
       await tester.pump(const Duration(milliseconds: 50));
       expect(completed, isFalse);
       expect(find.byType(Image), findsOneWidget);
+      // Contract: black + OS mark only. Never reintroduce splash text.
+      expect(find.byType(Text), findsNothing);
+      expect(find.byType(RichText), findsNothing);
+      expect(find.text('OVERSTEIN'), findsNothing);
+      expect(find.textContaining('build tomorrow'), findsNothing);
+      expect(find.textContaining('Yarını'), findsNothing);
+      expect(find.textContaining('construisons'), findsNothing);
 
       await tester.pump(
         OversteinCompanySplashTiming.hold + const Duration(milliseconds: 100),
@@ -95,6 +102,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 20));
       expect(completions, 0);
       expect(find.byType(Image), findsOneWidget);
+      expect(find.byType(Text), findsNothing);
+      expect(find.text('OVERSTEIN'), findsNothing);
       await tester.pump(
         OversteinCompanySplashTiming.hold + const Duration(milliseconds: 50),
       );

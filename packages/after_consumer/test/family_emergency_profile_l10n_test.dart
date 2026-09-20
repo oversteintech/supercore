@@ -55,7 +55,7 @@ void main() {
     test('Turkish differs from English for consent CTA and privacy title', () {
       expect(
         FamilyUiStrings.t('emergency_consent_cta', 'tr'),
-        'Anladım — profili oluştur',
+        'Anladım, profili oluştur',
       );
       expect(
         FamilyUiStrings.t('emergency_privacy_title', 'tr'),
@@ -63,7 +63,7 @@ void main() {
       );
       expect(
         FamilyUiStrings.t('emergency_consent_cta', 'en'),
-        'I understand — set up profile',
+        'I understand, set up profile',
       );
       expect(
         FamilyUiStrings.t('emergency_consent_cta', 'tr'),
@@ -110,9 +110,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Anladım — profili oluştur'), findsOneWidget);
+      expect(find.text('Anladım, profili oluştur'), findsOneWidget);
       expect(find.text('Acil profil gizliliği'), findsOneWidget);
-      expect(find.text('I understand — set up profile'), findsNothing);
+      expect(find.text('I understand, set up profile'), findsNothing);
       expect(find.text('Emergency profile privacy'), findsNothing);
     });
 
@@ -137,9 +137,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('I understand — set up profile'), findsOneWidget);
+      expect(find.text('I understand, set up profile'), findsOneWidget);
       expect(find.text('Emergency profile privacy'), findsOneWidget);
-      expect(find.text('Anladım — profili oluştur'), findsNothing);
+      expect(find.text('Anladım, profili oluştur'), findsNothing);
     });
 
     testWidgets('accepted form shows Turkish field labels', (tester) async {

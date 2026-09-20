@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'family_cloud_sync.dart';
 
-/// SharedPreferences-backed JSON list — Garage-style CRUD without Drift.
+/// SharedPreferences-backed JSON list, Garage-style CRUD without Drift.
 ///
 /// Subclasses supply [storageKey], [decodeItem], [encodeItem], and [itemId].
 abstract class FamilyScopedListController<T> extends Notifier<List<T>> {
@@ -45,10 +45,12 @@ abstract class FamilyScopedListController<T> extends Notifier<List<T>> {
     try {
       final decoded = jsonDecode(raw);
       if (decoded is! List) return const [];
-      return decoded
-          .whereType<Map<String, dynamic>>()
-          .map(decodeItem)
-          .toList(growable: true);
+      final out = <T>[];
+      for (final entry in decoded) {
+        if (entry is! Map) continue;
+        out.add(decodeItem(Map<String, dynamic>.from(entry)));
+      }
+      return out;
     } on FormatException {
       return const [];
     }

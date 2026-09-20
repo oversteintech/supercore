@@ -11,6 +11,8 @@ class AfterLegalConsentScreen extends ConsumerStatefulWidget {
     required this.onAccepted,
     this.privacyPolicyUrl,
     this.termsOfUseUrl,
+    this.onPrivacyPolicyTap,
+    this.onTermsOfUseTap,
     super.key,
   });
 
@@ -18,6 +20,8 @@ class AfterLegalConsentScreen extends ConsumerStatefulWidget {
   final VoidCallback onAccepted;
   final Uri? privacyPolicyUrl;
   final Uri? termsOfUseUrl;
+  final VoidCallback? onPrivacyPolicyTap;
+  final VoidCallback? onTermsOfUseTap;
 
   @override
   ConsumerState<AfterLegalConsentScreen> createState() =>
@@ -119,12 +123,20 @@ class _AfterLegalConsentScreenState
                           leading: const Icon(Icons.privacy_tip_rounded),
                           title: Text(strings.privacyPolicy),
                           subtitle: Text(strings.privacyPolicyHint),
+                          trailing: widget.onPrivacyPolicyTap == null
+                              ? null
+                              : const Icon(Icons.chevron_right_rounded),
+                          onTap: widget.onPrivacyPolicyTap,
                         ),
                         const Divider(height: 1),
                         ListTile(
                           leading: const Icon(Icons.description_rounded),
                           title: Text(strings.termsOfUse),
                           subtitle: Text(strings.termsOfUseHint),
+                          trailing: widget.onTermsOfUseTap == null
+                              ? null
+                              : const Icon(Icons.chevron_right_rounded),
+                          onTap: widget.onTermsOfUseTap,
                         ),
                       ],
                     ),

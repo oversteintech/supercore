@@ -5,7 +5,7 @@ import 'package:after_core/after_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Local profile identity — Garage-parity avatar + photos + editable fields.
+/// Local profile identity, Garage-parity avatar + photos + editable fields.
 class FamilyProfileIdentity {
   const FamilyProfileIdentity({
     this.avatarId = 'avatar_1',

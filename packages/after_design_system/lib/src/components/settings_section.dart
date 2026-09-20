@@ -10,9 +10,9 @@ import '../premium_themes/theme.dart';
 class AfterSettingsSection extends StatelessWidget {
   const AfterSettingsSection({
     required this.title,
-    required this.subtitle,
     required this.icon,
     required this.child,
+    this.subtitle,
     this.headerBackgroundColor,
     this.headerTextColor,
     this.initiallyExpanded = false,
@@ -23,7 +23,7 @@ class AfterSettingsSection extends StatelessWidget {
   static const emergencyRed = Color(0xFFC62828);
 
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final IconData icon;
   final Widget child;
   final Color? headerBackgroundColor;
@@ -54,6 +54,7 @@ class AfterSettingsSection extends StatelessWidget {
         data: theme.copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           initiallyExpanded: initiallyExpanded,
+          expansionAnimationStyle: AnimationStyle.noAnimation,
           tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           childrenPadding: EdgeInsets.zero,
           maintainState: true,
@@ -69,7 +70,9 @@ class AfterSettingsSection extends StatelessWidget {
             child: Icon(icon),
           ),
           title: Text(title, style: titleStyle),
-          subtitle: Text(subtitle, style: subtitleStyle),
+          subtitle: subtitle == null || subtitle!.isEmpty
+              ? null
+              : Text(subtitle!, style: subtitleStyle),
           children: [
             if (accentHeader)
               ColoredBox(
@@ -105,4 +108,20 @@ class AfterSettingsSectionGap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const SizedBox(height: height);
+}
+
+/// Shared metrics so Profile / Theme / Privacy menu rows align across Super Apps.
+abstract final class AfterSettingsMenuMetrics {
+  AfterSettingsMenuMetrics._();
+
+  /// ListTile horizontal/vertical padding inside a section body.
+  static const EdgeInsets tilePadding = EdgeInsets.zero;
+
+  /// Minimum vertical padding inside each menu row.
+  static const double minVerticalPadding = 10;
+
+  /// Hairline between sibling menu rows.
+  static const double dividerHeight = 1;
+
+  static const Divider divider = Divider(height: dividerHeight);
 }

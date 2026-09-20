@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'premium_frame_style.dart';
 import 'premium_theme_shell.dart';
 import 'package:after_core/after_core.dart';
-import 'theme.dart' show BrightGoldThemeEffects, SuperGarageColors;
+import 'theme.dart' show BrightGoldThemeEffects, RoyalThemeEffects, SuperGarageColors;
 
 /// Animated imperial atmosphere — purple, gold & black with sparkles.
 class RoyalAnimatedBackground extends StatefulWidget {
@@ -113,7 +113,7 @@ class _RoyalShowcaseFrameState extends State<RoyalShowcaseFrame>
     SuperGarageColors.goldDeep,
     SuperGarageColors.goldBright,
     SuperGarageColors.goldShine,
-    Colors.white,
+    SuperGarageColors.goldBorder,
     SuperGarageColors.goldBright,
     SuperGarageColors.goldBorder,
     SuperGarageColors.goldShine,
@@ -152,7 +152,8 @@ class _RoyalShowcaseFrameState extends State<RoyalShowcaseFrame>
   @override
   Widget build(BuildContext context) {
     final isBrightGold = BrightGoldThemeEffects.isActive(context);
-    if (!widget.forceShow && !isBrightGold) {
+    final isRoyal = RoyalThemeEffects.isActive(context);
+    if (!widget.forceShow && !isBrightGold && !isRoyal) {
       return widget.child;
     }
 

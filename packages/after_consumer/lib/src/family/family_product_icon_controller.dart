@@ -2,7 +2,7 @@ import 'package:after_core/after_core.dart';
 import 'package:after_design_system/after_design_system.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Global product-icon look — one setting restyles every sibling Super App.
+/// Global product-icon look, one setting restyles every sibling Super App.
 final afterProductIconStyleProvider =
     NotifierProvider<AfterProductIconStyleController, AfterProductIconStyle>(
   AfterProductIconStyleController.new,

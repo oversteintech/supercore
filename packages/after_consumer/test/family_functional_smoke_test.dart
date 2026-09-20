@@ -78,6 +78,10 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     expect(tester.takeException(), isNull);
+
+    // Scroll through settings: app tour accordion must stay gone.
+    expect(find.text('App tour'), findsNothing);
+    expect(find.text('Replay app tour'), findsNothing);
   });
 
   testWidgets('locale change with Global delegates does not red-screen', (

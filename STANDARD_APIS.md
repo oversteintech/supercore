@@ -15,10 +15,17 @@ Public docs: [afterframework.com](https://www.afterframework.com)
 
 ## Ports (override with store adapters)
 
+Shared cloud backup contract: [`docs/CLOUD_BACKUP.md`](docs/CLOUD_BACKUP.md).  
+Shared location + region language: [`docs/LOCATION_AND_LOCALE.md`](docs/LOCATION_AND_LOCALE.md).  
+Shared Legal / KVKK / permissions (20 locales): [`docs/CONSENT_AND_LEGAL.md`](docs/CONSENT_AND_LEGAL.md).
+
 | Provider / type | Default | Product overrides with |
 |-----------------|---------|------------------------|
 | `afterAuthRepositoryProvider` | No-op | Firebase / Supabase auth |
 | `afterAnalyticsProvider` | No-op | Firebase Analytics, etc. |
+| `afterUserBlobSyncPortProvider` | In-memory / prefs | `FirestoreAfterUserBlobSync` (`after_firebase`) |
+| `afterUserMediaSyncPortProvider` | In-memory | `FirebaseAfterUserMediaSync` (Firebase Storage / GCS) |
+| `afterCloudBackupProvider` | Prefs codec | Product [AfterCloudBackupCodec] + shared backup UX |
 | `afterRemotePushProvider` | No-op | FCM / Huawei push |
 | `afterEntitlementProvider` | Free matrix | Store + server entitlements |
 | `afterHttpPolicyProvider` | HTTPS policy | Product UA + blocklists |

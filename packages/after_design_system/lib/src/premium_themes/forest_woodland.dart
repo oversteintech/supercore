@@ -3,22 +3,23 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'theme.dart';
+import 'premium_frame_style.dart';
 
-/// Wild primal forest palette — deep canopy, mist, moss and fireflies.
+/// Wild primal forest palette — lighter canopy, mist, moss and fireflies.
 abstract final class ForestWoodlandColors {
-  static const abyss = Color(0xFF040804);
-  static const canopyDeep = Color(0xFF0E160E);
-  static const canopy = Color(0xFF1A2818);
-  static const mossDark = Color(0xFF243824);
-  static const moss = Color(0xFF355A36);
-  static const fern = Color(0xFF4A7448);
-  static const mist = Color(0xFF7A9480);
-  static const mistBright = Color(0xFF9CB8A0);
-  static const firefly = Color(0xFFB8E986);
-  static const moonGlow = Color(0xFF5A7A58);
-  static const bark = Color(0xFF241A12);
-  static const barkDeep = Color(0xFF120C08);
-  static const floor = Color(0xFF0A1008);
+  static const abyss = Color(0xFF0C1A10);
+  static const canopyDeep = Color(0xFF163A1C);
+  static const canopy = Color(0xFF244A28);
+  static const mossDark = Color(0xFF2F5A32);
+  static const moss = Color(0xFF458A48);
+  static const fern = Color(0xFF5DAD5C);
+  static const mist = Color(0xFF9BC4A0);
+  static const mistBright = Color(0xFFC5E0C8);
+  static const firefly = Color(0xFFD4F5A0);
+  static const moonGlow = Color(0xFF7CB87A);
+  static const bark = Color(0xFF3A2A1C);
+  static const barkDeep = Color(0xFF1C140C);
+  static const floor = Color(0xFF122018);
 
   static const canopyPalette = <Color>[
     mossDark,
@@ -169,17 +170,17 @@ class WildForestAtmospherePainter extends CustomPainter {
             ForestWoodlandColors.abyss,
             Color.lerp(
               ForestWoodlandColors.canopyDeep,
-              ForestWoodlandColors.mossDark,
-              0.25 + pulse * 0.08,
+              ForestWoodlandColors.moss,
+              0.28 + pulse * 0.12,
             )!,
             Color.lerp(
               ForestWoodlandColors.canopy,
-              ForestWoodlandColors.moss,
-              0.35 + pulse * 0.12,
+              ForestWoodlandColors.fern,
+              0.4 + pulse * 0.14,
             )!,
             ForestWoodlandColors.floor,
           ],
-          stops: const [0.0, 0.32, 0.62, 1.0],
+          stops: const [0.0, 0.30, 0.62, 1.0],
         ).createShader(rect),
     );
 
@@ -199,7 +200,7 @@ class WildForestAtmospherePainter extends CustomPainter {
     final shaftPaint = Paint()..blendMode = BlendMode.plus;
     for (var index = 0; index < 4; index++) {
       final nx = 0.18 + index * 0.22;
-      final sway = math.sin(progress * math.pi * 2 + index) * 0.03;
+      final sway = math.sin(progress * math.pi * 2 + index) * 0.035;
       final path = Path()
         ..moveTo(size.width * (nx + sway - 0.04), 0)
         ..lineTo(size.width * (nx + sway + 0.04), 0)
@@ -210,8 +211,8 @@ class WildForestAtmospherePainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          ForestWoodlandColors.moonGlow.withValues(alpha: 0.08 + pulse * 0.04),
-          ForestWoodlandColors.moss.withValues(alpha: 0.03),
+          ForestWoodlandColors.moonGlow.withValues(alpha: 0.12 + pulse * 0.06),
+          ForestWoodlandColors.fern.withValues(alpha: 0.05),
           Colors.transparent,
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
@@ -223,15 +224,17 @@ class WildForestAtmospherePainter extends CustomPainter {
     final mistPaint = Paint()..style = PaintingStyle.fill;
     for (var layer = 0; layer < 3; layer++) {
       final drift =
-          math.sin(progress * math.pi * 2 + layer * 1.4) * size.width * 0.06;
-      final baseY = size.height * (0.28 + layer * 0.18);
-      final alpha = 0.05 + layer * 0.02;
-      mistPaint.color = ForestWoodlandColors.mist.withValues(alpha: alpha);
+          math.sin(progress * math.pi * 2 + layer * 1.4) * size.width * 0.08;
+      final baseY = size.height * (0.26 + layer * 0.18);
+      final alpha = 0.07 + layer * 0.03;
+      mistPaint.color = ForestWoodlandColors.mistBright.withValues(
+        alpha: alpha,
+      );
       final path = Path()
         ..moveTo(-size.width * 0.1 + drift, baseY)
         ..quadraticBezierTo(
           size.width * 0.25 + drift,
-          baseY - size.height * 0.04,
+          baseY - size.height * 0.05,
           size.width * 0.55 + drift,
           baseY + size.height * 0.02,
         )
@@ -255,7 +258,7 @@ class WildForestAtmospherePainter extends CustomPainter {
     double progress,
   ) {
     final sway =
-        math.sin(progress * math.pi * 2 + tree.swayPhase) * size.width * 0.012;
+        math.sin(progress * math.pi * 2 + tree.swayPhase) * size.width * 0.016;
     final trunkX = tree.nx * size.width + sway;
     final trunkW = tree.trunkW * size.width;
     final trunkH = tree.trunkH * size.height;
@@ -385,8 +388,8 @@ class WildForestAtmospherePainter extends CustomPainter {
           radius: 1.05,
           colors: [
             Colors.transparent,
-            ForestWoodlandColors.abyss.withValues(alpha: 0.18),
-            ForestWoodlandColors.abyss.withValues(alpha: 0.62),
+            ForestWoodlandColors.abyss.withValues(alpha: 0.12),
+            ForestWoodlandColors.abyss.withValues(alpha: 0.42),
           ],
           stops: const [0.45, 0.78, 1.0],
         ).createShader(rect),
@@ -411,14 +414,34 @@ class _WildForestAnimatedBackgroundState
     extends State<WildForestAnimatedBackground>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  bool _reduceMotion = false;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 14),
-    )..repeat();
+      duration: const Duration(seconds: 16),
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final reduce = MediaQuery.disableAnimationsOf(context);
+    if (reduce == _reduceMotion) {
+      if (!reduce && !_controller.isAnimating) {
+        _controller.repeat();
+      }
+      return;
+    }
+    _reduceMotion = reduce;
+    if (reduce) {
+      _controller.stop();
+      _controller.value = 0.25;
+    } else {
+      _controller.repeat();
+    }
   }
 
   @override
@@ -434,9 +457,11 @@ class _WildForestAnimatedBackgroundState
       builder: (context, _) {
         return SizedBox.expand(
           child: CustomPaint(
-            painter: WildForestAtmospherePainter(progress: _controller.value),
+            painter: WildForestAtmospherePainter(
+              progress: _reduceMotion ? 0.25 : _controller.value,
+            ),
             isComplex: true,
-            willChange: true,
+            willChange: !_reduceMotion,
           ),
         );
       },
@@ -484,6 +509,154 @@ class ForestWoodlandAppShell extends StatelessWidget {
       backgroundColor: SuperGarageColors.forestBackground,
       background: const WildForestAnimatedBackground(),
       child: child,
+    );
+  }
+}
+
+@immutable
+class ForestWoodlandThemeEffects extends ThemeExtension<ForestWoodlandThemeEffects> {
+  const ForestWoodlandThemeEffects({this.enabled = false});
+
+  final bool enabled;
+
+  static ForestWoodlandThemeEffects? of(BuildContext context) {
+    return Theme.of(context).extension<ForestWoodlandThemeEffects>();
+  }
+
+  static bool isActive(BuildContext context) => of(context)?.enabled ?? false;
+
+  @override
+  ForestWoodlandThemeEffects copyWith({bool? enabled}) {
+    return ForestWoodlandThemeEffects(enabled: enabled ?? this.enabled);
+  }
+
+  @override
+  ForestWoodlandThemeEffects lerp(ForestWoodlandThemeEffects? other, double t) {
+    if (other == null) return this;
+    return ForestWoodlandThemeEffects(
+      enabled: t < 0.5 ? enabled : other.enabled,
+    );
+  }
+}
+
+class ForestShowcaseFrame extends StatefulWidget {
+  const ForestShowcaseFrame({
+    required this.child,
+    this.borderRadius = BorderRadius.zero,
+    this.prominent = true,
+    this.style,
+    this.forceShow = false,
+    super.key,
+  });
+
+  final Widget child;
+  final BorderRadius borderRadius;
+  final bool prominent;
+  final PremiumFrameStyle? style;
+  final bool forceShow;
+
+  PremiumFrameStyle get resolvedStyle =>
+      style ?? PremiumFrameStyleX.fromProminent(prominent);
+
+  @override
+  State<ForestShowcaseFrame> createState() => _ForestShowcaseFrameState();
+}
+
+class _ForestShowcaseFrameState extends State<ForestShowcaseFrame>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  Duration get _duration => Duration(
+        milliseconds: widget.resolvedStyle.borderMs(
+          showcaseMs: 22000,
+          softMs: 26000,
+          menuMs: 32000,
+        ),
+      );
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: _duration)
+      ..repeat();
+  }
+
+  @override
+  void didUpdateWidget(covariant ForestShowcaseFrame oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.resolvedStyle != widget.resolvedStyle) {
+      _controller.duration = _duration;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.forceShow && !ForestWoodlandThemeEffects.isActive(context)) {
+      return widget.child;
+    }
+
+    final style = widget.resolvedStyle;
+    final scale = style.glowScale;
+    final pad = 1.8 + style.padExtra * 1.2;
+    final innerRadius = BorderRadius.only(
+      topLeft: _shrink(widget.borderRadius.topLeft, pad),
+      topRight: _shrink(widget.borderRadius.topRight, pad),
+      bottomLeft: _shrink(widget.borderRadius.bottomLeft, pad),
+      bottomRight: _shrink(widget.borderRadius.bottomRight, pad),
+    );
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final pulse = (math.sin(_controller.value * math.pi * 2) + 1) / 2;
+        final spin = _controller.value * 2 * math.pi;
+        final glow = (0.10 + pulse * 0.16) * scale;
+        final blur = (6.0 + pulse * 6) + style.padExtra * 6;
+
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: widget.borderRadius,
+            gradient: SweepGradient(
+              colors: const [
+                Color(0xFF3D6B40),
+                Color(0xFF5DAD5C),
+                Color(0xFFD4F5A0),
+                Color(0xFF458A48),
+                Color(0xFF3D6B40),
+              ],
+              transform: GradientRotation(spin),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: ForestWoodlandColors.fern.withValues(alpha: glow),
+                blurRadius: blur,
+                spreadRadius: (0.12 + pulse * 0.18) * scale,
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(pad),
+            child: ClipRRect(
+              borderRadius: innerRadius,
+              child: child,
+            ),
+          ),
+        );
+      },
+      child: widget.child,
+    );
+  }
+
+  Radius _shrink(Radius radius, double amount) {
+    return Radius.elliptical(
+      math.max(radius.x - amount, 0),
+      math.max(radius.y - amount, 0),
     );
   }
 }

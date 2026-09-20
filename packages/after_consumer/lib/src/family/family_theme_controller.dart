@@ -18,7 +18,7 @@ class FamilyThemeStyleController extends Notifier<AfterThemeStyle> {
   }
 
   Future<void> setStyle(AfterThemeStyle style) async {
-    // Product rule: no system-follow theme — white/light is the default.
+    // Product rule: no system-follow theme, white/light is the default.
     final resolved =
         style == AfterThemeStyle.system ? AfterThemeStyle.light : style;
     final store = ref.read(afterSettingsStoreProvider);

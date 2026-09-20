@@ -20,18 +20,26 @@ enum AfterThemeStyle {
 }
 
 extension AfterThemeStyleAccess on AfterThemeStyle {
+  /// Maps persisted/legacy values onto the live style SuperGarage actually paints.
+  AfterThemeStyle get canonical => switch (this) {
+        AfterThemeStyle.system => AfterThemeStyle.light,
+        AfterThemeStyle.dark => AfterThemeStyle.darkNight,
+        _ => this,
+      };
+
+  /// One-time IAP packs, independent of Silver/Gold/Business membership.
   bool get isRoyalTheme =>
-      this == AfterThemeStyle.brightGold || this == AfterThemeStyle.diamond;
+      this == AfterThemeStyle.silverGrey ||
+      this == AfterThemeStyle.blossomPink ||
+      this == AfterThemeStyle.brightGold ||
+      this == AfterThemeStyle.diamond;
 
   bool get isPremiumOnly => isSilverPremiumOnly || isRoyalTheme;
 
   bool get isSilverPremiumOnly =>
       this == AfterThemeStyle.racingRed ||
       this == AfterThemeStyle.racingBlue ||
-      this == AfterThemeStyle.darkNight ||
-      this == AfterThemeStyle.forestGreen ||
-      this == AfterThemeStyle.silverGrey ||
-      this == AfterThemeStyle.blossomPink;
+      this == AfterThemeStyle.forestGreen;
 
   bool get isComingSoonRoyalTheme => this == AfterThemeStyle.royal;
 
@@ -67,7 +75,7 @@ abstract final class AfterThemeStyles {
     }
     for (final v in AfterThemeStyle.values) {
       if (v.name == raw) {
-        return v == AfterThemeStyle.system ? AfterThemeStyle.light : v;
+        return v.canonical;
       }
     }
     return AfterThemeStyle.light;

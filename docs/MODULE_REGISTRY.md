@@ -34,7 +34,9 @@ Hub widgets. SuperAI is Hub AI branding, not a peer entry app.
 
 | Module | Package | Ports / classes | Status |
 |--------|---------|-----------------|--------|
-| Shared Core | `after_core` | `AfterAuthRepository`, `AfterAiCredentialVault`, `AfterAnalytics`, `AfterApiClient`, `AfterDeepLinkService`, `AfterFeatureFlags`, `AfterLogger`, `AfterLocalNotifications`, `AfterRemotePush`, `AfterPreferences`, `AfterSecureStorage`, `AfterSubscriptionVerifier`, `AppPlatformManifest` | shipping |
+| Shared Core | `after_core` | `AfterAuthRepository`, `AfterAiCredentialVault`, `AfterAnalytics`, `AfterApiClient`, `AfterDeepLinkService`, `AfterFeatureFlags`, `AfterLogger`, `AfterLocalNotifications`, `AfterRemotePush`, `AfterPreferences`, `AfterSecureStorage`, `AfterSubscriptionVerifier`, `AppPlatformManifest`, `AfterUserBlobSyncPort`, `AfterUserMediaSyncPort`, `AfterCloudBackupSnapshot`, `AfterPrefsMigration` | shipping |
+| Shared money + offer provenance | `after_core` | `AfterMoney`, `AfterPriceBreakdown`, `AfterOfferSource`, `AfterDataFreshness`, `AfterCommercialDisclosure` | shipping |
+| Shared Firebase adapters | `after_firebase` | `AfterFirebaseBootstrap`, `FirebaseAfterAuthRepository`, `FirestoreAfterUserBlobSync`, `FirebaseAfterUserMediaSync` | shipping |
 | Shared Design System | `after_design_system` | tokens + `AfterTheme`, `AfterScaffold`, `AfterCard`, `AfterAppBar`, `AfterNavigation` | shipping |
 | Shared Authentication | `after_core` | `AfterAuthRepository`, `PrefsGoogleAuthRepository`, `AfterSuperAdmin` | shipping |
 | Shared Dashboard Engine | `after_core` + `after_design_system` | `DashboardEngine`, `DashboardLayout`, `hydrateDashboardEngine`, `AfterDashboard` — see [DASHBOARD_ENGINE.md](DASHBOARD_ENGINE.md) | shipping |
@@ -57,7 +59,7 @@ Hub widgets. SuperAI is Hub AI branding, not a peer entry app.
 | Module | Package | Ports / classes | Status |
 |--------|---------|-----------------|--------|
 | **After Hub (OS shell)** | `after_hub` (product) + fabric | Home / Calendar / Apps / AI / More; federated Hub widgets — [AFTER_HUB.md](AFTER_HUB.md) · ADR-019 | expand |
-| Consumer Shell + Catalog | `after_consumer` | `ConsumerCoreFeatureId`, `ConsumerVerticalFeature` | shipping |
+| Consumer Shell + Catalog | `after_consumer` | `ConsumerCoreFeatureId`, `ConsumerVerticalFeature`, `FamilyAuthGate`, `FamilyCloudSyncController`, `AfterCloudBackupController`, `ConsumerAfterIdBridge` | shipping |
 | Shared Membership | `after_consumer` (+ `after_core` premium) | `ConsumerMembership`, `AfterEntitlement`, `AfterUserPlan` | shipping |
 | Personal Vault | `after_consumer` | `PersonalVaultItem`, `PersonalVaultRepository` | shipping |
 | Consumer App Template | `templates/super_app_consumer/` | scaffold blueprint + `spec.hub` | expand |

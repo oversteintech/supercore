@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:after_core/after_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,7 +8,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'after_launch_consent.dart';
 import 'after_launch_consent_strings.dart';
 import 'after_location_permission.dart';
+import '../family/family_country_controller.dart';
 import '../location/after_current_locality.dart';
+import '../location/after_regional_location_apply.dart';
 
 class AfterPermissionConsentScreen extends ConsumerStatefulWidget {
   const AfterPermissionConsentScreen({
@@ -39,6 +42,13 @@ class _AfterPermissionConsentScreenState
       await AfterLocationPermission.requestIfConsented();
       // Shell header locality resolves after OS grant.
       ref.invalidate(afterCurrentLocalityProvider);
+      // Soft-seed country once — never rewrites sticky language.
+      final prefs = ref.read(afterSharedPreferencesProvider);
+      unawaited(
+        AfterRegionalLocationApply.seedCountryIfEmpty(prefs: prefs).then((_) {
+          ref.invalidate(afterCountryCodeProvider);
+        }),
+      );
     }
     if (mounted) widget.onAccepted();
   }

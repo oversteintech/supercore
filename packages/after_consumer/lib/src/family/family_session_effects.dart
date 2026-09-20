@@ -4,6 +4,7 @@ import 'package:after_core/after_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'after_cloud_backup.dart';
 import 'family_cloud_sync.dart';
 import 'family_profile_identity.dart';
 
@@ -24,6 +25,7 @@ class FamilySessionEffects extends ConsumerStatefulWidget {
 class _FamilySessionEffectsState extends ConsumerState<FamilySessionEffects> {
   String? _restoredForUid;
   String? _hydratedForUid;
+  String? _backupRestoredForUid;
 
   @override
   Widget build(BuildContext context) {
@@ -36,12 +38,21 @@ class _FamilySessionEffectsState extends ConsumerState<FamilySessionEffects> {
       if (session == null || !session.isAuthenticated || uid == null) {
         _restoredForUid = null;
         _hydratedForUid = null;
+        _backupRestoredForUid = null;
         return;
       }
       if (_restoredForUid != uid) {
         _restoredForUid = uid;
         unawaited(
           ref.read(familyCloudSyncProvider.notifier).restoreFromCloudIfEmpty(),
+        );
+      }
+      if (_backupRestoredForUid != uid) {
+        _backupRestoredForUid = uid;
+        unawaited(
+          ref
+              .read(afterCloudBackupProvider.notifier)
+              .restoreFromCloudIfEmpty(),
         );
       }
       if (_hydratedForUid != uid) {

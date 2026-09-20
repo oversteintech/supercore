@@ -6,13 +6,18 @@ import 'package:flutter/material.dart';
 ///
 /// Put premium theme children under this accordion — never as a flat chip row
 /// beside Light/Dark.
-class AfterPremiumThemesAccordion extends StatelessWidget {
+///
+/// When collapsed, only the title shows on the banner (no subtitle). Expanding
+/// reveals the subtitle plus the theme tiles.
+class AfterPremiumThemesAccordion extends StatefulWidget {
   const AfterPremiumThemesAccordion({
     required this.title,
     required this.subtitle,
     required this.locked,
     required this.children,
     this.initiallyExpanded = false,
+    this.controller,
+    this.expansionStorageId,
     super.key,
   });
 
@@ -21,27 +26,58 @@ class AfterPremiumThemesAccordion extends StatelessWidget {
   final bool locked;
   final bool initiallyExpanded;
   final List<Widget> children;
+  final ExpansibleController? controller;
+  final String? expansionStorageId;
+
+  @override
+  State<AfterPremiumThemesAccordion> createState() =>
+      _AfterPremiumThemesAccordionState();
+}
+
+class _AfterPremiumThemesAccordionState
+    extends State<AfterPremiumThemesAccordion> {
+  late bool _expanded;
+
+  @override
+  void initState() {
+    super.initState();
+    _expanded = widget.initiallyExpanded;
+  }
+
+  @override
+  void didUpdateWidget(covariant AfterPremiumThemesAccordion oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initiallyExpanded != widget.initiallyExpanded &&
+        widget.controller == null) {
+      _expanded = widget.initiallyExpanded;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
-        initiallyExpanded: initiallyExpanded,
+        controller: widget.controller,
+        initiallyExpanded: widget.initiallyExpanded,
         maintainState: false,
         tilePadding: EdgeInsets.zero,
         childrenPadding: const EdgeInsets.only(top: 12),
         showTrailingIcon: false,
+        onExpansionChanged: (expanded) {
+          setState(() => _expanded = expanded);
+        },
         title: AfterPremiumThemesBanner(
-          title: title,
-          subtitle: subtitle,
-          locked: locked,
+          title: widget.title,
+          subtitle: widget.subtitle,
+          locked: widget.locked,
+          showSubtitle: _expanded,
         ),
         children: [
           ClipRect(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: children,
+              children: widget.children,
             ),
           ),
         ],
@@ -59,12 +95,16 @@ class AfterPremiumThemesBanner extends StatefulWidget {
     required this.title,
     required this.subtitle,
     required this.locked,
+    this.showSubtitle = true,
     super.key,
   });
 
   final String title;
   final String subtitle;
   final bool locked;
+
+  /// When false (collapsed accordion), only the title is shown.
+  final bool showSubtitle;
 
   static const _silverMid = Color(0xFFB8BEC6);
 
@@ -97,6 +137,7 @@ class AfterPremiumThemesBanner extends StatefulWidget {
 class _AfterPremiumThemesBannerState extends State<AfterPremiumThemesBanner>
     with SingleTickerProviderStateMixin {
   late final AnimationController _frameController;
+  bool _reduceMotion = false;
 
   @override
   void initState() {
@@ -104,7 +145,26 @@ class _AfterPremiumThemesBannerState extends State<AfterPremiumThemesBanner>
     _frameController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 14),
-    )..repeat();
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final reduce = MediaQuery.disableAnimationsOf(context);
+    if (reduce == _reduceMotion) {
+      if (!reduce && !_frameController.isAnimating) {
+        _frameController.repeat();
+      }
+      return;
+    }
+    _reduceMotion = reduce;
+    if (reduce) {
+      _frameController.stop();
+      _frameController.value = 0;
+    } else {
+      _frameController.repeat();
+    }
   }
 
   @override
@@ -122,6 +182,7 @@ class _AfterPremiumThemesBannerState extends State<AfterPremiumThemesBanner>
     final frame = isDark
         ? AfterPremiumThemesBanner._frameGradientLight
         : AfterPremiumThemesBanner._frameGradientDark;
+    final spin = _reduceMotion ? 0.0 : _frameController.value;
 
     return AnimatedBuilder(
       animation: _frameController,
@@ -131,7 +192,7 @@ class _AfterPremiumThemesBannerState extends State<AfterPremiumThemesBanner>
             borderRadius: BorderRadius.circular(16),
             gradient: SweepGradient(
               colors: frame,
-              transform: GradientRotation(_frameController.value * 2 * math.pi),
+              transform: GradientRotation(spin * 2 * math.pi),
             ),
             boxShadow: [
               BoxShadow(
@@ -169,6 +230,9 @@ class _AfterPremiumThemesBannerState extends State<AfterPremiumThemesBanner>
                   children: [
                     Text(
                       widget.title,
+                      maxLines: 2,
+                      softWrap: true,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -176,16 +240,22 @@ class _AfterPremiumThemesBannerState extends State<AfterPremiumThemesBanner>
                         height: 1.15,
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      widget.subtitle,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: text.withValues(alpha: 0.72),
-                        height: 1.2,
+                    if (widget.showSubtitle &&
+                        widget.subtitle.trim().isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        widget.subtitle,
+                        maxLines: 3,
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: text.withValues(alpha: 0.72),
+                          height: 1.2,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),

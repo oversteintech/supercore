@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'family_ui_strings.dart';
 
-/// Shared ICE (In Case of Emergency) profile — Garage-parity fields for every
+/// Shared ICE (In Case of Emergency) profile, Garage-parity fields for every
 /// Super App. Stored locally; cloud sync is product-specific later.
 @immutable
 class FamilyEmergencyProfile {

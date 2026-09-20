@@ -7,3 +7,5 @@ analyzer:
     comment_references: ignore
     prefer_initializing_formals: ignore
     always_use_package_imports: ignore
+  exclude:
+    - build/**

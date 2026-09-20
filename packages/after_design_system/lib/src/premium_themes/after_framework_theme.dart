@@ -24,7 +24,7 @@ abstract final class AfterFrameworkTheme {
           accentOverride: accentOverride,
           typography: AfterTypography.garage,
         ),
-        SuperGarageTheme.dark,
+        SuperGarageTheme.darkNight,
         dark: true,
       );
 
@@ -32,38 +32,30 @@ abstract final class AfterFrameworkTheme {
     final after = dark
         ? AfterTheme.dark(typography: AfterTypography.garage)
         : AfterTheme.light(typography: AfterTypography.garage);
-    // Prefer product ThemeData textTheme (Garage MountainView hierarchy) as
-    // the Material source of truth; After* widgets read matching garage tokens.
-    return productTheme.copyWith(
-      extensions: [after],
-    );
+    // copyWith(extensions:) replaces the whole set — merge After + product.
+    final merged = List<ThemeExtension<dynamic>>.from(
+      productTheme.extensions.values,
+    )..add(after);
+    return productTheme.copyWith(extensions: merged);
   }
 
   static ThemeData forStyle(
     AfterThemeStyle style, {
     Color? accentOverride,
   }) {
-    return switch (style) {
-      AfterThemeStyle.racingRed =>
-        attach(SuperGarageTheme.racingRed, dark: true),
-      AfterThemeStyle.racingBlue =>
-        attach(SuperGarageTheme.racingBlue, dark: false),
-      AfterThemeStyle.darkNight =>
-        attach(SuperGarageTheme.darkNight, dark: true),
-      AfterThemeStyle.forestGreen =>
-        attach(SuperGarageTheme.forestGreen, dark: true),
-      AfterThemeStyle.silverGrey =>
-        attach(SuperGarageTheme.silverGrey, dark: false),
-      AfterThemeStyle.blossomPink =>
-        attach(SuperGarageTheme.blossomPink, dark: false),
-      AfterThemeStyle.brightGold =>
-        attach(SuperGarageTheme.brightGold, dark: false),
-      AfterThemeStyle.diamond => attach(SuperGarageTheme.diamond, dark: true),
-      AfterThemeStyle.royal => attach(SuperGarageTheme.royal, dark: true),
-      AfterThemeStyle.dark => darkBase(accentOverride: accentOverride),
-      AfterThemeStyle.system || AfterThemeStyle.light =>
-        lightBase(accentOverride: accentOverride),
-    };
+    final resolved = style.canonical;
+    if (accentOverride != null &&
+        (resolved == AfterThemeStyle.light ||
+            resolved == AfterThemeStyle.darkNight)) {
+      return resolved == AfterThemeStyle.darkNight
+          ? darkBase(accentOverride: accentOverride)
+          : lightBase(accentOverride: accentOverride);
+    }
+    final product = AfterPremiumThemeResolver.themeData(resolved);
+    return attach(
+      product,
+      dark: product.brightness == Brightness.dark,
+    );
   }
 
   static ThemeData _mergeProduct(
@@ -74,6 +66,9 @@ abstract final class AfterFrameworkTheme {
     final afterExt = dark
         ? AfterTheme.dark(typography: AfterTypography.garage)
         : AfterTheme.light(typography: AfterTypography.garage);
+    final merged = List<ThemeExtension<dynamic>>.from(
+      product.extensions.values,
+    )..add(afterExt);
     return after.copyWith(
       colorScheme: product.colorScheme,
       scaffoldBackgroundColor: product.scaffoldBackgroundColor,
@@ -83,7 +78,9 @@ abstract final class AfterFrameworkTheme {
       textTheme: product.textTheme,
       primaryTextTheme: product.primaryTextTheme,
       tabBarTheme: product.tabBarTheme,
-      extensions: [afterExt],
+      listTileTheme: product.listTileTheme,
+      filledButtonTheme: product.filledButtonTheme,
+      extensions: merged,
     );
   }
 }

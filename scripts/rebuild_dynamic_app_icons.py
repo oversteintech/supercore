@@ -61,7 +61,7 @@ def ensure_colors(res: Path) -> None:
         colors.write_text(
             '<?xml version="1.0" encoding="utf-8"?>\n'
             "<resources>\n"
-            '    <color name="ic_launcher_background">#000000</color>\n'
+            '    <color name="ic_launcher_background">#FFFFFF</color>\n'
             '    <color name="ic_launcher_background_white">#FFFFFF</color>\n'
             "</resources>\n",
             encoding="utf-8",
@@ -77,7 +77,7 @@ def ensure_colors(res: Path) -> None:
     if 'name="ic_launcher_background"' not in text:
         text = colors.read_text(encoding="utf-8").replace(
             "<resources>",
-            '<resources>\n    <color name="ic_launcher_background">#000000</color>',
+            '<resources>\n    <color name="ic_launcher_background">#FFFFFF</color>',
         )
         colors.write_text(text, encoding="utf-8")
 

@@ -26,3 +26,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/branding/overstein_logo_mark.png
+    - assets/branding/super_app_icons/
+    - assets/branding/super_app_concepts/
+    - assets/product_icons/

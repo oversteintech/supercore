@@ -44,6 +44,7 @@ export 'src/premium_themes/overstein_brand_colors.dart';
 
 // OVERSTEIN company branding (identical splash across every Super App)
 export 'src/branding/overstein_logo.dart';
+export 'src/branding/overstein_animated_mark.dart';
 export 'src/branding/overstein_company_splash.dart'
     show
         AfterLaunchShell,

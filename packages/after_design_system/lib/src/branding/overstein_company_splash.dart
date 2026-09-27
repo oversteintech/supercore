@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../premium_themes/overstein_brand_colors.dart';
-import 'overstein_logo.dart';
+import 'overstein_animated_mark.dart';
 
-/// Fixed OVERSTEIN company intro — slow premium illuminate, then hold.
+/// Fixed OVERSTEIN company intro — the overstein.com animated OS mark (ring
+/// draws in, letters rise, ring spins continuously), then hold.
 ///
 /// Shared across every Super App — black screen, OS mark only (no wordmark,
 /// mission line, or product branding).
@@ -21,14 +22,14 @@ import 'overstein_logo.dart';
 /// - Motion stays on-UI-thread only (Ticker); no network / disk in paint
 /// - Always completes via [onComplete] or [hardTimeout]
 abstract final class OversteinCompanySplashTiming {
-  /// End-to-end splash runtime (illuminate + hold).
+  /// End-to-end splash runtime (mark entrance + hold).
   static const Duration hold = Duration(milliseconds: 5000);
 
   /// Alias used by cold-start / ANR tests.
   static const Duration total = hold;
 
-  /// Slow dark → bright reveal occupies most of [total].
-  static const Duration illuminate = Duration(milliseconds: 3600);
+  /// Ring draw + letter rise; the ring keeps spinning for the rest of [total].
+  static const Duration illuminate = OversteinAnimatedMark.entranceDuration;
 
   /// Absolute ceiling so splash can never stick.
   static const Duration hardTimeout = Duration(milliseconds: 8000);
@@ -52,7 +53,7 @@ abstract final class OversteinCompanySplashStore {
       prefs.remove(seenKey);
 }
 
-/// Black-screen company card: slow illuminate + OS mark only.
+/// Black-screen company card: animated OS mark only.
 ///
 /// Shows only on first install (until [OversteinCompanySplashStore] marks seen).
 class OversteinCompanySplash extends StatefulWidget {
@@ -74,8 +75,7 @@ class OversteinCompanySplash extends StatefulWidget {
   State<OversteinCompanySplash> createState() => _OversteinCompanySplashState();
 }
 
-class _OversteinCompanySplashState extends State<OversteinCompanySplash>
-    with SingleTickerProviderStateMixin {
+class _OversteinCompanySplashState extends State<OversteinCompanySplash> {
   var _completed = false;
   var _visible = false;
   Timer? _holdTimer;
@@ -83,25 +83,10 @@ class _OversteinCompanySplashState extends State<OversteinCompanySplash>
   SharedPreferences? _prefs;
   final _startedAt = Stopwatch();
 
-  late final AnimationController _controller;
-  late final Animation<double> _illuminate;
-
   @override
   void initState() {
     super.initState();
     _startedAt.start();
-    _controller = AnimationController(
-      vsync: this,
-      duration: OversteinCompanySplashTiming.total,
-    );
-    // Slow ease: dark → bright over most of the 5s, then rest at full.
-    final illuminateEnd =
-        OversteinCompanySplashTiming.illuminate.inMilliseconds /
-        OversteinCompanySplashTiming.total.inMilliseconds;
-    _illuminate = CurvedAnimation(
-      parent: _controller,
-      curve: Interval(0, illuminateEnd.clamp(0.5, 0.9), curve: Curves.easeInOutCubic),
-    );
     unawaited(_start());
   }
 
@@ -124,7 +109,6 @@ class _OversteinCompanySplashState extends State<OversteinCompanySplash>
     }
 
     setState(() => _visible = true);
-    unawaited(_controller.forward());
 
     final remaining = OversteinCompanySplashTiming.hold - _startedAt.elapsed;
     _holdTimer = Timer(
@@ -138,7 +122,6 @@ class _OversteinCompanySplashState extends State<OversteinCompanySplash>
   void dispose() {
     _holdTimer?.cancel();
     _hardTimeout?.cancel();
-    _controller.dispose();
     super.dispose();
   }
 
@@ -167,57 +150,10 @@ class _OversteinCompanySplashState extends State<OversteinCompanySplash>
       );
     }
 
-    return Scaffold(
+    return const Scaffold(
       backgroundColor: Colors.black,
-      body: AnimatedBuilder(
-        animation: _illuminate,
-        builder: (context, child) {
-          final t = _illuminate.value;
-          // Cinematic dark → light: veil lifts slowly while mark gains presence.
-          final presence = 0.18 + (0.82 * t);
-          final veil = (1.0 - t) * 0.88;
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              Opacity(
-                opacity: presence.clamp(0.0, 1.0),
-                child: child,
-              ),
-              IgnorePointer(
-                child: ColoredBox(
-                  color: Colors.black.withValues(alpha: veil.clamp(0.0, 1.0)),
-                ),
-              ),
-            ],
-          );
-        },
-        child: const _StaticSplashBody(),
-      ),
-    );
-  }
-}
-
-class _StaticSplashBody extends StatelessWidget {
-  const _StaticSplashBody();
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Center(
-        child: Image.asset(
-          AfterBrandingAssets.oversteinLogoMark,
-          package: AfterBrandingAssets.packageName,
-          width: 104,
-          height: 104,
-          fit: BoxFit.contain,
-          filterQuality: FilterQuality.high,
-          gaplessPlayback: true,
-          errorBuilder: (_, _, _) => const Icon(
-            Icons.hexagon_outlined,
-            size: 75,
-            color: Colors.white70,
-          ),
-        ),
+      body: SafeArea(
+        child: Center(child: OversteinAnimatedMark()),
       ),
     );
   }

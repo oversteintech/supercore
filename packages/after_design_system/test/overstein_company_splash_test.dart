@@ -43,7 +43,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 50));
       expect(completed, isTrue);
-      expect(find.byType(Image), findsNothing);
+      expect(find.byType(OversteinAnimatedMark), findsNothing);
     });
 
     testWidgets('first install shows mark only — no wordmark or mission copy', (
@@ -65,7 +65,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 50));
       expect(completed, isFalse);
-      expect(find.byType(Image), findsOneWidget);
+      expect(find.byType(OversteinAnimatedMark), findsOneWidget);
       // Contract: black + OS mark only. Never reintroduce splash text.
       expect(find.byType(Text), findsNothing);
       expect(find.byType(RichText), findsNothing);
@@ -101,7 +101,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 20));
       expect(completions, 0);
-      expect(find.byType(Image), findsOneWidget);
+      expect(find.byType(OversteinAnimatedMark), findsOneWidget);
       expect(find.byType(Text), findsNothing);
       expect(find.text('OVERSTEIN'), findsNothing);
       await tester.pump(

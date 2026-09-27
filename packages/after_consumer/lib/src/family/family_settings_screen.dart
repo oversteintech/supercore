@@ -22,8 +22,8 @@ import 'family_member_id.dart';
 /// Garage-parity settings body used as the rightmost MainShell tab.
 ///
 /// Sections: Profile · Emergency · Region & language · Theme ·
-/// Subscription · Early access · Other information (Privacy · Security ·
-/// Help/FAQ · About) · Sign out · Delete account.
+/// Subscription · Other information (Privacy · Security · Help/FAQ · About) ·
+/// Sign out · Delete account.
 ///
 /// Product walkthrough is first-run only (AuthGate / FeatureTour), not replayed
 /// from Settings.
@@ -48,7 +48,6 @@ class FamilySettingsScreen extends ConsumerWidget {
     this.onSignOut,
     this.onAccountDeletionFeedback,
     this.onManageSubscription,
-    this.showEarlyAccessSection = true,
     this.premiumThemePromo,
     this.beforeAccountActions,
     super.key,
@@ -88,7 +87,6 @@ class FamilySettingsScreen extends ConsumerWidget {
   final Future<void> Function(String feedback)? onAccountDeletionFeedback;
 
   final Future<void> Function()? onManageSubscription;
-  final bool showEarlyAccessSection;
   final FamilyThemePromo? Function(AfterThemeStyle style)? premiumThemePromo;
   final List<Widget> Function(BuildContext context, WidgetRef ref)?
       beforeAccountActions;
@@ -381,47 +379,6 @@ class FamilySettingsScreen extends ConsumerWidget {
             ],
           ),
         ),
-        if (showEarlyAccessSection) ...[
-        const AfterSettingsSectionGap(),
-        AfterSettingsSection(
-          title: s('early_user'),
-          subtitle: s('early_user_sub'),
-          icon: Icons.rocket_launch_rounded,
-          child: Column(
-            children: [
-              ListTile(
-                contentPadding: AfterSettingsMenuMetrics.tilePadding,
-                minVerticalPadding: AfterSettingsMenuMetrics.minVerticalPadding,
-                leading: const Icon(Icons.rocket_launch_rounded),
-                title: Text(s('early_access')),
-                subtitle: Text(
-                  membership.isSuperAdmin
-                      ? s('early_access_admin')
-                      : s('early_access_user'),
-                ),
-              ),
-              AfterSettingsMenuMetrics.divider,
-              ListTile(
-                contentPadding: AfterSettingsMenuMetrics.tilePadding,
-                minVerticalPadding: AfterSettingsMenuMetrics.minVerticalPadding,
-                leading: const Icon(Icons.mail_outline_rounded),
-                title: Text(s('join_inquire')),
-                subtitle: Text(config.supportEmail),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => _info(
-                  context,
-                  s('early_user'),
-                  s('early_user_body', args: {
-                    'email': config.supportEmail,
-                    'app': config.appName,
-                  }),
-                  locale: locale,
-                ),
-              ),
-            ],
-          ),
-        ),
-        ],
         const AfterSettingsSectionGap(),
         AfterSettingsSection(
           title: s('other_information'),
